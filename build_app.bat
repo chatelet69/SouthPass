@@ -1,0 +1,2 @@
+@echo off
+start /B cmake -DCMAKE_C_FLAGS=-I"C:/mingw64/include" -DCMAKE_EXE_LINKER_FLAGS=-L"C:/mingw64/lib" -B ./test-build -G "MinGW Makefiles" && cd ./test-build && mingw32-make.exe && copy app.exe .. && exit

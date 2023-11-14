@@ -1,0 +1,7 @@
+*.exe
+cmake-build-debug/
+.vscode
+.idea
+test
+test-build
+config/creds.txt
