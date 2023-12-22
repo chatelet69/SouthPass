@@ -1,4 +1,4 @@
-# BozoC
-Projet en C
+# SouthPass
+Graphic App (Password manager) for a C project
 
-Ajouter un fichier creds.txt dans le dossier config afin de paramétrer la base de données
+Add creds.txt if needed
