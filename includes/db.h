@@ -6,5 +6,6 @@
 MYSQL *dbConnect();
 void closeDb(MYSQL *);
 int dbGet(MYSQL *, char *);
+int putData(MYSQL *dbCon, char *sqlQuery);
 
 #endif
