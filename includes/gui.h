@@ -1,11 +1,25 @@
 #ifndef _GUI_HEADS_FILE
 #define _GUI_HEADS_FILE
 
-#include <gtk/gtk.h>
+#include <QObject>
+#include <QApplication>
+#include <QPushButton>
+#include <QMainWindow>
 
-static void widgetClickEvent(GtkWidget *, gpointer );
-void buttonClickEvent(GtkButton *, gpointer );
-static void activate(GtkApplication *, gpointer );
-int showGuiApp(int, char **);
+#define BUTTON_MAX_WIDTH 150
+#define BUTTON_MAX_HEIGHT 50
+
+class GuiService : public QObject {
+    public:
+        GuiService(int argc, char **argv);
+        ~GuiService();
+
+        int run();
+
+    private:
+        QApplication app;
+        QMainWindow mainWindow;
+        QPushButton helloButton;
+};
 
 #endif
