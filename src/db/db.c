@@ -8,15 +8,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <mysql.h>
 #include <string.h>
 #include "../../includes/db.h"
 
 MYSQL *dbConnect() {
-    char *host = "remplacer";
-    char *user = "remplacer";
-    char *dbName = "remplacer";
-    char *password = "remplacer";
+    const char *host = "";
+    const char *user = "";
+    const char *dbName = "southpass";
+    const char *password = "";
     MYSQL *dbCon;
 
 //    printf("MySQL client version: %s\n", mysql_get_client_info());
@@ -38,7 +37,6 @@ MYSQL *dbConnect() {
 void closeDb(MYSQL *dbCon) {
     mysql_close(dbCon);
 }
-
 
 // Fonction de récupération 
 int dbGet(MYSQL *dbCon, char *sqlQuery) {      

@@ -6,3 +6,5 @@ test
 test-build
 config/creds.txt
 CMakeLists.txt
+linux-build
+app
