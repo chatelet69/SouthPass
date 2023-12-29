@@ -1,0 +1,57 @@
+/* Dark Mode Main Window */
+
+QMainWindow {
+    background-color: rgb(187, 221, 233);
+}
+
+QApplication {
+    border-color: red;
+}
+
+#searchButton {
+    background-color: rgb(230, 188, 188);
+    border-radius: 4px;
+    border: 2px solid black;
+    color: white;
+    margin: 10px;
+}
+
+#searchButton:hover {
+    background-color: red;
+    border-color: aqua;
+}
+
+/* Creds Widget */
+
+#credsWidget {
+    border: 2px solid black;
+    border-radius: 5px;
+    background-color: rgb(72, 113, 160);
+}
+
+#credBox {
+    border: 2px solid rgb(60, 67, 73);
+    border-radius: 16px;
+}
+
+#credDetailsBox {
+    text-align: center;
+    /*border: 2px solid red;*/
+}
+
+#credDetailsBox QLabel {
+    background-color: rgba(255, 255, 255, 0.795);
+    border: 1px solid rgb(167, 167, 167);
+    border-radius: 8px;
+    padding: 5px;
+}
+
+#editCredButton {
+    background-color: rgb(55, 72, 85);
+    border: 1px solid rgb(55, 72, 85);
+    border-radius: 8px;
+    color: white;
+    height: 25px;
+    top: 20px;
+    margin-top: 10%;
+}

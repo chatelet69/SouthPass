@@ -10,8 +10,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(LINK_DIRECTORIES "C:/mingw64/lib")
     set(MSYS_INCLUDE_DIRECTORIES ${MSYS2_PATH}/mingw64/include)
     set(MSYS_LINK_DIRECTORIES ${MSYS2_PATH}/mingw64/lib)
-    set(GTK_INCLUDE_DIR ${MSYS2_PATH}/mingw64/include/gtk-4.0)
-    set(GLIB_CONFIG_DIR ${MSYS2_PATH}/mingw64/lib/glib-2.0/include)
 
     include_directories(INCLUDE_DIRECTORIES)
     include_directories(${MSYS_INCLUDE_DIRECTORIES})
@@ -64,7 +62,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LIBMYSQLCLIENT REQUIRED mysqlclient)
     find_package(CURL REQUIRED)
-    pkg_check_modules(GTK REQUIRED gtk4)
 
     add_definitions(-DQT_NO_KEYWORDS)
     find_package(Qt6 COMPONENTS Widgets REQUIRED)
@@ -76,10 +73,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     endforeach()
 
     link_directories(${LIBMYSQLCLIENT_LIBRARY_DIRS})
-
-    target_include_directories(app PRIVATE ${GTK_INCLUDE_DIRS})
-    target_link_libraries(app PRIVATE ${GTK_LIBRARIES})
-    target_compile_options(app PRIVATE ${GTK_CFLAGS_OTHER})
 
     target_include_directories(app PRIVATE ${LIBMYSQLCLIENT_INCLUDE_DIRS})
     target_link_libraries(app PRIVATE ${LIBMYSQLCLIENT_LIBRARIES})
