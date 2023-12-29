@@ -18,10 +18,13 @@ class GuiService : public QObject {
         ~GuiService();
 
         int run();
+        void changeTheme();
 
     private:
+        char isDark;
         QApplication app;
         QMainWindow mainWindow;
+        MYSQL *dbCon;
         CredentialsWidget *credentialsWidget;
 };
 

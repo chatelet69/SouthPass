@@ -1,7 +1,7 @@
 /* LightMode */ 
 
 QMainWindow {
-    background-color: lightblue;
+    background-color: rgb(216, 224, 226);
 }
 
 QApplication {

@@ -1,7 +1,7 @@
 /* Dark Mode Main Window */
 
 QMainWindow {
-    background-color: rgb(187, 221, 233);
+    background-color: rgb(127, 161, 173);
 }
 
 QApplication {
