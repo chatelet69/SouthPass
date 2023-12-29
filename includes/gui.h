@@ -3,8 +3,11 @@
 
 #include <QObject>
 #include <QApplication>
-#include <QPushButton>
 #include <QMainWindow>
+#include "./gui_widgets.h"
+
+#define WINDOW_MIN_WIDTH 400
+#define WINDOW_MIN_HEIGHT 400
 
 #define BUTTON_MAX_WIDTH 150
 #define BUTTON_MAX_HEIGHT 50
@@ -19,7 +22,7 @@ class GuiService : public QObject {
     private:
         QApplication app;
         QMainWindow mainWindow;
-        QPushButton helloButton;
+        CredentialsWidget *credentialsWidget;
 };
 
 #endif

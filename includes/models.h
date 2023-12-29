@@ -1,0 +1,17 @@
+#ifndef _MODELS_HEAD_FILE
+#define _MODELS_HEAD_FILE
+
+typedef struct Credentials Credentials;
+struct Credentials {
+    int id;
+    char *name;
+    char *loginName;
+    char *password;
+};
+
+typedef struct {
+    Credentials *creds;
+    unsigned int size;
+} CredsArray;
+
+#endif

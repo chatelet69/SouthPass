@@ -1,8 +1,7 @@
 #ifndef _INCLUDES_HEAD_FILE
 #define _INCLUDES_HEAD_FILE
 
-#ifndef _WIN32
-#else
+#ifdef _WIN32
 #include <winsock2.h>
 #include <Windows.h>
 #include <winbase.h>
@@ -11,5 +10,8 @@
 #include "../includes/web_service.h"
 #include "../includes/gui.h"
 #include "../includes/utils.h"
+#include "../includes/controler.h"
+#include "../includes/gui_widgets.h"
+#include "./models.h"
 
 #endif
