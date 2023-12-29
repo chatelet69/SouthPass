@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../../includes/db.h"
+#include "../../includes/utils.h"
 
 // Fonction de récupération 
 int getData(MYSQL *dbCon, char *sqlQuery) {      
@@ -46,9 +47,6 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
             char numFields = mysql_num_fields(resData);
             unsigned int rowsCount = mysql_num_rows(resData);
             MYSQL_ROW row;
-            //MYSQL_FIELD *column;
-            //MYSQL_FIELD *fields = mysql_fetch_fields(resData);
-            //for (int col = 0; col < numFields; col++) printf("%s\t", fields[col].name);
 
             if (rowsCount > 0) {
                 int cred = 0;
@@ -71,6 +69,25 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
     }
     
     return credsArray;
+}
+
+int createNewCreds(MYSQL *dbCon, Credentials creds) {
+    if (creds.id == 0) return EXIT_FAILURE;
+    int initialSize = sizeof("INSERT INTO pswd_stock (userId,name,loginName,password) VALUES ()");
+    int userIdSize = getSizeInString(creds.id);
+    int totalSize = initialSize + (sizeof(creds.loginName) + sizeof(creds.name) + sizeof(creds.password) + userIdSize);
+    char *sqlQuery = (char *) malloc(totalSize * sizeof(char));
+
+    sprintf(sqlQuery, 
+            "INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (%d, '%s', '%s', '%s');", 
+            creds.id, creds.name, creds.loginName, creds.password);
+
+    if (mysql_query(dbCon, sqlQuery) != 0) {
+        fprintf(stderr, "Query Failure\n");
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
 
 int putData(MYSQL *dbCon, char *sqlQuery) {
