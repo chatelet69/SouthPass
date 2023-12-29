@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../../includes/db.h"
 
 // Fonction de récupération 
@@ -26,6 +27,50 @@ int getData(MYSQL *dbCon, char *sqlQuery) {
     }
     
     return EXIT_SUCCESS;
+}
+
+CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
+    CredsArray credsArray;
+    credsArray.size = 0;
+    credsArray.creds = NULL;
+    const char *sqlQuery = "SELECT id,name,loginName,password FROM pswd_stock WHERE userId = 1";
+    
+    if (mysql_query(dbCon, sqlQuery) != 0) {
+        fprintf(stderr, "Query Failure\n");
+        return credsArray;
+    } else {
+        MYSQL_RES *resData = mysql_store_result(dbCon);
+        if (resData == NULL) {
+            fprintf(stderr, "No data\n");
+        } else {
+            char numFields = mysql_num_fields(resData);
+            unsigned int rowsCount = mysql_num_rows(resData);
+            MYSQL_ROW row;
+            //MYSQL_FIELD *column;
+            //MYSQL_FIELD *fields = mysql_fetch_fields(resData);
+            //for (int col = 0; col < numFields; col++) printf("%s\t", fields[col].name);
+
+            if (rowsCount > 0) {
+                int cred = 0;
+                credsArray.creds = (Credentials *) malloc(sizeof(Credentials) * rowsCount);
+                credsArray.size = rowsCount;
+                if (credsArray.creds != NULL) {
+                    while ((row = mysql_fetch_row(resData))) {
+                        credsArray.creds[cred].id = atoi(row[0]);
+                        credsArray.creds[cred].name = strdup(row[1]);
+                        credsArray.creds[cred].loginName = strdup(row[2]);
+                        credsArray.creds[cred].password = strdup(row[3]);
+                        //for(int i = 0; i < numFields; i++) printf("| %s |", row[i] ? row[i] : "NULL");
+                        printf("\n");
+                        cred++;
+                    }
+                }
+            }
+            mysql_free_result(resData);
+        }
+    }
+    
+    return credsArray;
 }
 
 int putData(MYSQL *dbCon, char *sqlQuery) {
