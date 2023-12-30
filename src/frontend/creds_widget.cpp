@@ -1,3 +1,8 @@
+/*
+    Filename : creds_widget.cpp
+    Description : Methods and widget for the creds Main Page
+*/
+
 #include <QWidget>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -35,4 +40,19 @@ CredentialsWidget::CredentialsWidget(const CredsArray credsArray, QWidget *paren
     }
 
     setLayout(layout);
+}
+
+CredsFormWidget::CredsFormWidget(QWidget *parent) : QWidget(parent) {
+    QPushButton *closeFormButton = new QPushButton("Annuler");
+    connect(closeFormButton, &QPushButton::clicked, this, &CredsFormWidget::closeForm);
+
+    QLabel *formTitle = new QLabel(QString("Nouveaux identifiants"));
+
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->addWidget(closeFormButton);
+    layout->addWidget(formTitle);
+}
+
+void CredsFormWidget::closeForm() {
+    this->close();
 }
