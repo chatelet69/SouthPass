@@ -1,0 +1,15 @@
+CREATE DATABASE IF NOT EXISTS southpass;
+USE southpass;
+CREATE TABLE IF NOT EXISTS users(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(40) NOT NULL,
+    email VARCHAR(255)
+);
+CREATE TABLE IF NOT EXISTS pswd_stock(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    userId INT NOT NULL,
+    name VARCHAR(150),
+    password VARCHAR(255),
+    loginName VARCHAR(255)
+);
+ALTER TABLE pswd_stock ADD FOREIGN KEY (userId) REFERENCES users (id);
