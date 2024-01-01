@@ -19,8 +19,6 @@ MYSQL *dbConnect() {
     const char *password = dbConfig.password;
     MYSQL *dbCon;
 
-//    printf("MySQL client version: %s\n", mysql_get_client_info());
-
     if ((dbCon = mysql_init(NULL)) == NULL) {
         fprintf(stderr, "Could not init DB\n");
         return NULL;

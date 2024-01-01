@@ -34,7 +34,7 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
     CredsArray credsArray;
     credsArray.size = 0;
     credsArray.creds = NULL;
-    const char *sqlQuery = "SELECT id,name,loginName,password FROM pswd_stock WHERE userId = 1";
+    const char *sqlQuery = "SELECT id,userId,name,loginName,password FROM pswd_stock WHERE userId = 1";
     
     if (mysql_query(dbCon, sqlQuery) != 0) {
         fprintf(stderr, "Query Failure\n");
@@ -55,9 +55,10 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
                 if (credsArray.creds != NULL) {
                     while ((row = mysql_fetch_row(resData))) {
                         credsArray.creds[cred].id = atoi(row[0]);
-                        credsArray.creds[cred].name = strdup(row[1]);
-                        credsArray.creds[cred].loginName = strdup(row[2]);
-                        credsArray.creds[cred].password = strdup(row[3]);
+                        credsArray.creds[cred].userId = atoi(row[1]);
+                        credsArray.creds[cred].name = strdup(row[2]);
+                        credsArray.creds[cred].loginName = strdup(row[3]);
+                        credsArray.creds[cred].password = strdup(row[4]);
                         //for(int i = 0; i < numFields; i++) printf("| %s |", row[i] ? row[i] : "NULL");
                         printf("\n");
                         cred++;
@@ -71,23 +72,35 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
     return credsArray;
 }
 
-int createNewCreds(MYSQL *dbCon, Credentials creds) {
-    if (creds.id == 0) return EXIT_FAILURE;
-    int initialSize = sizeof("INSERT INTO pswd_stock (userId,name,loginName,password) VALUES ()");
-    int userIdSize = getSizeInString(creds.id);
-    int totalSize = initialSize + (sizeof(creds.loginName) + sizeof(creds.name) + sizeof(creds.password) + userIdSize);
-    char *sqlQuery = (char *) malloc(totalSize * sizeof(char));
+int createNewCreds(MYSQL *dbCon, Credentials *creds) {
+    int status = EXIT_FAILURE;
+    if (creds->userId == 0) return status;
+    int size = strlen("INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (?,?,?,?)");
 
-    sprintf(sqlQuery, 
-            "INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (%d, '%s', '%s', '%s');", 
-            creds.id, creds.name, creds.loginName, creds.password);
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, "INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (?,?,?,?)", size) == 0) {
+        MYSQL_BIND params[4];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_LONG;
+        params[0].buffer = &creds->userId;
 
-    if (mysql_query(dbCon, sqlQuery) != 0) {
-        fprintf(stderr, "Query Failure\n");
-        return EXIT_FAILURE;
+        params[1].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[1].buffer = creds->name;
+        params[1].buffer_length = sizeof(creds->name);
+
+        params[2].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[2].buffer = creds->loginName;
+        params[2].buffer_length = sizeof(creds->loginName);
+        
+        params[3].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[3].buffer = creds->password;
+        params[3].buffer_length = sizeof(creds->password);
+        mysql_stmt_bind_param(stmt, params);
+        status = mysql_stmt_execute(stmt);
     }
+    mysql_stmt_close(stmt);
 
-    return EXIT_SUCCESS;
+    return status;
 }
 
 int putData(MYSQL *dbCon, char *sqlQuery) {
