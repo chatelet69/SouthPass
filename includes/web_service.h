@@ -1,8 +1,6 @@
 #ifndef _WEB_SERVICE_HEAD_FILE
 #define _WEB_SERVICE_HEAD_FILE
 
-#include <curl/curl.h>
-
-int getHttpRequest(char *);
+int getHttpRequest(char *url);
 
 #endif

@@ -10,15 +10,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../../includes/db.h"
+#include "../../includes/config_db.h"
 
 MYSQL *dbConnect() {
-    const char *host = "";
-    const char *user = "";
-    const char *dbName = "southpass";
-    const char *password = "";
+    const char *host = dbConfig.host;
+    const char *user = dbConfig.user;
+    const char *dbName = dbConfig.dbname;
+    const char *password = dbConfig.password;
     MYSQL *dbCon;
-
-//    printf("MySQL client version: %s\n", mysql_get_client_info());
 
     if ((dbCon = mysql_init(NULL)) == NULL) {
         fprintf(stderr, "Could not init DB\n");
