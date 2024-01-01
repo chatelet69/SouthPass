@@ -4,28 +4,37 @@
 #include <QObject>
 #include <QApplication>
 #include <QMainWindow>
+#include <QStackedWidget>
+#include "./db.h"
 #include "./gui_widgets.h"
 
-#define WINDOW_MIN_WIDTH 400
+#define applicationName "SouthPass"
+
+#define WINDOW_MIN_WIDTH 475
 #define WINDOW_MIN_HEIGHT 400
 
 #define BUTTON_MAX_WIDTH 150
 #define BUTTON_MAX_HEIGHT 50
 
-class GuiService : public QObject {
+class ApplicationController : public QObject {
     public:
-        GuiService(int argc, char **argv);
-        ~GuiService();
+        ApplicationController(int argc, char **argv);
+        ~ApplicationController();
 
         int run();
-        void changeTheme();
+        void changeTheme(QPushButton *themeButton);
+        QString getStyleSheet();
+
+    public Q_SLOTS:
+        void switchCredsPage();
 
     private:
         char isDark;
         QApplication app;
+        QStackedWidget *stackedWidget;
         QMainWindow mainWindow;
         MYSQL *dbCon;
-        CredentialsWidget *credentialsWidget;
+        CredentialsPage *credsPage;
 };
 
 #endif

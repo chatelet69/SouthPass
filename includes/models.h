@@ -4,6 +4,7 @@
 typedef struct Credentials Credentials;
 struct Credentials {
     int id;
+    int userId;
     char *name;
     char *loginName;
     char *password;

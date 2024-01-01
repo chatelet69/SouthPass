@@ -3,12 +3,18 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QPushButton>
 #include <QVBoxLayout>
-#include "models.h"
+#include "./models.h"
+#include "./db.h"
 
-/*class CredentialsWindow : public QWindow {
+class CredsFormWidget : public QWidget {
+    public:
+        CredsFormWidget(QWidget *parent);
 
-};*/
+    public Q_SLOTS:
+        void closeForm();
+};
 
 class CredentialsWidget : public QWidget {
     public:
@@ -18,12 +24,23 @@ class CredentialsWidget : public QWidget {
         QVBoxLayout *layout;
 };
 
-class CredsFormWidget : public QWidget {
+class CredentialsPage : public QWidget {
     public:
-        CredsFormWidget(QWidget *parent);
+        CredentialsPage(QWidget *parent, MYSQL *dbCon);
+        //~CredentialsPage();
 
     public Q_SLOTS:
-        void closeForm();
+        void showPage();
+        void showCredsForm();
+
+    private Q_SLOTS:
+        //void showCredsForm();
+
+    private: 
+        MYSQL *dbCon;
+        QPushButton newCredsButton;
+        CredsFormWidget *form;
+        CredentialsWidget *credentialsWidget;
 };
 
 #endif
