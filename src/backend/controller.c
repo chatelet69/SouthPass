@@ -17,10 +17,17 @@ void freeCredsArray(CredsArray credsArray) {
     free(credsArray.creds);
 }
 
+void freeCredentialsData(Credentials *creds) {
+    free(creds->name);
+    free(creds->loginName);
+    free(creds->password);
+    free(creds);
+}
+
 void printCreds(Credentials *creds, unsigned int size) {
     if (creds != NULL) {
         for (unsigned int i = 0; i < size; i++) {
-            printf("id : %d\tname : %s\tlogin : %s\tpassword : %s\n", creds[i].id, creds[i].name, creds[i].loginName, creds[i].password);
+            printf("id : %d\tuserId : %d\tname : %s\tlogin : %s\tpassword : %s\n", creds[i].id, creds[i].userId, creds[i].name, creds[i].loginName, creds[i].password);
         }
     } else {
         fprintf(stderr, "creds -> %p\n", creds);
