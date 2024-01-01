@@ -9,15 +9,16 @@ QApplication {
 }
 
 #searchButton {
-    background-color: rgb(230, 188, 188);
+    background-color: rgb(58, 57, 117);
     border-radius: 4px;
+    height: 15px;
     border: 2px solid black;
     color: white;
     margin: 10px;
 }
 
 #searchButton:hover {
-    background-color: red;
+    background-color: rgb(75, 146, 61);
     border-color: aqua;
 }
 

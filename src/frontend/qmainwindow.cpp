@@ -1,6 +1,6 @@
 /*
     Filename : qmainwindow.cpp
-    Description: Controller of the Qt application
+    Description: Qt Application Conroller
 */
 
 #include <QFile>
@@ -9,57 +9,62 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include "../../includes/models.h"
 #include "../../includes/db.h"
 #include "../../includes/pincludes.h"
-
 #define lightModePath "./src/frontend/css/lightMode.css"
 #define darkModePath "./src/frontend/css/darkMode.css"
 
-GuiService::GuiService(int argc,char **argv) : app(argc, argv) {
+ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
     isDark = 1;
     dbCon = dbConnect();
+    stackedWidget = new QStackedWidget(NULL);
     
+    QVBoxLayout *mainLayout = new QVBoxLayout();
     mainWindow.setMinimumSize(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT);
-    mainWindow.setWindowTitle("SouthPass");
-    mainWindow.setCentralWidget(new QWidget());
-    QVBoxLayout *layout = new QVBoxLayout(mainWindow.centralWidget());
+    mainWindow.setWindowTitle(applicationName);
 
-    QPushButton *helloButton = new QPushButton();
-    helloButton->setText(QPushButton::tr("Hello toi"));
-    helloButton->setMaximumSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
-    helloButton->setObjectName("searchButton");
-    connect(helloButton, &QPushButton::clicked, this, &GuiService::changeTheme);
-
-    CredsArray credsArray = getPasswordsList(dbCon, 1);
-    if (credsArray.size > 0) printCreds(credsArray.creds, credsArray.size);
-    credentialsWidget = new CredentialsWidget(credsArray, NULL);
-    credentialsWidget->setObjectName("credsWidget");
-    freeCredsArray(credsArray);
-
-    QFile file(darkModePath);
-    file.open(QFile::ReadOnly | QFile::Text);
-    QString styleSheet = QLatin1String(file.readAll());
-    styleSheet.remove('\n');
-    file.close();
-
+    QString styleSheet = ApplicationController::getStyleSheet();
     app.setStyleSheet(styleSheet);
-    layout->addWidget(helloButton);
-    layout->addWidget(credentialsWidget);
+
+    QPushButton *themeButton = new QPushButton();
+    themeButton->setText(QPushButton::tr("Mettre Light Mode"));
+    themeButton->setMaximumSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
+    themeButton->setObjectName("searchButton");
+    connect(themeButton, &QPushButton::clicked, [=]() {
+        this->changeTheme(themeButton);
+    });
+
+    credsPage = new CredentialsPage(NULL, dbCon);
+    stackedWidget->addWidget(credsPage);
+
+    mainLayout->addWidget(themeButton);
+    mainLayout->addWidget(stackedWidget);
+    QWidget *mainWidget = new QWidget();
+    mainWidget->setLayout(mainLayout);
+    mainWindow.setCentralWidget(mainWidget);
+
+    ApplicationController::switchCredsPage();
+
+    //closeDb(dbCon);
+}
+
+ApplicationController::~ApplicationController() {
+    // Destruction de la classe
     closeDb(dbCon);
 }
 
-GuiService::~GuiService() {
-    // Destruction de la classe
-}
-
-int GuiService::run() {
+int ApplicationController::run() {
     mainWindow.show();
     return app.exec();
 }
 
-void GuiService::changeTheme() {
+void ApplicationController::changeTheme(QPushButton *themeButton) {
     isDark = (isDark) ? 0 : 1;
     QString themeFile = (isDark) ? darkModePath : lightModePath;
+
+    const char *themeName = (isDark) ? "Mettre LightMode" : "Mettre DarkMode";
+    themeButton->setText(QPushButton::tr(themeName));
 
     QFile file(themeFile);
     file.open(QFile::ReadOnly | QFile::Text);
@@ -68,4 +73,17 @@ void GuiService::changeTheme() {
     file.close();
 
     app.setStyleSheet(styleSheet);
+}
+
+QString ApplicationController::getStyleSheet() {
+    QFile file(darkModePath);
+    file.open(QFile::ReadOnly | QFile::Text);
+    QString styleSheet = QLatin1String(file.readAll());
+    styleSheet.remove('\n');
+    file.close();
+    return styleSheet;
+}
+
+void ApplicationController::switchCredsPage() {
+    stackedWidget->setCurrentWidget(credsPage);
 }
