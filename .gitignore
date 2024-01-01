@@ -1,5 +1,6 @@
 *.exe
 cmake-build-debug/
+build/
 .vscode
 .idea
 test
