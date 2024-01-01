@@ -6,8 +6,8 @@ int main(int argc, char **argv)
 {
     int status = EXIT_SUCCESS;
 
-    GuiService guiService(argc, argv);
-    status = guiService.run();
+    ApplicationController ApplicationController(argc, argv);
+    status = ApplicationController.run();
 
     return status;
 }
