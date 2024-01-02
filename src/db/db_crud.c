@@ -60,7 +60,7 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
                         credsArray.creds[cred].loginName = strdup(row[3]);
                         credsArray.creds[cred].password = strdup(row[4]);
                         //for(int i = 0; i < numFields; i++) printf("| %s |", row[i] ? row[i] : "NULL");
-                        printf("\n");
+                        //printf("\n");
                         cred++;
                     }
                 }
