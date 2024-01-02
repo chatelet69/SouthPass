@@ -1,5 +1,5 @@
 /*
-    Filename : qmainwindow.cpp
+    Filename : applicationController.cpp
     Description: Qt Application Conroller
 */
 
@@ -8,12 +8,13 @@
 #include <QString>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QApplication>
 #include <QHBoxLayout>
 #include "../../includes/models.h"
 #include "../../includes/db.h"
 #include "../../includes/pincludes.h"
-#define lightModePath "./src/frontend/css/lightMode.css"
-#define darkModePath "./src/frontend/css/darkMode.css"
+#define lightModePath "./style/lightMode.css"
+#define darkModePath "./style/darkMode.css"
 
 ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
     isDark = 1;
@@ -21,8 +22,6 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     stackedWidget = new QStackedWidget(NULL);
     
     QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainWindow.setMinimumSize(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT);
-    mainWindow.setWindowTitle(applicationName);
 
     QString styleSheet = ApplicationController::getStyleSheet();
     app.setStyleSheet(styleSheet);
@@ -33,7 +32,11 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     themeButton->setObjectName("searchButton");
     connect(themeButton, &QPushButton::clicked, [=]() {
         this->changeTheme(themeButton);
+        qDebug() << "x : " << mainWindow.getXPos();
     });
+
+    mainWindow.move(500, 500);
+    qDebug() << "x : " << mainWindow.getXPos();
 
     credsPage = new CredentialsPage(NULL, dbCon);
     stackedWidget->addWidget(credsPage);
@@ -45,8 +48,6 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     mainWindow.setCentralWidget(mainWidget);
 
     ApplicationController::switchCredsPage();
-
-    //closeDb(dbCon);
 }
 
 ApplicationController::~ApplicationController() {
@@ -86,4 +87,8 @@ QString ApplicationController::getStyleSheet() {
 
 void ApplicationController::switchCredsPage() {
     stackedWidget->setCurrentWidget(credsPage);
+}
+
+QApplication& ApplicationController::getApplication() {
+    return app;
 }

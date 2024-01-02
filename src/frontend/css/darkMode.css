@@ -25,9 +25,21 @@ QApplication {
 /* Creds Widget */
 
 #credsWidget {
+    padding: 5px;
     border: 2px solid black;
     border-radius: 5px;
+}
+
+#credsWidget QScrollArea {
+    background-color: transparent;
+}
+
+#credsWidget, #credsContainer {
     background-color: rgb(72, 113, 160);
+}
+
+#credsContainer {
+    margin: 0;
 }
 
 #credBox {
