@@ -1,10 +1,11 @@
-#ifndef _GUI_WIDGETS_HEAD_FILE
-#define _GUI_WIDGETS_HEAD_FILE
+#ifndef CREDENTIALS_WIDGETS_H
+#define CREDENTIALS_WIDGETS_H
 
 #include <QWidget>
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QScrollArea>
 #include "./models.h"
 #include "./db.h"
 
@@ -21,7 +22,8 @@ class CredentialsWidget : public QWidget {
         CredentialsWidget(const CredsArray credsArray, QWidget *parent);
 
     private:
-        QVBoxLayout *layout;
+        QVBoxLayout *contentLayout;
+        QScrollArea *scrollArea;
 };
 
 class CredentialsPage : public QWidget {

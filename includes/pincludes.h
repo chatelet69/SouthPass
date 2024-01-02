@@ -1,5 +1,5 @@
-#ifndef _INCLUDES_HEAD_FILE
-#define _INCLUDES_HEAD_FILE
+#ifndef PROJET_INCLUDES_H
+#define PROJET_INCLUDES_H
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -8,10 +8,10 @@
 #endif
 #include "../includes/db.h"
 #include "../includes/web_service.h"
-#include "../includes/gui.h"
+#include "../includes/applicationController.h"
 #include "../includes/utils.h"
-#include "../includes/controler.h"
-#include "../includes/gui_widgets.h"
+#include "../includes/backController.h"
+#include "../includes/credentialsWidget.h"
 #include "./models.h"
 
 #endif

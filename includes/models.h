@@ -1,5 +1,5 @@
-#ifndef _MODELS_HEAD_FILE
-#define _MODELS_HEAD_FILE
+#ifndef MODELS_HEAD_FILE
+#define MODELS_HEAD_FILE
 
 typedef struct Credentials Credentials;
 struct Credentials {
