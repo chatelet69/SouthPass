@@ -8,6 +8,7 @@
 #include <QStackedWidget>
 #include "./db.h"
 #include "./credentialsWidget.h"
+#include "./loginPage.h"
 
 #define APPLICATION_NAME "SouthPass"
 
@@ -44,13 +45,15 @@ class ApplicationController : public QObject {
 
     public Q_SLOTS:
         void switchCredsPage();
+        void switchToLoginPage();
 
-    private:
+private:
         char isDark;
         QApplication app;
         QStackedWidget *stackedWidget;
         MainWindow mainWindow;
         MYSQL *dbCon;
+        loginPage *logPage;
         CredentialsPage *credsPage;
 
     public Q_SLOTS:
