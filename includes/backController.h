@@ -1,5 +1,5 @@
-#ifndef _CONTROLER_HEAD_FILE
-#define _CONTROLER_HEAD_FILE
+#ifndef CONTROLLER_H
+#define CONTROLLER_H
 
 char **getPwsdList();
 void printCreds(Credentials *creds, unsigned int size);

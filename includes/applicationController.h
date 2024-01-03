@@ -1,20 +1,35 @@
-#ifndef _GUI_HEADS_FILE
-#define _GUI_HEADS_FILE
+#ifndef APPLICATION_CONTROLLER_H
+#define APPLICATION_CONTROLLER_H
 
 #include <QObject>
 #include <QApplication>
 #include <QMainWindow>
+#include <QLabel>
 #include <QStackedWidget>
 #include "./db.h"
-#include "./gui_widgets.h"
+#include "./credentialsWidget.h"
 
-#define applicationName "SouthPass"
+#define APPLICATION_NAME "SouthPass"
 
-#define WINDOW_MIN_WIDTH 475
-#define WINDOW_MIN_HEIGHT 400
+#define WINDOW_MIN_WIDTH 500
+#define WINDOW_MIN_HEIGHT 500
 
 #define BUTTON_MAX_WIDTH 150
 #define BUTTON_MAX_HEIGHT 50
+
+class MainWindow;
+class ApplicationController;
+
+class MainWindow : public QMainWindow {
+    public:
+        MainWindow(QWidget *parent = nullptr);
+        int getXPos();
+
+    private:
+        ApplicationController& appController;
+
+        void onApplicationMove(QMoveEvent *event);
+};
 
 class ApplicationController : public QObject {
     public:
@@ -25,6 +40,8 @@ class ApplicationController : public QObject {
         void changeTheme(QPushButton *themeButton);
         QString getStyleSheet();
 
+        QApplication& getApplication();
+
     public Q_SLOTS:
         void switchCredsPage();
 
@@ -32,9 +49,12 @@ class ApplicationController : public QObject {
         char isDark;
         QApplication app;
         QStackedWidget *stackedWidget;
-        QMainWindow mainWindow;
+        MainWindow mainWindow;
         MYSQL *dbCon;
         CredentialsPage *credsPage;
+
+    public Q_SLOTS:
+        void onApplicationMove();
 };
 
 #endif

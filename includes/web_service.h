@@ -1,5 +1,5 @@
-#ifndef _WEB_SERVICE_HEAD_FILE
-#define _WEB_SERVICE_HEAD_FILE
+#ifndef WEB_SERVICE_H
+#define WEB_SERVICE_H
 
 int getHttpRequest(char *url);
 

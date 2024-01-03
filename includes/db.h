@@ -1,5 +1,5 @@
-#ifndef _DB_HEADS_FILE
-#define _DB_HEADS_FILE
+#ifndef DB_H_FILE
+#define DB_H_FILE
 
 #ifdef __linux__
 #include <mysql/mysql.h>

@@ -1,5 +1,5 @@
-#ifndef _UTILS_HEAD_FILE
-#define _UTILS_HEAD_FILE
+#ifndef UTILS_H
+#define UTILS_H
 
 void removeReturnLine(char *str);
 int getSizeInString(int num);
