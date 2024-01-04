@@ -5,11 +5,15 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QDir>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QQmlContext>
+#include <QQuickWidget>
 #include "../../includes/applicationController.h"
 #include "../../includes/credentialsWidget.h"
+#include "../../includes/backController.h"
 #include "../../includes/models.h"
 
 CredentialsWidget::CredentialsWidget(const CredsArray credsArray, QWidget *parent) : QWidget(parent)
@@ -53,19 +57,40 @@ CredentialsWidget::CredentialsWidget(const CredsArray credsArray, QWidget *paren
     setLayout(contentLayout);
 }
 
-CredsFormWidget::CredsFormWidget(QWidget *parent) : QWidget(parent) {
-    QPushButton *closeFormButton = new QPushButton("Annuler");
-    connect(closeFormButton, &QPushButton::clicked, this, &CredsFormWidget::closeForm);
+CredsFormWidget::CredsFormWidget(QWidget *parent, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
+    QQuickWidget *quickWidget = new QQuickWidget();
+    quickWidget->setSource(QUrl("./components/credsForm.qml"));
 
-    QLabel *formTitle = new QLabel(QString("Nouveaux identifiants"));
-    this->setWindowTitle("Nouveaux identifiants");
+    QQmlContext *context = quickWidget->rootContext();
+    context->setContextProperty("CredsFormWidget", this);
+
+    //QPushButton *closeFormButton = new QPushButton("Annuler");
+    //connect(closeFormButton, &QPushButton::clicked, this, &CredsFormWidget::closeForm);
+    //QLabel *formTitle = new QLabel(QString("Nouveaux identifiants"));
+    //this->setWindowTitle("Nouveaux identifiants");
 
     //int posX = ApplicationController::getApplication().desktop()->availableGeometry().x();
     //this->setGeometry();
 
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->addWidget(closeFormButton);
-    layout->addWidget(formTitle);
+    layout->addWidget(quickWidget);
+    this->setFixedSize(300, 300);
+    //layout->addWidget(closeFormButton);
+    //layout->addWidget(formTitle);
+}
+
+void CredsFormWidget::saveNewCreds(QString name, QString login, QString password) {
+    QByteArray nameBytes = name.toLocal8Bit();
+    char *convertedName = nameBytes.data();
+    QByteArray loginBytes = login.toLocal8Bit();
+    char *convertedLogin = loginBytes.data();
+    QByteArray passwordBytes = password.toLocal8Bit();
+    char *convertedPassword = passwordBytes.data();
+
+    //qDebug() << "name = " << name << " login = " << login << " pass = " << password;
+    //qDebug() << "name = " << convertedName << " login = " << convertedLogin << " pass = " << convertedPassword;
+
+    int resStatus = addNewCredsController(dbCon, convertedName, convertedLogin, convertedPassword);
 }
 
 void CredsFormWidget::closeForm() {

@@ -68,3 +68,8 @@ QApplication {
     top: 20px;
     margin-top: 10%;
 }
+
+#cancelButton {
+    background-color: red;
+    color: white;
+}

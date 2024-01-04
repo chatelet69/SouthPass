@@ -12,7 +12,7 @@
 CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
     QVBoxLayout *layout = new QVBoxLayout();
 
-    form = new CredsFormWidget(NULL);
+    form = new CredsFormWidget(NULL, dbCon);
     QPushButton *newCredsButton = new QPushButton();
     newCredsButton->setText(QPushButton::tr("Nouveaux creds"));
     newCredsButton->setMaximumSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
