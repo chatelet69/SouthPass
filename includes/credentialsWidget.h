@@ -6,15 +6,22 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QScrollArea>
+#include <QObject>
 #include "./models.h"
 #include "./db.h"
 
 class CredsFormWidget : public QWidget {
+    Q_OBJECT
+
     public:
-        CredsFormWidget(QWidget *parent);
+        CredsFormWidget(QWidget *parent, MYSQL* dbCon);
 
     public Q_SLOTS:
+        void saveNewCreds(QString loginName, QString login, QString password);
         void closeForm();
+
+    private:
+        MYSQL *dbCon;
 };
 
 class CredentialsWidget : public QWidget {
@@ -27,16 +34,18 @@ class CredentialsWidget : public QWidget {
 };
 
 class CredentialsPage : public QWidget {
+    Q_OBJECT
+
     public:
         CredentialsPage(QWidget *parent, MYSQL *dbCon);
         //~CredentialsPage();
 
     public Q_SLOTS:
         void showPage();
-        void showCredsForm();
+        //void showCredsForm();
 
     private Q_SLOTS:
-        //void showCredsForm();
+        void showCredsForm();
 
     private: 
         MYSQL *dbCon;
