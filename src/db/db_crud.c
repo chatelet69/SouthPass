@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../../includes/db.h"
+#include <openssl/sha.h>
+#include <time.h>
 #include "../../includes/utils.h"
 
 // Fonction de récupération 
@@ -109,4 +111,121 @@ int putData(MYSQL *dbCon, char *sqlQuery) {
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
+}
+
+int isUserExist(MYSQL *dbCon, char * email) {
+    int status = 0;
+    const char * sqlQuery = "SELECT id FROM users WHERE email = ?";
+
+    int size = strlen(sqlQuery);
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, size) == 0) {
+        printf("\nTEST222");
+        MYSQL_BIND params[1];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = email;
+        params[0].buffer_length = strlen(email);
+
+        mysql_stmt_bind_param(stmt, params);
+        status = mysql_stmt_execute(stmt);
+        if(status != 0)
+            return 1;
+
+        MYSQL_RES *resData = mysql_store_result(dbCon);
+        if (resData != NULL)
+            return 1;
+
+        return 0;
+    }else{
+        return 1;
+    }
+}
+
+int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
+
+    char hashedPwd[257];
+    char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
+    int salt2;
+    srand(time(NULL));
+    salt2 = rand()%99999;
+    char salt[6];
+    sprintf(salt, "%d", salt2);
+    strcpy(hashedPwd, shaPwd(pwd, hashString, salt));
+    free(hashString);
+    printf("hashedPwd : %s\n", hashedPwd);
+
+    char hashedMasterPwd[257];
+    char* hashMasterString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
+    strcpy(hashedMasterPwd, shaPwd(masterPwd, hashMasterString, salt));
+    free(hashMasterString);
+    printf("hashedPwd : %s\n", hashedMasterPwd);
+
+    int res;
+    printf("EMAIL : %s", email);
+    res = isUserExist(dbCon, email);
+    if(res == 1){
+        printf("Erreur, cet user existe");
+        return 2;
+    }
+
+    int status = EXIT_FAILURE;
+    int size = strlen("INSERT INTO users (email,pwdAccount,pwdMaster, salt) VALUES (?,?,?,?)");
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, "INSERT INTO users (email,pwdAccount,pwdMaster, salt) VALUES (?,?,?,?)", size) == 0) {
+        MYSQL_BIND params[4];
+        memset(params, 0, sizeof(params));
+
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = email;
+        params[0].buffer_length = strlen(email);
+
+        params[1].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[1].buffer = hashedPwd;
+        params[1].buffer_length = strlen(hashedPwd);
+
+        params[2].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[2].buffer = masterPwd;
+        params[2].buffer_length = strlen(masterPwd);
+
+        params[3].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[3].buffer = salt;
+        params[3].buffer_length = strlen(salt);
+
+        mysql_stmt_bind_param(stmt, params);
+        printf("\nLA REQUETE MARCHE", status);
+
+        status = mysql_stmt_execute(stmt);
+    }
+    mysql_stmt_close(stmt);
+
+    return status;
+}
+
+char * shaPwd(const char * pwd, char * hashString, char * salt){
+    char saledPwd[62];
+    strcpy(saledPwd, salt);
+    strcat(saledPwd, pwd);
+    strcat(saledPwd, salt);
+    printf("\nsaledPwd : %s\n", saledPwd);
+
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    const unsigned char* data = (const unsigned char*)saledPwd;
+
+    SHA256(data, strlen(saledPwd), hash);
+
+    // Convertir le hash en chaîne de caractères
+    if (hashString == NULL) {
+        fprintf(stderr, "Erreur d'allocation de mémoire\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+        sprintf(&hashString[i * 2], "%02x", hash[i]);
+    }
+    hashString[2 * SHA256_DIGEST_LENGTH] = '\0'; // Ajouter le caractère nul à la fin de la chaîne
+
+    return hashString;
 }

@@ -10,8 +10,9 @@
 #include "web_service.h"
 #include "applicationController.h"
 #include "utils.h"
+#include <string.h>
 #include "backController.h"
-#include "backIsConnected.h"
+#include "backLoginSignIn.h"
 #include "credentialsWidget.h"
 #include "./models.h"
 #include "loginPage.h"
