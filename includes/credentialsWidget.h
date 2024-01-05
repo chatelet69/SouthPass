@@ -27,9 +27,23 @@ class CredsFormWidget : public QWidget {
         MYSQL *dbCon;
 };
 
+class CredsToolBarWidget : public QWidget {
+    Q_OBJECT
+
+    public:
+        CredsToolBarWidget(QWidget *parent, MYSQL *dbCon);
+    
+    private:
+        MYSQL *dbCon;
+        CredsFormWidget *form;
+
+    private Q_SLOTS:
+        void showCredsForm();
+};
+
 class CredentialsWidget : public QWidget {
     public:
-        CredentialsWidget(const CredsArray credsArray, QWidget *parent);
+        CredentialsWidget(QWidget *parent, const CredsArray credsArray);
 
     private:
         QVBoxLayout *contentLayout;
@@ -47,12 +61,12 @@ class CredentialsPage : public QWidget {
         //void showCredsForm();
 
     private Q_SLOTS:
-        void showCredsForm();
+        //void showCredsForm();
 
     private: 
         MYSQL *dbCon;
         QPushButton newCredsButton;
-        CredsFormWidget *form;
+        CredsToolBarWidget *toolBarWidget;
         CredentialsWidget *credentialsWidget;
 };
 

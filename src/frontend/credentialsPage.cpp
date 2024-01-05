@@ -12,24 +12,14 @@
 CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
     QVBoxLayout *layout = new QVBoxLayout();
 
-    form = new CredsFormWidget(NULL, dbCon);
-    QPushButton *newCredsButton = new QPushButton();
-    newCredsButton->setText(QPushButton::tr("Nouvel identifiant"));
-    newCredsButton->setMaximumSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
-    newCredsButton->setObjectName("newCredsButton");
-    connect(newCredsButton, &QPushButton::clicked, this, &CredentialsPage::showCredsForm);
+    toolBarWidget = new CredsToolBarWidget(this, dbCon);
 
     CredsArray credsArray = getPasswordsList(dbCon, 1);
-    if (credsArray.size > 0) printCreds(credsArray.creds, credsArray.size);
-    credentialsWidget = new CredentialsWidget(credsArray, NULL);
+    credentialsWidget = new CredentialsWidget(this, credsArray);
     credentialsWidget->setObjectName("credsWidget");
     freeCredsArray(credsArray);
 
-    layout->addWidget(newCredsButton);
+    layout->addWidget(toolBarWidget);
     layout->addWidget(credentialsWidget);
     setLayout(layout);
-}
-
-void CredentialsPage::showCredsForm() {
-    form->quickWidget->show();
 }

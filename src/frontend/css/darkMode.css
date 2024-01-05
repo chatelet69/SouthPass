@@ -8,24 +8,42 @@ QApplication {
     border-color: rgb(29, 32, 63);
 }
 
+/* Header */
+
+#headerWidget {
+    border: 2px solid red;
+}
+
 #themeButton {
-    background-color: rgb(58, 57, 117);
+    background-color: rgb(238, 238, 238);
     border-radius: 4px;
     height: auto;
     width: auto;
     max-width: 30px;
     border: 2px solid transparent;
-    /*border: 2px solid black;*/
-    /*color: white;*/
-    margin: 10px;
 }
 
 #themeButton:hover {
-    /*background-color: rgb(32, 32, 32); */
-    border-color: rgb(19, 19, 19);
+    border-color: rgb(231, 231, 231);
 }
 
 /* Creds Widget */
+
+#searchCredsInput {
+    border: 1px solid gray;
+    border-radius: 4px;
+    width: 50px;
+}
+
+#credsSearchTypeBox {
+    border: 1px solid transparent;
+    background-color: rgb(235, 236, 238);
+    border-radius: 4px;
+}
+
+#credsSearchTypeBox, #searchCredsInput {
+    padding: 10px;
+}
 
 #credsWidget {
     padding: 5px;
@@ -70,6 +88,11 @@ QApplication {
     height: 25px;
     top: 20px;
     margin-top: 10%;
+}
+
+#editCredButton:hover {
+    background-color: #6da1b1;
+    border-color: rgb(44, 44, 44);
 }
 
 #cancelButton {

@@ -22,14 +22,18 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     dbCon = dbConnect();
     stackedWidget = new QStackedWidget(NULL);
     
+    QWidget *mainWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainWidget->setLayout(mainLayout);
 
     QString styleSheet = ApplicationController::getStyleSheet();
     app.setStyleSheet(styleSheet);
 
+    QWidget *headerWidget = new QWidget();
+    headerWidget->setObjectName("headerWidget");
+    QHBoxLayout *headerLayout = new QHBoxLayout(headerWidget);
+
     QPushButton *themeButton = new QPushButton();
-    //themeButton->setText(QPushButton::tr("Mettre Light Mode"));
-    //themeButton->setMaximumSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
     themeButton->setObjectName("themeButton");
     connect(themeButton, &QPushButton::clicked, [=]() {
         this->changeTheme(themeButton);
@@ -39,16 +43,16 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     QIcon icon("./assets/lightThemeIcon.png");
     themeButton->setIcon(icon);
 
+    headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
+
     mainWindow.move(500, 500);
     qDebug() << "x : " << mainWindow.getXPos();
 
     credsPage = new CredentialsPage(NULL, dbCon);
     stackedWidget->addWidget(credsPage);
 
-    mainLayout->addWidget(themeButton);
+    mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);
-    QWidget *mainWidget = new QWidget();
-    mainWidget->setLayout(mainLayout);
     mainWindow.setCentralWidget(mainWidget);
 
     ApplicationController::switchCredsPage();
