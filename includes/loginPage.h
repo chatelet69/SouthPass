@@ -13,17 +13,19 @@
 #include <QVBoxLayout>
 #include <QScrollArea>
 #include <QFormLayout>
+#include "applicationController.h"
 
 class loginPage : public QWidget {
+Q_OBJECT
 public:
     loginPage(QWidget *parent, MYSQL *dbCon);
-    //~CredentialsPage();
+
+public Q_SIGNAL:
+    static void signInSuccess();
 
 public Q_SLOTS:
-    // void showForm();
 
 private Q_SLOTS:
-    //void showCredsForm();
 
 private:
     MYSQL *dbCon;

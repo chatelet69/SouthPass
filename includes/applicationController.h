@@ -59,5 +59,4 @@ private:
     public Q_SLOTS:
         void onApplicationMove();
 };
-
 #endif

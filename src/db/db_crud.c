@@ -4,6 +4,8 @@
 #include "../../includes/db.h"
 #include <openssl/sha.h>
 #include <time.h>
+#include <stdint.h>
+#include <mysql.h>
 #include "../../includes/utils.h"
 
 // Fonction de récupération 
@@ -115,7 +117,7 @@ int putData(MYSQL *dbCon, char *sqlQuery) {
 
 int isUserExist(MYSQL *dbCon, char * email) {
     int status = 0;
-    const char * sqlQuery = "SELECT id FROM users WHERE email = ?";
+    const char * sqlQuery = "SELECT email FROM users WHERE email = ?";
 
     int size = strlen(sqlQuery);
 
@@ -129,15 +131,23 @@ int isUserExist(MYSQL *dbCon, char * email) {
 
         mysql_stmt_bind_param(stmt, params);
         status = mysql_stmt_execute(stmt);
-        if(status != 0)
+
+        if(status != 0){
+            mysql_stmt_close(stmt);
             return 2;
+        }
+        status = mysql_stmt_fetch(stmt);
+        if (status != 1 && status != MYSQL_NO_DATA){
+            mysql_stmt_close(stmt);
+            printf("\nd");
+            return 1; // user exist
+        }
+        printf("\nd");
 
-        MYSQL_RES *resData = mysql_store_result(dbCon);
-        if (resData != NULL)
-            return 1;
-
-        return 0;
+        mysql_stmt_close(stmt);
+        return 0; // dont exist
     }else{
+        mysql_stmt_close(stmt);
         return 2;
     }
 }
@@ -164,14 +174,14 @@ int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
     // verif si le user existe déjà (via l'email)
     int res = 0;
 
-
     res = isUserExist(dbCon, email);
+    printf("\nres : %d", res);
     if(res == 1){
         printf("Erreur, cet user existe");
         return 2;
     }else if(res==2){
         printf("\nErreur lors de la requete SQL");
-        return 2;
+        return 1;
     }
 
     int status = EXIT_FAILURE;
@@ -179,9 +189,7 @@ int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
     const char * sqlQuery = "INSERT INTO users (email,pwdAccount,pwdMaster,salt) VALUES (?,?,?,?)";
     int size = strlen(sqlQuery);
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
-    int test = mysql_stmt_prepare(stmt, sqlQuery, size);
-    printf("stmt : %d", test);
-    if (test == 0) {
+    if (mysql_stmt_prepare(stmt, sqlQuery, size) == 0) {
         MYSQL_BIND params[4];
         memset(params, 0, sizeof(params));
 
@@ -203,7 +211,6 @@ int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
 
         mysql_stmt_bind_param(stmt, params);
         status = mysql_stmt_execute(stmt);
-        printf("OK VALIDE status = %d", status);
     }
     mysql_stmt_close(stmt);
 

@@ -2,10 +2,10 @@
 #include <QFormLayout>
 #include <QApplication>
 #include <QMessageBox>
+#include "../../includes/applicationController.h"
 #include "../../includes/pincludes.h"
 
 loginPage::loginPage(QWidget *parent, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
-
     //Création des onglets connexion et inscription
     QTabWidget *onglets = new QTabWidget(this);
     QWidget *login = new QWidget;
@@ -57,7 +57,6 @@ loginPage::loginPage(QWidget *parent, MYSQL *dbCon) : QWidget(parent), dbCon(dbC
     // Intéraction bouton Inscription
     signInButton->setObjectName("signInButton");
     connect(signInButton, &QPushButton::clicked, [=](){
-        printf("\n1");
         // conversion mail de Qtring à char * pour le backend en C
         char signMail[50];
         QByteArray futurStringMail = signEmail->text().toLocal8Bit();
@@ -82,13 +81,13 @@ loginPage::loginPage(QWidget *parent, MYSQL *dbCon) : QWidget(parent), dbCon(dbC
         QByteArray futurMasterConfirmPwd = confirmMasterPwd->text().toLocal8Bit();
         strcpy(verifMasterPassword, futurMasterConfirmPwd.data());
 
-        printf("%s", signMail);
-
         if(strcmp(verifSignIn(signMail, password, verifPassword,masterPwd, verifMasterPassword), "ok")==0){
             int res;
             res = createUser(dbCon, signMail, password, masterPwd);
             if(res == 0){
-                // ApplicationController::switchCredsPage();
+                printf("\nInscription réussie !");
+                emit signInSuccess();
+                return 0;
             }else if(res == 2){
                 QMessageBox::warning(this,"Erreur" ,"Email déjà utilisé, essayez de vous connecter");
             }else{
@@ -101,4 +100,9 @@ loginPage::loginPage(QWidget *parent, MYSQL *dbCon) : QWidget(parent), dbCon(dbC
         }
     });
 
+}
+
+
+void loginPage::signInSuccess(){
+    printf("Succès");
 }

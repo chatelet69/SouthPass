@@ -55,6 +55,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
         ApplicationController::switchCredsPage();
     }else{
         ApplicationController::switchToLoginPage();
+        connect(logPage, reinterpret_cast<const char *>(&loginPage::signInSuccess), this, SLOT(switchCredsPage()));
     }
 }
 
