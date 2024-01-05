@@ -7,6 +7,8 @@
 #include <QVBoxLayout>
 #include <QScrollArea>
 #include <QObject>
+#include <QQmlContext>
+#include <QQuickWidget>
 #include "./models.h"
 #include "./db.h"
 
@@ -15,6 +17,7 @@ class CredsFormWidget : public QWidget {
 
     public:
         CredsFormWidget(QWidget *parent, MYSQL* dbCon);
+        QQuickWidget *quickWidget;
 
     public Q_SLOTS:
         void saveNewCreds(QString loginName, QString login, QString password);
@@ -41,7 +44,6 @@ class CredentialsPage : public QWidget {
         //~CredentialsPage();
 
     public Q_SLOTS:
-        void showPage();
         //void showCredsForm();
 
     private Q_SLOTS:
