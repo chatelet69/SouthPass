@@ -58,25 +58,17 @@ CredentialsWidget::CredentialsWidget(const CredsArray credsArray, QWidget *paren
 }
 
 CredsFormWidget::CredsFormWidget(QWidget *parent, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
-    QQuickWidget *quickWidget = new QQuickWidget();
+    quickWidget = new QQuickWidget();
     quickWidget->setSource(QUrl("./components/credsForm.qml"));
 
     QQmlContext *context = quickWidget->rootContext();
     context->setContextProperty("CredsFormWidget", this);
 
-    //QPushButton *closeFormButton = new QPushButton("Annuler");
-    //connect(closeFormButton, &QPushButton::clicked, this, &CredsFormWidget::closeForm);
-    //QLabel *formTitle = new QLabel(QString("Nouveaux identifiants"));
-    //this->setWindowTitle("Nouveaux identifiants");
-
-    //int posX = ApplicationController::getApplication().desktop()->availableGeometry().x();
-    //this->setGeometry();
-
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->addWidget(quickWidget);
-    this->setFixedSize(300, 300);
-    //layout->addWidget(closeFormButton);
-    //layout->addWidget(formTitle);
+    //QHBoxLayout *layout = new QHBoxLayout(this);
+    //layout->addWidget(quickWidget);
+    quickWidget->setFixedSize(320,320);
+    quickWidget->setWindowTitle("Nouveaux identifiants");
+    quickWidget->setObjectName("credsFormWindow");
 }
 
 void CredsFormWidget::saveNewCreds(QString name, QString login, QString password) {
@@ -94,5 +86,6 @@ void CredsFormWidget::saveNewCreds(QString name, QString login, QString password
 }
 
 void CredsFormWidget::closeForm() {
+    this->quickWidget->close();
     this->close();
 }

@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QApplication>
+#include <QIcon>
 #include <QHBoxLayout>
 #include "../../includes/models.h"
 #include "../../includes/db.h"
@@ -27,13 +28,16 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     app.setStyleSheet(styleSheet);
 
     QPushButton *themeButton = new QPushButton();
-    themeButton->setText(QPushButton::tr("Mettre Light Mode"));
-    themeButton->setMaximumSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
-    themeButton->setObjectName("searchButton");
+    //themeButton->setText(QPushButton::tr("Mettre Light Mode"));
+    //themeButton->setMaximumSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
+    themeButton->setObjectName("themeButton");
     connect(themeButton, &QPushButton::clicked, [=]() {
         this->changeTheme(themeButton);
         qDebug() << "x : " << mainWindow.getXPos();
     });
+
+    QIcon icon("./assets/lightThemeIcon.png");
+    themeButton->setIcon(icon);
 
     mainWindow.move(500, 500);
     qDebug() << "x : " << mainWindow.getXPos();
@@ -64,8 +68,10 @@ void ApplicationController::changeTheme(QPushButton *themeButton) {
     isDark = (isDark) ? 0 : 1;
     QString themeFile = (isDark) ? darkModePath : lightModePath;
 
-    const char *themeName = (isDark) ? "Mettre LightMode" : "Mettre DarkMode";
-    themeButton->setText(QPushButton::tr(themeName));
+    const char *themeIconPath = (isDark) ? "./assets/lightThemeIcon.png" : "./assets/darkThemeIcon.png";
+
+    QIcon icon(themeIconPath);
+    themeButton->setIcon(icon);
 
     QFile file(themeFile);
     file.open(QFile::ReadOnly | QFile::Text);

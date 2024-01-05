@@ -2,74 +2,97 @@ import QtQml
 import QtQuick
 import QtQuick.Controls
 
-Item {
+Rectangle {
     id: credsFormWindow
     visible: true
-    width: 300
-    height: 300
+    width: 320
+    height: 320
     x: 0
     y: 0
+    color: "#4c637a"
 
     Rectangle {
-        height: 20
-//        x: 20
-        y: 0
-        color: "white"
-        border.color: "black"
-        border.width: 3
+        id: titleContainer
+        x: 0
+        y: parent.y + 15
+        anchors.horizontalCenter: parent.horizontalCenter
 
-        Row {
-            spacing: 10
-
-            Label {
-                //anchors.centerIn: parent
-                text: "Nouveaux identifiants"
-            }
+        Column {
+            id: titleRow
+            spacing: 2
+            anchors.horizontalCenter: parent.horizontalCenter
 
             Button {
+                hoverEnabled: true
+                anchors.horizontalCenter: parent.horizontalCenter
                 id: cancelNewCredsButton
                 text: "Annuler"
-                onClicked: CredsFormWidget.closeForm()
+                contentItem: Text {
+                    text: cancelNewCredsButton.text
+                    color: "white"
+                    padding: 5
+                }
                 background: Rectangle {
-                    color: "#c95151"
-                    border.width: 2
-                    border.color: "#ffffff"
+                    color: cancelNewCredsButton.hovered ? "#d11717" : "#e37b7b"
                     radius: 6
                 }
+                onClicked: CredsFormWidget.closeForm()
+            }
+
+            Text {
+                textFormat: Text.RichText
+                text: "<h4>Nouveaux identifiants</h4>"
+                color: "white"
             }
         }
     }
 
     Rectangle {
-        width: 200
+        visible: true
         x: 0
-        y: 30
-        border.color: "red"
-        border.width: 4
+        y: titleContainer.y + 80
+        color: "lightgrey"
+        radius: 5
+        implicitWidth: inputsFormContainer.implicitWidth
+        implicitHeight: inputsFormContainer.implicitHeight
+        anchors.horizontalCenter: parent.horizontalCenter
 
         Column {
+            id: inputsFormContainer
             spacing: 10
+            anchors.horizontalCenter: parent.horizontalCenter
 
             TextField {
                 id: nameInput
                 placeholderText: "Nom de l'identifiant"
-                width: 160
+                width: 200
             }
 
             TextField {
                 id: usernameInput
                 placeholderText: "Login"
-                width: 160
+                width: 200
             }
 
             TextField {
                 id: passwordInput
                 placeholderText: "Mot de passe"
-                width: 160
+                width: 200
             }
 
             Button {
+                id: confirmNewCredsButton
                 text: "Confirmer"
+                contentItem: Text {
+                    text: confirmNewCredsButton.text
+                    color: "white"
+                    padding: 5
+                }
+                anchors.horizontalCenter: parent.horizontalCenter
+                background: Rectangle {
+                    color: "#64c469"
+                    radius: 4
+                }
                 onClicked: {
                     var name = nameInput.text;
                     var username = usernameInput.text;

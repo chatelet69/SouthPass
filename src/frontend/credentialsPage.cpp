@@ -14,8 +14,9 @@ CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbCon) : QWidget(parent
 
     form = new CredsFormWidget(NULL, dbCon);
     QPushButton *newCredsButton = new QPushButton();
-    newCredsButton->setText(QPushButton::tr("Nouveaux creds"));
+    newCredsButton->setText(QPushButton::tr("Nouvel identifiant"));
     newCredsButton->setMaximumSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
+    newCredsButton->setObjectName("newCredsButton");
     connect(newCredsButton, &QPushButton::clicked, this, &CredentialsPage::showCredsForm);
 
     CredsArray credsArray = getPasswordsList(dbCon, 1);
@@ -29,10 +30,6 @@ CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbCon) : QWidget(parent
     setLayout(layout);
 }
 
-void CredentialsPage::showPage() {
-    dynamic_cast<ApplicationController*>(parentWidget())->switchCredsPage();
-}
-
 void CredentialsPage::showCredsForm() {
-    form->show();
+    form->quickWidget->show();
 }

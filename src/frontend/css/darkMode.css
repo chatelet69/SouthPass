@@ -1,25 +1,28 @@
 /* Dark Mode Main Window */
 
 QMainWindow {
-    background-color: rgb(127, 161, 173);
+    background-color: rgb(112, 112, 145);
 }
 
 QApplication {
-    border-color: red;
+    border-color: rgb(29, 32, 63);
 }
 
-#searchButton {
+#themeButton {
     background-color: rgb(58, 57, 117);
     border-radius: 4px;
-    height: 15px;
-    border: 2px solid black;
-    color: white;
+    height: auto;
+    width: auto;
+    max-width: 30px;
+    border: 2px solid transparent;
+    /*border: 2px solid black;*/
+    /*color: white;*/
     margin: 10px;
 }
 
-#searchButton:hover {
-    background-color: rgb(75, 146, 61);
-    border-color: aqua;
+#themeButton:hover {
+    /*background-color: rgb(32, 32, 32); */
+    border-color: rgb(19, 19, 19);
 }
 
 /* Creds Widget */
@@ -72,4 +75,23 @@ QApplication {
 #cancelButton {
     background-color: red;
     color: white;
+}
+
+/* Creds Form Window */
+
+#credsFormWindow {
+    background-color: #4c637a;
+}
+
+#newCredsButton {
+    background-color: rgb(164, 216, 164);
+    border: none;
+    border-radius: 4;
+    padding: 2;
+    height: auto;
+    color: white;
+}
+
+#newCredsButton:hover {
+    background-color: #78d860;
 }
