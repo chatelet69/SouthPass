@@ -1,8 +1,9 @@
 #include <string.h>
 #include <curl/curl.h>
+#include "../../includes/webService.h"
 
 int getHttpRequest(char *url) {
-    const char *pathToCert = "./config/curl-ca.crt";
+    const char *pathToCert = "./../config/curl-ca.crt";
     CURL *curl;
     CURLcode res;
     

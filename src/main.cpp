@@ -5,12 +5,9 @@
 int main(int argc, char **argv)
 {
     int status = EXIT_SUCCESS;
-    MYSQL *db = dbConnect();
 
-    GuiService guiService(argc, argv);
-    status = guiService.run();
-
-    closeDb(db);
+    ApplicationController ApplicationController(argc, argv);
+    status = ApplicationController.run();
 
     return status;
 }

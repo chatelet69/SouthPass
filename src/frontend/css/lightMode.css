@@ -1,0 +1,25 @@
+/* LightMode */ 
+
+QMainWindow {
+    background-color: rgb(216, 224, 226);
+}
+
+QApplication {
+    border-color: red;
+}
+
+/* App Main Window */
+
+#themeButton {
+    background-color: white;
+    border-radius: 4px;
+    height: auto;
+    width: auto;
+    max-width: 30px;
+    border: 2px solid transparent;
+    margin: 10px;
+}
+
+#themeButton:hover {
+    border-color: rgb(19, 19, 19);
+}

@@ -9,3 +9,6 @@ config/creds.txt
 CMakeLists.txt
 linux-build
 app
+includes/config_db.h
+linux-output
+connectionLog.txt
