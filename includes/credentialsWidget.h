@@ -54,7 +54,7 @@ class CredentialsPage : public QWidget {
     Q_OBJECT
 
     public:
-        CredentialsPage(QWidget *parent, MYSQL *dbCon);
+        CredentialsPage(QWidget *parent, MYSQL *dbCon, int userId);
         //~CredentialsPage();
 
     public Q_SLOTS:

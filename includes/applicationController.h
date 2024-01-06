@@ -43,13 +43,16 @@ class ApplicationController : public QObject {
         QString getStyleSheet();
 
         QApplication& getApplication();
+        int getUserId();
 
     public Q_SLOTS:
         void switchCredsPage();
         void switchToLoginPage();
 
 private:
+        int userId;
         char isDark;
+        char oldTheme;
         QApplication app;
         QStackedWidget *stackedWidget;
         MainWindow mainWindow;
