@@ -6,12 +6,15 @@
 #include <Windows.h>
 #include <winbase.h>
 #endif
-#include "../includes/db.h"
-#include "../includes/web_service.h"
-#include "../includes/applicationController.h"
-#include "../includes/utils.h"
-#include "../includes/backController.h"
-#include "../includes/credentialsWidget.h"
+#include "db.h"
+#include "web_service.h"
+#include "applicationController.h"
+#include "utils.h"
+#include <string.h>
+#include "backController.h"
+#include "backLoginSignIn.h"
+#include "credentialsWidget.h"
 #include "./models.h"
+#include "loginPage.h"
 
 #endif

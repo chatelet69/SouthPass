@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QString>
 #include <QPushButton>
+#include <QtWidgets>
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QHBoxLayout>
@@ -41,13 +42,21 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     credsPage = new CredentialsPage(NULL, dbCon);
     stackedWidget->addWidget(credsPage);
 
+    logPage = new loginPage(NULL,this, dbCon);
+    stackedWidget->addWidget(logPage);
+
     mainLayout->addWidget(themeButton);
     mainLayout->addWidget(stackedWidget);
     QWidget *mainWidget = new QWidget();
     mainWidget->setLayout(mainLayout);
     mainWindow.setCentralWidget(mainWidget);
 
-    ApplicationController::switchCredsPage();
+    if(isConnected() == 0){
+        ApplicationController::switchCredsPage();
+    }else{
+        ApplicationController::switchToLoginPage();
+        // connect(logPage, reinterpret_cast<const char *>(&loginPage::signInSuccess), this, SLOT(switchCredsPage()));
+    }
 }
 
 ApplicationController::~ApplicationController() {
@@ -91,4 +100,7 @@ void ApplicationController::switchCredsPage() {
 
 QApplication& ApplicationController::getApplication() {
     return app;
+}
+void ApplicationController::switchToLoginPage() {
+    stackedWidget->setCurrentWidget(logPage);
 }
