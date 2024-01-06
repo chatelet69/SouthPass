@@ -38,7 +38,8 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
     CredsArray credsArray;
     credsArray.size = 0;
     credsArray.creds = NULL;
-    const char *sqlQuery = "SELECT id,userId,name,loginName,password FROM pswd_stock WHERE userId = 1";
+    char *sqlQuery = (char *) malloc(sizeof(char) * 75);
+    sprintf(sqlQuery, "SELECT id,userId,name,loginName,password FROM pswd_stock WHERE userId = %d", userId);
     
     if (mysql_query(dbCon, sqlQuery) != 0) {
         fprintf(stderr, "Query Failure\n");
@@ -292,7 +293,6 @@ int verifLogin(MYSQL *dbCon, char * email, char * pwd, char * masterPwd) {
             return 0; // user exist
         }
 
-        printf("test");
         mysql_stmt_close(stmt);
         return 1; // dont exist
     }else{
@@ -301,7 +301,7 @@ int verifLogin(MYSQL *dbCon, char * email, char * pwd, char * masterPwd) {
     }
 }
 
-char * getSaltByEmail(MYSQL *dbCon, char * email){
+const char *getSaltByEmail(MYSQL *dbCon, char * email){
     int status = 0;
     const char * sqlQuery = "SELECT salt FROM users WHERE email = ?";
 
@@ -339,5 +339,36 @@ char * getSaltByEmail(MYSQL *dbCon, char * email){
 
         mysql_stmt_close(stmt);
         return "ko"; // dont exist
-}
     }
+
+    return "error";
+}
+
+int getUserByTokenInfos(MYSQL *dbCon, const char *token, const int userId) {
+    int status = 0;
+    const char *sqlQuery = "SELECT id FROM users WHERE token = ? AND id = ?";
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[2];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = (void *)token;
+        params[0].buffer_length = strlen(token);
+        params[1].buffer_type = MYSQL_TYPE_LONG;
+        params[1].buffer = (void *)&userId;
+
+        mysql_stmt_bind_param(stmt, params);
+        mysql_stmt_execute(stmt);
+        
+        int rowsCount = 0;
+        while (mysql_stmt_fetch(stmt) == 0) rowsCount++;
+        
+        printf("ee : %d\n", rowsCount);
+        if (rowsCount == 1) status = 1;
+    }
+    mysql_stmt_close(stmt);
+    
+    return status;
+}
