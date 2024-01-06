@@ -42,7 +42,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     credsPage = new CredentialsPage(NULL, dbCon);
     stackedWidget->addWidget(credsPage);
 
-    logPage = new loginPage(NULL, dbCon);
+    logPage = new loginPage(NULL,this, dbCon);
     stackedWidget->addWidget(logPage);
 
     mainLayout->addWidget(themeButton);
@@ -55,7 +55,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
         ApplicationController::switchCredsPage();
     }else{
         ApplicationController::switchToLoginPage();
-        connect(logPage, reinterpret_cast<const char *>(&loginPage::signInSuccess), this, SLOT(switchCredsPage()));
+        // connect(logPage, reinterpret_cast<const char *>(&loginPage::signInSuccess), this, SLOT(switchCredsPage()));
     }
 }
 

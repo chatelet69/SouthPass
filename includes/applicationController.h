@@ -20,6 +20,7 @@
 
 class MainWindow;
 class ApplicationController;
+class loginPage;
 
 class MainWindow : public QMainWindow {
     public:

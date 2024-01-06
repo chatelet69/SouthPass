@@ -7,6 +7,20 @@
 #include <string.h>
 #include <ctype.h>
 
+int setConnected(){
+    FILE * fp = fopen("../connectionLog.txt", "rb");
+    int close;
+    if(fp == NULL){
+        FILE * fp2 = fopen("../connectionLog.txt", "wb");
+        fputs("disconnected", fp2);
+        close = fclose(fp2);
+        return 1;
+    }
+    fputs("connected", fp);
+    fclose(fp);
+    return 0;
+}
+
 int isConnected(){
     FILE * fp = fopen("../connectionLog.txt", "rb");
     int close;

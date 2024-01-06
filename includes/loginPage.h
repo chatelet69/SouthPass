@@ -14,11 +14,12 @@
 #include <QScrollArea>
 #include <QFormLayout>
 #include "applicationController.h"
+class ApplicationController;
 
 class loginPage : public QWidget {
 Q_OBJECT
 public:
-    loginPage(QWidget *parent, MYSQL *dbCon);
+    loginPage(QWidget *parent,ApplicationController *, MYSQL *dbCon);
 
 public Q_SIGNAL:
     static void signInSuccess();

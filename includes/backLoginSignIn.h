@@ -12,5 +12,5 @@ int hasDigit(char *);
 int hasSpecialChar(char *);
 int verifPasswordChars(char *);
 int verifPasswordValidity(char *, char *);
-
+int setConnected();
 #endif //SOUTHPASS_BACKISCONNECTED_H

@@ -139,10 +139,8 @@ int isUserExist(MYSQL *dbCon, char * email) {
         status = mysql_stmt_fetch(stmt);
         if (status != 1 && status != MYSQL_NO_DATA){
             mysql_stmt_close(stmt);
-            printf("\nd");
             return 1; // user exist
         }
-        printf("\nd");
 
         mysql_stmt_close(stmt);
         return 0; // dont exist
@@ -240,4 +238,93 @@ char * shaPwd(const char * pwd, char * hashString, char * salt){
     hashString[2 * SHA256_DIGEST_LENGTH] = '\0'; // Ajouter le caractère nul à la fin de la chaîne
 
     return hashString;
+}
+
+int verifLogin(MYSQL *dbCon, char * email, char * pwd, char * masterPwd) {
+    char salt[6];
+    strcpy(salt, getSaltByEmail(dbCon, email));
+    if(strcmp(salt, "ko") == 0)
+        return 1;
+    char hashedPwd[257];
+    char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
+    strcpy(hashedPwd, shaPwd(masterPwd, hashString, salt));
+    free(hashString);
+
+    char hashedMasterPwd[257];
+    char* hashMasterString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
+    strcpy(hashedMasterPwd, shaPwd(masterPwd, hashMasterString, salt));
+    free(hashMasterString);
+
+
+    int status = 0;
+    const char * sqlQuery = "SELECT email FROM users WHERE email = ? AND pwdAccount = ? AND pwdAccount = ?";
+
+    int size = strlen(sqlQuery);
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, size) == 0) {
+        MYSQL_BIND params[3];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = email;
+        params[0].buffer_length = strlen(email);
+
+        params[1].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[1].buffer = hashedPwd;
+        params[1].buffer_length = strlen(hashedPwd);
+
+        params[2].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[2].buffer = hashedMasterPwd;
+        params[2].buffer_length = strlen(hashedMasterPwd);
+
+        mysql_stmt_bind_param(stmt, params);
+        status = mysql_stmt_execute(stmt);
+
+        if(status != 0){
+            mysql_stmt_close(stmt);
+            return 2;
+        }
+        status = mysql_stmt_fetch(stmt);
+        if (status != 1 && status != MYSQL_NO_DATA){ // NO DATA ==> il ne reste plus de data, tout a été fetch
+            mysql_stmt_close(stmt);
+            return 0; // user exist
+        }
+
+        mysql_stmt_close(stmt);
+        return 1; // dont exist
+    }else{
+        mysql_stmt_close(stmt);
+        return 2;
+    }
+}
+
+char * getSaltByEmail(MYSQL *dbCon, char * email){
+    int status = 0;
+    const char * sqlQuery = "SELECT salt FROM users WHERE email = ?";
+
+    int size = strlen(sqlQuery);
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, size) == 0) {
+        MYSQL_BIND params[1];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = email;
+        params[0].buffer_length = strlen(email);
+
+        mysql_stmt_bind_param(stmt, params);
+        status = mysql_stmt_execute(stmt);
+
+        if(status != 0){
+            mysql_stmt_close(stmt);
+            return "ko";
+        }
+        status = mysql_stmt_fetch(stmt);
+        if (status != 1 && status != MYSQL_NO_DATA){ // NO DATA ==> il ne reste plus de data, tout a été fetch
+            mysql_stmt_close(stmt);
+            return 0; // user exist
+        }
+
+        mysql_stmt_close(stmt);
+        return "ko"; // dont exist
 }
