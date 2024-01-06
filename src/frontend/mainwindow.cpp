@@ -10,7 +10,6 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), appController(appController) 
 {
     setMinimumSize(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT);
-    //setFixedSize(WINDOW_MIN_WIDTH+50, WINDOW_MIN_HEIGHT+50);
     setWindowTitle(APPLICATION_NAME);
 
     QScreen *primaryScreen = QGuiApplication::primaryScreen();
