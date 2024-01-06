@@ -4,6 +4,7 @@
 #include "../../includes/db.h"
 #include "../../includes/models.h"
 #include "../../includes/backController.h"
+#include "../../includes/fileController.h"
 
 char **getPwsdList() {
     printf("e\n");
@@ -51,9 +52,21 @@ int addNewCredsController(MYSQL *dbCon, char *name, char *loginName, char *passw
     if (passwordSize == 0 || passwordSize > PASSWORD_MAX_SIZE)
         return EXIT_FAILURE;
 
-
     Credentials newCreds = { 0, userId, name, loginName, password };
     createNewCreds(dbCon, &newCreds);
 
     return EXIT_SUCCESS;
+}
+
+int getUserIdByToken(MYSQL *dbCon) {
+    TokenInfos *tokenInfos = getTokenFileInfos();
+
+    if (tokenInfos->token != NULL) {
+        int res = getUserByTokenInfos(dbCon, tokenInfos->token, tokenInfos->id);
+        int id = tokenInfos->id;
+        free(tokenInfos);
+        if (res == 1) return id;
+    }
+
+    return 0;
 }
