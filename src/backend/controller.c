@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../../includes/db.h"
+#include "../../includes/models.h"
 #include "../../includes/backController.h"
 
 char **getPwsdList() {
@@ -32,4 +34,26 @@ void printCreds(Credentials *creds, unsigned int size) {
     } else {
         fprintf(stderr, "creds -> %p\n", creds);
     }
+}
+
+int addNewCredsController(MYSQL *dbCon, char *name, char *loginName, char *password) {
+    int userId = 1;
+    int loginNameSize = strlen(name);
+    int loginSize = strlen(loginName);
+    int passwordSize = strlen(password);
+
+    if (loginNameSize == 0 || loginNameSize > LOGIN_NAME_MAX_SIZE)
+        return EXIT_FAILURE;
+
+    if (loginSize == 0 || loginSize > LOGIN_MAX_SIZE)
+        return EXIT_FAILURE;    
+
+    if (passwordSize == 0 || passwordSize > PASSWORD_MAX_SIZE)
+        return EXIT_FAILURE;
+
+
+    Credentials newCreds = { 0, userId, name, loginName, password };
+    createNewCreds(dbCon, &newCreds);
+
+    return EXIT_SUCCESS;
 }

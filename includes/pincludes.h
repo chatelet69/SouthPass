@@ -7,14 +7,14 @@
 #include <winbase.h>
 #endif
 #include "db.h"
-#include "web_service.h"
+#include "webService.h"
 #include "applicationController.h"
 #include "utils.h"
-#include <string.h>
 #include "backController.h"
 #include "backLoginSignIn.h"
 #include "credentialsWidget.h"
-#include "./models.h"
+#include "models.h"
 #include "loginPage.h"
+#include <string.h>
 
 #endif

@@ -10,6 +10,7 @@
 #include <QtWidgets>
 #include <QVBoxLayout>
 #include <QApplication>
+#include <QIcon>
 #include <QHBoxLayout>
 #include "../../includes/models.h"
 #include "../../includes/db.h"
@@ -22,33 +23,39 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     dbCon = dbConnect();
     stackedWidget = new QStackedWidget(NULL);
     
+    QWidget *mainWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainWidget->setLayout(mainLayout);
 
     QString styleSheet = ApplicationController::getStyleSheet();
     app.setStyleSheet(styleSheet);
 
+    QWidget *headerWidget = new QWidget();
+    headerWidget->setObjectName("headerWidget");
+    QHBoxLayout *headerLayout = new QHBoxLayout(headerWidget);
+
     QPushButton *themeButton = new QPushButton();
-    themeButton->setText(QPushButton::tr("Mettre Light Mode"));
-    themeButton->setMaximumSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
-    themeButton->setObjectName("searchButton");
+    themeButton->setObjectName("themeButton");
     connect(themeButton, &QPushButton::clicked, [=]() {
         this->changeTheme(themeButton);
         qDebug() << "x : " << mainWindow.getXPos();
     });
 
+    QIcon icon("./assets/lightThemeIcon.png");
+    themeButton->setIcon(icon);
+
+    headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
+
     mainWindow.move(500, 500);
     qDebug() << "x : " << mainWindow.getXPos();
 
+    logPage = new loginPage(NULL,this, dbCon);
     credsPage = new CredentialsPage(NULL, dbCon);
     stackedWidget->addWidget(credsPage);
-
-    logPage = new loginPage(NULL,this, dbCon);
     stackedWidget->addWidget(logPage);
 
-    mainLayout->addWidget(themeButton);
+    mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);
-    QWidget *mainWidget = new QWidget();
-    mainWidget->setLayout(mainLayout);
     mainWindow.setCentralWidget(mainWidget);
 
     if(isConnected() == 0){
@@ -73,8 +80,10 @@ void ApplicationController::changeTheme(QPushButton *themeButton) {
     isDark = (isDark) ? 0 : 1;
     QString themeFile = (isDark) ? darkModePath : lightModePath;
 
-    const char *themeName = (isDark) ? "Mettre LightMode" : "Mettre DarkMode";
-    themeButton->setText(QPushButton::tr(themeName));
+    const char *themeIconPath = (isDark) ? "./assets/lightThemeIcon.png" : "./assets/darkThemeIcon.png";
+
+    QIcon icon(themeIconPath);
+    themeButton->setIcon(icon);
 
     QFile file(themeFile);
     file.open(QFile::ReadOnly | QFile::Text);

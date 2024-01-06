@@ -1,28 +1,49 @@
 /* Dark Mode Main Window */
 
 QMainWindow {
-    background-color: rgb(127, 161, 173);
+    background-color: rgb(112, 112, 145);
 }
 
 QApplication {
-    border-color: red;
+    border-color: rgb(29, 32, 63);
 }
 
-#searchButton {
-    background-color: rgb(58, 57, 117);
+/* Header */
+
+#headerWidget {
+    border: 2px solid red;
+}
+
+#themeButton {
+    background-color: rgb(238, 238, 238);
     border-radius: 4px;
-    height: 15px;
-    border: 2px solid black;
-    color: white;
-    margin: 10px;
+    height: auto;
+    width: auto;
+    max-width: 30px;
+    border: 2px solid transparent;
 }
 
-#searchButton:hover {
-    background-color: rgb(75, 146, 61);
-    border-color: aqua;
+#themeButton:hover {
+    border-color: rgb(231, 231, 231);
 }
 
 /* Creds Widget */
+
+#searchCredsInput {
+    border: 1px solid gray;
+    border-radius: 4px;
+    width: 50px;
+}
+
+#credsSearchTypeBox {
+    border: 1px solid transparent;
+    background-color: rgb(235, 236, 238);
+    border-radius: 4px;
+}
+
+#credsSearchTypeBox, #searchCredsInput {
+    padding: 10px;
+}
 
 #credsWidget {
     padding: 5px;
@@ -67,4 +88,33 @@ QApplication {
     height: 25px;
     top: 20px;
     margin-top: 10%;
+}
+
+#editCredButton:hover {
+    background-color: #6da1b1;
+    border-color: rgb(44, 44, 44);
+}
+
+#cancelButton {
+    background-color: red;
+    color: white;
+}
+
+/* Creds Form Window */
+
+#credsFormWindow {
+    background-color: #4c637a;
+}
+
+#newCredsButton {
+    background-color: rgb(164, 216, 164);
+    border: none;
+    border-radius: 4;
+    padding: 2;
+    height: auto;
+    color: white;
+}
+
+#newCredsButton:hover {
+    background-color: #78d860;
 }
