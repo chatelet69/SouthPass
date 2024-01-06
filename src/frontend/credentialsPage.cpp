@@ -9,12 +9,12 @@
 #include "../../includes/credentialsWidget.h"
 #include "../../includes/pincludes.h"
 
-CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
+CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbCon, int userId) : QWidget(parent), dbCon(dbCon) {
     QVBoxLayout *layout = new QVBoxLayout();
 
     toolBarWidget = new CredsToolBarWidget(this, dbCon);
 
-    CredsArray credsArray = getPasswordsList(dbCon, 1);
+    CredsArray credsArray = getPasswordsList(dbCon, userId);
     credentialsWidget = new CredentialsWidget(this, credsArray);
     credentialsWidget->setObjectName("credsWidget");
     freeCredsArray(credsArray);
