@@ -243,8 +243,10 @@ char * shaPwd(const char * pwd, char * hashString, char * salt){
 int verifLogin(MYSQL *dbCon, char * email, char * pwd, char * masterPwd) {
     char salt[6];
     strcpy(salt, getSaltByEmail(dbCon, email));
-    if(strcmp(salt, "ko") == 0)
+    if(strcmp(salt, "ko") == 0){
+        printf("KO");
         return 1;
+    }
     char hashedPwd[257];
     char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
     strcpy(hashedPwd, shaPwd(masterPwd, hashString, salt));
@@ -285,11 +287,12 @@ int verifLogin(MYSQL *dbCon, char * email, char * pwd, char * masterPwd) {
             return 2;
         }
         status = mysql_stmt_fetch(stmt);
-        if (status != 1 && status != MYSQL_NO_DATA){ // NO DATA ==> il ne reste plus de data, tout a été fetch
+        if (status == 1 || status == MYSQL_NO_DATA){ // NO DATA ==> il ne reste plus de data, tout a été fetch
             mysql_stmt_close(stmt);
             return 0; // user exist
         }
 
+        printf("test");
         mysql_stmt_close(stmt);
         return 1; // dont exist
     }else{
@@ -319,12 +322,22 @@ char * getSaltByEmail(MYSQL *dbCon, char * email){
             mysql_stmt_close(stmt);
             return "ko";
         }
-        status = mysql_stmt_fetch(stmt);
-        if (status != 1 && status != MYSQL_NO_DATA){ // NO DATA ==> il ne reste plus de data, tout a été fetch
+
+        MYSQL_BIND result;
+        memset(&result, 0, sizeof(result));
+
+        char salt[6];
+        // Résultat pour le sel
+        result.buffer_type = MYSQL_TYPE_STRING;
+        result.buffer = salt;
+        result.buffer_length = sizeof(salt);
+
+        if (mysql_stmt_fetch(stmt) != MYSQL_NO_DATA){ // NO DATA ==> il ne reste plus de data, tout a été fetch
             mysql_stmt_close(stmt);
-            return 0; // user exist
+            return strdup(salt); // user exist
         }
 
         mysql_stmt_close(stmt);
         return "ko"; // dont exist
 }
+    }

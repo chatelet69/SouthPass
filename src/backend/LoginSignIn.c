@@ -8,14 +8,7 @@
 #include <ctype.h>
 
 int setConnected(){
-    FILE * fp = fopen("../connectionLog.txt", "rb");
-    int close;
-    if(fp == NULL){
-        FILE * fp2 = fopen("../connectionLog.txt", "wb");
-        fputs("disconnected", fp2);
-        close = fclose(fp2);
-        return 1;
-    }
+    FILE * fp = fopen("../connectionLog.txt", "wb");
     fputs("connected", fp);
     fclose(fp);
     return 0;

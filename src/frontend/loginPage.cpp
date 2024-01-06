@@ -45,7 +45,7 @@ loginPage::loginPage(QWidget *parent, ApplicationController *appController, MYSQ
     QLineEdit *signMasterPwd = new QLineEdit;
     signMasterPwd->setEchoMode(QLineEdit::Password);
     QLineEdit *confirmMasterPwd = new QLineEdit;
-    signMasterPwd->setEchoMode(QLineEdit::Password);
+    confirmMasterPwd->setEchoMode(QLineEdit::Password);
 
     layoutSignIn->addRow(signInLabel);
     layoutSignIn->addRow("&Email :", signEmail);
