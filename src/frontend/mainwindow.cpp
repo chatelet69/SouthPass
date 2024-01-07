@@ -5,6 +5,8 @@
 
 #include <QDebug>
 #include <QScreen>
+#include <QMenu>
+#include <QMenuBar>
 #include "../../includes/applicationController.h"
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), appController(appController) 
@@ -20,7 +22,6 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), appController(appC
 
     move(x, y);
     setGeometry(x, y, WINDOW_MIN_WIDTH+50, WINDOW_MIN_HEIGHT+50);
-
     //connect(this, &MainWindow::move, this, &MainWindow::onApplicationMove);
 }
 
