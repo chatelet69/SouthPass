@@ -108,7 +108,6 @@ QString ApplicationController::getStyleSheet() {
 }
 
 void ApplicationController::switchCredsPage() {
-    printf("ok");
     stackedWidget->setCurrentWidget(credsPage);
 }
 
@@ -143,10 +142,6 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
     QAction *quitWindow = new QAction("Quitter SouthPass", this);
     menuSouthPass->addAction(quitWindow);
 
-    QObject::connect(seePwd, SIGNAL(triggered()), this, SLOT(this->onSeePwdClicked()));
+    connect(seePwd, SIGNAL(triggered()), this, SLOT(switchCredsPage()));
     connect(quitWindow, SIGNAL(triggered()), qApp, SLOT(quit()));
-}
-void ApplicationController::onSeePwdClicked(){
-    printf("ok");
-    stackedWidget->setCurrentWidget(credsPage);
 }

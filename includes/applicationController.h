@@ -47,13 +47,9 @@ class ApplicationController : public QObject {
 
     public Q_SLOTS:
         void importMenu(QMenuBar *);
-        void switchCredsPage();
         void switchToLoginPage();
-        // void onApplicationMove();
-
-    public slots:
-        void onSeePwdClicked();
-
+        void switchCredsPage();
+    // void onApplicationMove();
 
 private:
         char isDark;
