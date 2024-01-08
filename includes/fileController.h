@@ -13,6 +13,7 @@ int getThemePreference();
 TokenInfos *getTokenFileInfos();
 void saveThemePreference(int theme);
 int saveNewTokenFile(char *tokenHash, char *email, const int id);
+int createTokenFile();
 
 #define TOKEN_SIZE 65
 #define MAIL_SIZE 50

@@ -87,4 +87,15 @@ void saveThemePreference(int theme) {
         else if (IS_LINUX) fprintf(configFile, "theme_preference : %s\n", savedTheme);
         fclose(configFile);
     }
+
+    fclose(configFile);
+}
+
+int createTokenFile() {
+    FILE *cookieFile = fopen(COOKIE_FILE_PATH, "wb");
+    if (cookieFile == NULL) return 1;
+
+    fclose(cookieFile);
+
+    return 0;
 }

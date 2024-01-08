@@ -9,6 +9,7 @@
 #include <QMenuBar>
 #include <QDebug>
 #include <QString>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QtWidgets>
 #include <QVBoxLayout>
@@ -20,6 +21,7 @@
 #include "../../includes/applicationController.h"
 #include "../../includes/pincludes.h"
 #include "../../includes/fileController.h"
+#include "../../includes/pwdGeneratorPage.h"
 
 ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
     isDark = getThemePreference();
@@ -58,8 +60,10 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
 
     logPage = new loginPage(NULL,this, dbCon);
     credsPage = new CredentialsPage(NULL, dbCon, this->userId);
+    pwdGen = new PwdGenerator(NULL, this, dbCon);
     stackedWidget->addWidget(credsPage);
     stackedWidget->addWidget(logPage);
+    stackedWidget->addWidget(pwdGen);
 
     mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);
@@ -114,7 +118,12 @@ QString ApplicationController::getStyleSheet() {
 }
 
 void ApplicationController::switchCredsPage() {
+    // VERIFIER QUE LA PERSONNE EST BIEN LOGIN
     stackedWidget->setCurrentWidget(credsPage);
+}
+
+void ApplicationController::switchGenPwdPage() {
+    stackedWidget->setCurrentWidget(pwdGen);
 }
 
 QApplication& ApplicationController::getApplication() {
@@ -152,7 +161,13 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
     menuSouthPass->addAction(deco);
     QAction *quitWindow = new QAction("Quitter SouthPass", this);
     menuSouthPass->addAction(quitWindow);
-
     connect(seePwd, SIGNAL(triggered()), this, SLOT(switchCredsPage()));
+    connect(pwdGenerator, SIGNAL(triggered()), this, SLOT(switchGenPwdPage()));
+    connect(deco, SIGNAL(triggered()), this, SLOT(deconnexion()));
     connect(quitWindow, SIGNAL(triggered()), qApp, SLOT(quit()));
+}
+
+void ApplicationController::deconnexion() {
+    createTokenFile();
+    switchToLoginPage();
 }
