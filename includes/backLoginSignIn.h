@@ -6,7 +6,7 @@
 #define SOUTHPASS_BACKISCONNECTED_H
 
 int isConnected();
-char * verifSignIn(char *, char *, char *, char *, char *);
+const char *verifSignIn(char *, char *, char *, char *, char *);
 int hasLetter(char *);
 int hasDigit(char *);
 int hasSpecialChar(char *);

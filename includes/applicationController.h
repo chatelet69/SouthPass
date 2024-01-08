@@ -44,6 +44,7 @@ class ApplicationController : public QObject {
         QString getStyleSheet();
 
         QApplication& getApplication();
+        int getUserId();
 
     public Q_SLOTS:
         void importMenu(QMenuBar *);
@@ -52,7 +53,9 @@ class ApplicationController : public QObject {
     // void onApplicationMove();
 
 private:
+        int userId;
         char isDark;
+        char oldTheme;
         QApplication app;
         QStackedWidget *stackedWidget;
         MainWindow mainWindow;

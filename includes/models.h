@@ -11,6 +11,12 @@ struct Credentials {
 };
 
 typedef struct {
+    int id;
+    char *token;
+    char *email;
+} TokenInfos;
+
+typedef struct {
     Credentials *creds;
     unsigned int size;
 } CredsArray;

@@ -18,19 +18,24 @@
 #include "../../includes/models.h"
 #include "../../includes/db.h"
 #include "../../includes/pincludes.h"
+#include "../../includes/fileController.h"
 #define lightModePath "./style/lightMode.css"
 #define darkModePath "./style/darkMode.css"
+#define lightModeIcon "./assets/lightThemeIcon.png"
+#define darkModeIcon "./assets/darkThemeIcon.png"
 
 ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
-    isDark = 1;
+    isDark = getThemePreference();
+    oldTheme = isDark;
     dbCon = dbConnect();
     stackedWidget = new QStackedWidget(NULL);
+    userId = getUserIdByToken(dbCon);
     
     QWidget *mainWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainWidget->setLayout(mainLayout);
 
-    QString styleSheet = ApplicationController::getStyleSheet();
+    QString styleSheet = this->getStyleSheet();
     app.setStyleSheet(styleSheet);
 
     QMenuBar *menuBar = new QMenuBar(nullptr);
@@ -43,7 +48,9 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     QPushButton *themeButton = new QPushButton();
     themeButton->setObjectName("themeButton");
     connect(themeButton, &QPushButton::clicked, [=]() { this->changeTheme(themeButton); });
-    QIcon icon("./assets/lightThemeIcon.png");
+
+    const char *themeIconPath = (isDark) ? lightModeIcon : darkModeIcon;
+    QIcon icon(themeIconPath);
     themeButton->setIcon(icon);
 
     headerLayout->addWidget(menuBar, 0, Qt::AlignLeft);
@@ -51,10 +58,10 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
 
 
     mainWindow.move(500, 500);
-    qDebug() << "x : " << mainWindow.getXPos();
+    //qDebug() << "x : " << mainWindow.getXPos();
 
     logPage = new loginPage(NULL,this, dbCon);
-    credsPage = new CredentialsPage(NULL, dbCon);
+    credsPage = new CredentialsPage(NULL, dbCon, this->userId);
     stackedWidget->addWidget(credsPage);
     stackedWidget->addWidget(logPage);
 
@@ -62,7 +69,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     mainLayout->addWidget(stackedWidget);
     mainWindow.setCentralWidget(mainWidget);
 
-    if(isConnected() == 0){
+    if(isConnected() == 0 && userId != 0){
         ApplicationController::switchCredsPage();
     }else{
         ApplicationController::switchToLoginPage();
@@ -73,6 +80,8 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
 ApplicationController::~ApplicationController() {
     // Destruction de la classe
     closeDb(dbCon);
+
+    if (oldTheme != isDark) saveThemePreference(isDark);
 }
 
 int ApplicationController::run() {
@@ -84,7 +93,7 @@ void ApplicationController::changeTheme(QPushButton *themeButton) {
     isDark = (isDark) ? 0 : 1;
     QString themeFile = (isDark) ? darkModePath : lightModePath;
 
-    const char *themeIconPath = (isDark) ? "./assets/lightThemeIcon.png" : "./assets/darkThemeIcon.png";
+    const char *themeIconPath = (isDark) ? lightModeIcon : darkModeIcon;
 
     QIcon icon(themeIconPath);
     themeButton->setIcon(icon);
@@ -99,7 +108,8 @@ void ApplicationController::changeTheme(QPushButton *themeButton) {
 }
 
 QString ApplicationController::getStyleSheet() {
-    QFile file(darkModePath);
+    const char *path = (isDark) ? darkModePath : lightModePath;
+    QFile file(path);
     file.open(QFile::ReadOnly | QFile::Text);
     QString styleSheet = QLatin1String(file.readAll());
     styleSheet.remove('\n');
@@ -114,9 +124,13 @@ void ApplicationController::switchCredsPage() {
 QApplication& ApplicationController::getApplication() {
     return app;
 }
+
 void ApplicationController::switchToLoginPage() {
     stackedWidget->setCurrentWidget(logPage);
 }
+
+int ApplicationController::getUserId() {
+    return userId;
 
 void ApplicationController::importMenu(QMenuBar *menuBar){
 // MENU

@@ -1,6 +1,9 @@
-//
-// Created by mathf on 03/01/2024.
-//
+/*
+    Filename : loginController.c
+    Description : Login Controller (SignIn, Login, TokenFile...)
+    Created by mathf on 03/01/2024
+*/
+
 #include <stdlib.h>
 #include "../../includes/backLoginSignIn.h"
 #include <stdio.h>
@@ -40,13 +43,14 @@ int isConnected(){
     }
 }
 
-char * verifSignIn(char * email, char * pwd, char * verifPwd, char * masterPwd, char * verifMasterPwd){
+const char *verifSignIn(char *email, char *pwd, char *verifPwd, char *masterPwd, char *verifMasterPwd){
     char *pos;
+    
     // verif email
-    if(strlen(email)==0)
+    if(strlen(email) == 0)
         return "Email manquant";
     pos = strchr(email, '@');
-    if(pos==NULL)
+    if(pos == NULL)
         return "Mauvais email";
     if(strchr(pos+1, '.')==NULL)
         return "Mauvais email";
@@ -83,6 +87,7 @@ int verifPasswordChars(char * str){
 
     return 1;
 }
+
 int hasLetter(char *str) {
     while (*str) {
         if (isalpha(*str)) {
