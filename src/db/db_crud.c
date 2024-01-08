@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../includes/db.h"
 #include <openssl/sha.h>
 #include <time.h>
 #include <stdint.h>
-#include <mysql.h>
 #include "../../includes/utils.h"
+#include "../../includes/db.h"
 
 // Fonction de récupération 
 int getData(MYSQL *dbCon, char *sqlQuery) {      
@@ -241,23 +240,7 @@ char * shaPwd(const char * pwd, char * hashString, char * salt){
     return hashString;
 }
 
-int verifLogin(MYSQL *dbCon, char * email, char * pwd, char * masterPwd) {
-    char salt[7];
-    strcpy(salt, getSaltByEmail(dbCon, email));
-    if(strcmp(salt, "ko") == 0){
-        printf("KO");
-        return 1;
-    }
-    char hashedPwd[257];
-    char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
-    strcpy(hashedPwd, shaPwd(pwd, hashString, salt));
-    free(hashString);
-
-    char hashedMasterPwd[257];
-    char* hashMasterString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
-    strcpy(hashedMasterPwd, shaPwd(masterPwd, hashMasterString, salt));
-    free(hashMasterString);
-
+int checkLoginDb(MYSQL *dbCon, char *salt, char *email, char *hashedPwd, char *hashedMasterPwd) {
     int status = 0;
     const char * sqlQuery = "SELECT email FROM users WHERE email = ? AND pwdAccount = ? AND pwdAccount = ?";
 
@@ -271,21 +254,21 @@ int verifLogin(MYSQL *dbCon, char * email, char * pwd, char * masterPwd) {
     bool          is_null[1];
     bool          error[1];
 
-/* Prepare a SELECT query to fetch data from test_table */
+    /* Prepare a SELECT query to fetch data from test_table */
     stmt = mysql_stmt_init(dbCon);
-    if (!stmt)
-    {
+    if (!stmt) {
         fprintf(stderr, " mysql_stmt_init(), out of memory\n");
         return 2;
     }
-    if (mysql_stmt_prepare(stmt, sqlQuery, size))
-    {
+
+    if (mysql_stmt_prepare(stmt, sqlQuery, size)) {
         fprintf(stderr, " mysql_stmt_prepare(), SELECT failed\n");
         fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
         return 2;
     }
     fprintf(stdout, " prepare, SELECT successful\n");
-/* Get the parameter count from the statement */
+    
+    // Get the parameter count from the statement
     MYSQL_BIND params[3];
     memset(params, 0, sizeof(params));
     params[0].buffer_type = MYSQL_TYPE_VARCHAR;
@@ -293,39 +276,39 @@ int verifLogin(MYSQL *dbCon, char * email, char * pwd, char * masterPwd) {
     params[0].buffer_length = strlen(email);
 
     params[1].buffer_type = MYSQL_TYPE_VARCHAR;
-    params[1].buffer = hashString;
-    params[1].buffer_length = strlen(hashString);
+    params[1].buffer = hashedPwd;
+    params[1].buffer_length = strlen(hashedPwd);
 
     params[2].buffer_type = MYSQL_TYPE_VARCHAR;
-    params[2].buffer = hashMasterString;
-    params[2].buffer_length = strlen(hashMasterString);
+    params[2].buffer = hashedMasterPwd;
+    params[2].buffer_length = strlen(hashedMasterPwd);
 
     mysql_stmt_bind_param(stmt, params);
     param_count= mysql_stmt_param_count(stmt);
 
     fprintf(stdout, " total parameters in SELECT: %d\n", param_count);
-    if (param_count != 3) /* validate parameter count */
-    {
+    if (param_count != 3) { // validate parameter count
         fprintf(stderr, " invalid parameter count returned by MySQL\n");
         return 1;
     }
-/* Execute the SELECT query */
-    if (mysql_stmt_execute(stmt))
-    {
+    
+    /* Execute the SELECT query */
+    if (mysql_stmt_execute(stmt)) {
         fprintf(stderr, " mysql_stmt_execute(), failed\n");
         fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
         return 2;
     }
-/* Fetch result set meta information */
+    
+    /* Fetch result set meta information */
     prepare_meta_result = mysql_stmt_result_metadata(stmt);
-    if (!prepare_meta_result)
-    {
+    if (!prepare_meta_result) {
         fprintf(stderr,
                 " mysql_stmt_result_metadata(), returned no meta information\n");
         fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
         return 1;
     }
-/* Get total columns in the query */
+    
+    /* Get total columns in the query */
     column_count= mysql_num_fields(prepare_meta_result);
     fprintf(stdout,
             " total columns in SELECT statement: %d\n",
@@ -421,7 +404,7 @@ int getUserByTokenInfos(MYSQL *dbCon, const char *token, const int userId) {
     return status;
 }
 
-char * getSaltByEmail(MYSQL *mysql, char * email){
+const char *getSaltByEmail(MYSQL *mysql, char *email) {
     char salt[7];
     MYSQL_STMT    *stmt;
     MYSQL_BIND    bind[1];
@@ -539,4 +522,63 @@ char * getSaltByEmail(MYSQL *mysql, char * email){
         fprintf(stderr, " %s\n", mysql_error(mysql));
     }
     return strdup(salt);
+}
+
+int saveNewUserTokenDb(MYSQL *dbCon, const int userId, char *tokenHash) {
+    int status = EXIT_FAILURE;
+    if (userId == 0) return status;
+    const char *sqlQuery = "UPDATE users SET token = ? WHERE id = ?";
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[2];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = tokenHash;
+        params[0].buffer_length = strlen(tokenHash);
+
+        params[1].buffer_type = MYSQL_TYPE_LONG;
+        params[1].buffer = (void *) &userId;
+
+        mysql_stmt_bind_param(stmt, params);
+        status = mysql_stmt_execute(stmt);
+    }
+    mysql_stmt_close(stmt);
+
+    return status;
+}
+
+int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption) {
+    int userId = 0;
+    const char *baseQuery = "SELECT id FROM users WHERE somethingmaybelong = something";
+    char *sqlQuery = (char *) malloc(sizeof(char) * strlen(baseQuery));
+    sprintf(sqlQuery, "SELECT id FROM users WHERE %s = ?", searchOption);
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[1];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = search;
+        params[0].buffer_length = strlen(search);
+
+        mysql_stmt_bind_param(stmt, params);
+        int status = mysql_stmt_execute(stmt);
+
+        if (status == EXIT_SUCCESS) {
+            int tmpId = 0;
+            MYSQL_BIND results[1];
+            memset(results, 0, sizeof(results));
+            results[0].buffer_type = MYSQL_TYPE_LONG;
+            results[0].buffer = &tmpId;
+            mysql_stmt_bind_result(stmt, results);
+
+            if (mysql_stmt_fetch(stmt) == 0) {
+                userId = (tmpId > 0) ? tmpId : 0;
+            }
+        }
+    }
+    mysql_stmt_close(stmt);
+
+    return userId;
 }
