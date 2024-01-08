@@ -16,5 +16,6 @@
 #include "models.h"
 #include "loginPage.h"
 #include <string.h>
+#include "pwdGeneratorPage.h"
 
 #endif

@@ -9,6 +9,7 @@
 #include "./db.h"
 #include "./credentialsWidget.h"
 #include "./loginPage.h"
+#include "./pwdGeneratorPage.h"
 
 #define APPLICATION_NAME "SouthPass"
 
@@ -50,6 +51,8 @@ class ApplicationController : public QObject {
         void importMenu(QMenuBar *);
         void switchToLoginPage();
         void switchCredsPage();
+        void switchGenPwdPage();
+        void deconnexion();
     // void onApplicationMove();
 
 private:
@@ -61,6 +64,7 @@ private:
         MainWindow mainWindow;
         MYSQL *dbCon;
         loginPage *logPage;
+        PwdGenerator *pwdGen;
         CredentialsPage *credsPage;
 };
 #endif

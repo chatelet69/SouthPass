@@ -22,7 +22,7 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId);
 int createNewCreds(MYSQL *dbCon, Credentials *creds);
 char *shaPwd(const char *, char *, char *);
 int verifLogin(MYSQL *, char *, char *, char *);
-const char *getSaltByEmail(MYSQL *, char *);
+char *getSaltByEmail(MYSQL *, char *);
 int getUserByTokenInfos(MYSQL *dbCon, const char *token, const int userId);
 
 #endif
