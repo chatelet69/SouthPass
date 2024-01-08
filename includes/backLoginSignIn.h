@@ -7,10 +7,12 @@
 
 int isConnected();
 const char *verifSignIn(char *, char *, char *, char *, char *);
+int verifLogin(MYSQL *dbCon, char *email, char *password, char *masterPwd);
 int hasLetter(char *);
 int hasDigit(char *);
 int hasSpecialChar(char *);
 int verifPasswordChars(char *);
 int verifPasswordValidity(char *, char *);
 int setConnected();
-#endif //SOUTHPASS_BACKISCONNECTED_H
+
+#endif

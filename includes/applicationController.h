@@ -19,6 +19,11 @@
 #define BUTTON_MAX_WIDTH 150
 #define BUTTON_MAX_HEIGHT 50
 
+#define lightModePath "./style/lightMode.css"
+#define darkModePath "./style/darkMode.css"
+#define lightModeIcon "./assets/lightThemeIcon.png"
+#define darkModeIcon "./assets/darkThemeIcon.png"
+
 class MainWindow;
 class ApplicationController;
 class loginPage;

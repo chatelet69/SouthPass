@@ -18,20 +18,20 @@
 #include <QHBoxLayout>
 #include "../../includes/models.h"
 #include "../../includes/db.h"
+#include "../../includes/applicationController.h"
 #include "../../includes/pincludes.h"
 #include "../../includes/fileController.h"
-#define lightModePath "./style/lightMode.css"
-#define darkModePath "./style/darkMode.css"
-#define lightModeIcon "./assets/lightThemeIcon.png"
-#define darkModeIcon "./assets/darkThemeIcon.png"
 #include "../../includes/pwdGeneratorPage.h"
 
 ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
     isDark = getThemePreference();
+    qDebug() << "test";
     oldTheme = isDark;
     dbCon = dbConnect();
     stackedWidget = new QStackedWidget(NULL);
+    qDebug() << "test2";
     userId = getUserIdByToken(dbCon);
+    qDebug() << "test3";
     
     QWidget *mainWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();
@@ -58,10 +58,6 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     headerLayout->addWidget(menuBar, 0, Qt::AlignLeft);
     headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
 
-
-    mainWindow.move(500, 500);
-    //qDebug() << "x : " << mainWindow.getXPos();
-
     logPage = new loginPage(NULL,this, dbCon);
     credsPage = new CredentialsPage(NULL, dbCon, this->userId);
     pwdGen = new PwdGenerator(NULL, this, dbCon);
@@ -75,7 +71,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
 
     if(isConnected() == 0 && userId != 0){
         ApplicationController::switchCredsPage();
-    }else{
+    } else {
         ApplicationController::switchToLoginPage();
         // connect(logPage, reinterpret_cast<const char *>(&loginPage::signInSuccess), this, SLOT(switchCredsPage()));
     }

@@ -4,6 +4,7 @@
 #include <QCheckBox>
 #include <QMessageBox>
 #include "../../includes/applicationController.h"
+#include "../../includes/backLoginSignIn.h"
 #include "../../includes/pincludes.h"
 
 loginPage::loginPage(QWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
