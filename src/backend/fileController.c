@@ -52,23 +52,39 @@ TokenInfos *getTokenFileInfos() {
     return tokenInfos;
 }
 
+int saveNewTokenFile(char *tokenHash, char *email, const int id) {
+    FILE *cookieFile = fopen(COOKIE_FILE_PATH, "wb");
+    if (cookieFile == NULL) return EXIT_FAILURE;
+
+    int tokenSize = strlen(tokenHash);
+    int emailSize = strlen(email);
+    char *finalStr = (char *) malloc(sizeof(char) * (emailSize + tokenSize) + 8);
+    sprintf(finalStr, "%s:%s:%d", tokenHash, email, id);
+
+    fwrite(finalStr, sizeof(char), strlen(finalStr), cookieFile);
+    fclose(cookieFile);
+
+    return EXIT_SUCCESS;
+}
+
 void saveThemePreference(int theme) {
-    FILE *configFile = fopen(CONFIG_FILE_PATH, "rt+");
-    const char *savedTheme = (theme) ? "dark" : "light";
+    FILE *configFile = fopen(CONFIG_FILE_PATH, "r+t");
+    const char *savedTheme = (theme) ? "dark\0" : "light\0";
 
     if (configFile != NULL) {
         long pos = 0;
-        char line[121];
-        char prop[2][40];
-        while (fgets(line, 120, configFile) != NULL) {
+        char line[100];
+        while (fgets(line, 100, configFile) != NULL) {
+            pos = ftell(configFile) - strlen(line);
+            printf("%d : %s", pos, line);
             if (strstr(line, "theme_preference") != NULL) {
-                pos = ftell(configFile) - strlen(line);
+                printf("%d : %d\n", ftell(configFile), strlen(line));
                 break;
             }
         }
-        fseek(configFile, pos, SEEK_SET);
-        fprintf(configFile, "theme_preference : %s\n", savedTheme);
+        fseek(configFile, pos-1, SEEK_SET);
+        if (IS_WINDOWS) fprintf(configFile, "theme_preference : %s\n", (theme) ? "dark" : "light");
+        else if (IS_LINUX) fprintf(configFile, "theme_preference : %s\n", savedTheme);
+        fclose(configFile);
     }
-
-    fclose(configFile);
 }

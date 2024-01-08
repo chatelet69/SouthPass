@@ -5,10 +5,13 @@
 */
 
 #include <stdlib.h>
-#include "../../includes/backLoginSignIn.h"
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <openssl/sha.h>
+#include "../../includes/db.h"
+#include "../../includes/backController.h"
+#include "../../includes/backLoginSignIn.h"
 
 int setConnected(){
     FILE * fp = fopen("../connectionLog.txt", "wb");
@@ -75,6 +78,31 @@ const char *verifSignIn(char *email, char *pwd, char *verifPwd, char *masterPwd,
         return "Vos mots de passes doivent contenir au moins 1 lettre, 1 chiffre et 1 caractère spécial";
 
     return "ok";
+}
+
+int verifLogin(MYSQL *dbCon, char *email, char *password, char *masterPwd) {
+    char salt[7];
+    strcpy(salt, getSaltByEmail(dbCon, email));
+    if(strcmp(salt, "ko") == 0){
+        printf("KO");
+        return 1;
+    }
+    
+    char hashedPwd[257];
+    char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
+    strcpy(hashedPwd, shaPwd(password, hashString, salt));
+    free(hashString);
+
+    char hashedMasterPwd[257];
+    char* hashMasterString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
+    strcpy(hashedMasterPwd, shaPwd(masterPwd, hashMasterString, salt));
+    free(hashMasterString);
+
+    int status = checkLoginDb(dbCon, salt, email, hashedPwd, hashedMasterPwd);
+    printf("STATUS = %d\n", status);
+    if (status == 0) generateNewUserToken(dbCon, email);
+
+    return (status == 0) ? EXIT_SUCCESS : status;
 }
 
 int verifPasswordChars(char * str){
