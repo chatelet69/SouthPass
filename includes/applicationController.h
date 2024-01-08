@@ -34,6 +34,7 @@ class MainWindow : public QMainWindow {
 };
 
 class ApplicationController : public QObject {
+    Q_OBJECT
     public:
         ApplicationController(int argc, char **argv);
         ~ApplicationController();
@@ -46,8 +47,10 @@ class ApplicationController : public QObject {
         int getUserId();
 
     public Q_SLOTS:
-        void switchCredsPage();
+        void importMenu(QMenuBar *);
         void switchToLoginPage();
+        void switchCredsPage();
+    // void onApplicationMove();
 
 private:
         int userId;
@@ -59,8 +62,5 @@ private:
         MYSQL *dbCon;
         loginPage *logPage;
         CredentialsPage *credsPage;
-
-    public Q_SLOTS:
-        void onApplicationMove();
 };
 #endif

@@ -242,7 +242,7 @@ char * shaPwd(const char * pwd, char * hashString, char * salt){
 }
 
 int verifLogin(MYSQL *dbCon, char * email, char * pwd, char * masterPwd) {
-    char salt[6];
+    char salt[7];
     strcpy(salt, getSaltByEmail(dbCon, email));
     if(strcmp(salt, "ko") == 0){
         printf("KO");
@@ -250,7 +250,7 @@ int verifLogin(MYSQL *dbCon, char * email, char * pwd, char * masterPwd) {
     }
     char hashedPwd[257];
     char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
-    strcpy(hashedPwd, shaPwd(masterPwd, hashString, salt));
+    strcpy(hashedPwd, shaPwd(pwd, hashString, salt));
     free(hashString);
 
     char hashedMasterPwd[257];
@@ -258,90 +258,138 @@ int verifLogin(MYSQL *dbCon, char * email, char * pwd, char * masterPwd) {
     strcpy(hashedMasterPwd, shaPwd(masterPwd, hashMasterString, salt));
     free(hashMasterString);
 
-
     int status = 0;
     const char * sqlQuery = "SELECT email FROM users WHERE email = ? AND pwdAccount = ? AND pwdAccount = ?";
 
     int size = strlen(sqlQuery);
 
-    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
-    if (mysql_stmt_prepare(stmt, sqlQuery, size) == 0) {
-        MYSQL_BIND params[3];
-        memset(params, 0, sizeof(params));
-        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
-        params[0].buffer = email;
-        params[0].buffer_length = strlen(email);
+    MYSQL_STMT    *stmt;
+    MYSQL_BIND    bind[3];
+    MYSQL_RES     *prepare_meta_result;
+    int           param_count, column_count, row_count;
+    unsigned long length[1];
+    bool          is_null[1];
+    bool          error[1];
 
-        params[1].buffer_type = MYSQL_TYPE_VARCHAR;
-        params[1].buffer = hashedPwd;
-        params[1].buffer_length = strlen(hashedPwd);
-
-        params[2].buffer_type = MYSQL_TYPE_VARCHAR;
-        params[2].buffer = hashedMasterPwd;
-        params[2].buffer_length = strlen(hashedMasterPwd);
-
-        mysql_stmt_bind_param(stmt, params);
-        status = mysql_stmt_execute(stmt);
-
-        if(status != 0){
-            mysql_stmt_close(stmt);
-            return 2;
-        }
-        status = mysql_stmt_fetch(stmt);
-        if (status == 1 || status == MYSQL_NO_DATA){ // NO DATA ==> il ne reste plus de data, tout a été fetch
-            mysql_stmt_close(stmt);
-            return 0; // user exist
-        }
-
-        mysql_stmt_close(stmt);
-        return 1; // dont exist
-    }else{
-        mysql_stmt_close(stmt);
+/* Prepare a SELECT query to fetch data from test_table */
+    stmt = mysql_stmt_init(dbCon);
+    if (!stmt)
+    {
+        fprintf(stderr, " mysql_stmt_init(), out of memory\n");
         return 2;
     }
-}
-
-const char *getSaltByEmail(MYSQL *dbCon, char * email){
-    int status = 0;
-    const char * sqlQuery = "SELECT salt FROM users WHERE email = ?";
-
-    int size = strlen(sqlQuery);
-
-    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
-    if (mysql_stmt_prepare(stmt, sqlQuery, size) == 0) {
-        MYSQL_BIND params[1];
-        memset(params, 0, sizeof(params));
-        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
-        params[0].buffer = email;
-        params[0].buffer_length = strlen(email);
-
-        mysql_stmt_bind_param(stmt, params);
-        status = mysql_stmt_execute(stmt);
-
-        if(status != 0){
-            mysql_stmt_close(stmt);
-            return "ko";
-        }
-
-        MYSQL_BIND result;
-        memset(&result, 0, sizeof(result));
-
-        char salt[6];
-        // Résultat pour le sel
-        result.buffer_type = MYSQL_TYPE_STRING;
-        result.buffer = salt;
-        result.buffer_length = sizeof(salt);
-
-        if (mysql_stmt_fetch(stmt) != MYSQL_NO_DATA){ // NO DATA ==> il ne reste plus de data, tout a été fetch
-            mysql_stmt_close(stmt);
-            return strdup(salt); // user exist
-        }
-
-        mysql_stmt_close(stmt);
-        return "ko"; // dont exist
+    if (mysql_stmt_prepare(stmt, sqlQuery, size))
+    {
+        fprintf(stderr, " mysql_stmt_prepare(), SELECT failed\n");
+        fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+        return 2;
     }
+    fprintf(stdout, " prepare, SELECT successful\n");
+/* Get the parameter count from the statement */
+    MYSQL_BIND params[3];
+    memset(params, 0, sizeof(params));
+    params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+    params[0].buffer = email;
+    params[0].buffer_length = strlen(email);
 
-    return "error";
+    params[1].buffer_type = MYSQL_TYPE_VARCHAR;
+    params[1].buffer = hashString;
+    params[1].buffer_length = strlen(hashString);
+
+    params[2].buffer_type = MYSQL_TYPE_VARCHAR;
+    params[2].buffer = hashMasterString;
+    params[2].buffer_length = strlen(hashMasterString);
+
+    mysql_stmt_bind_param(stmt, params);
+    param_count= mysql_stmt_param_count(stmt);
+
+    fprintf(stdout, " total parameters in SELECT: %d\n", param_count);
+    if (param_count != 3) /* validate parameter count */
+    {
+        fprintf(stderr, " invalid parameter count returned by MySQL\n");
+        return 1;
+    }
+/* Execute the SELECT query */
+    if (mysql_stmt_execute(stmt))
+    {
+        fprintf(stderr, " mysql_stmt_execute(), failed\n");
+        fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+        return 2;
+    }
+/* Fetch result set meta information */
+    prepare_meta_result = mysql_stmt_result_metadata(stmt);
+    if (!prepare_meta_result)
+    {
+        fprintf(stderr,
+                " mysql_stmt_result_metadata(), returned no meta information\n");
+        fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+        return 1;
+    }
+/* Get total columns in the query */
+    column_count= mysql_num_fields(prepare_meta_result);
+    fprintf(stdout,
+            " total columns in SELECT statement: %d\n",
+            column_count);
+
+    if (column_count != 1) /* validate column count */
+    {
+        fprintf(stderr, " invalid column count returned by MySQL\n");
+        return 1;
+    }
+/* Bind the result buffers for all 4 columns before fetching them */
+    memset(bind, 0, sizeof(bind));
+    char verifEmail[256];
+/* STRING COLUMN */
+    bind[0].buffer_type= MYSQL_TYPE_STRING;
+    bind[0].buffer= (char *)verifEmail;
+    bind[0].buffer_length= strlen(salt);
+    bind[0].is_null= &is_null[0];
+    bind[0].length= &length[0];
+    bind[0].error= &error[0];
+/* Bind the result buffers */
+    if (mysql_stmt_bind_result(stmt, bind))
+    {
+        fprintf(stderr, " mysql_stmt_bind_result() failed\n");
+        fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+        return 2;
+    }
+/* Now buffer all results to client (optional step) */
+    if (mysql_stmt_store_result(stmt))
+    {
+        fprintf(stderr, " mysql_stmt_store_result() failed\n");
+        fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+        return 2;
+    }
+/* Fetch all rows */
+    row_count= 0;
+    fprintf(stdout, "Fetching results ...\n");
+    mysql_stmt_fetch(stmt);
+    row_count++;
+    /* column 2 */
+    fprintf(stdout, "   column2 (string)   : ");
+    if (is_null[0])
+        fprintf(stdout, " NULL\n");
+    else
+        fprintf(stdout, " %s(%ld)\n", salt, length[0]);
+
+    fprintf(stdout, "\n");
+/* Validate rows fetched */
+    fprintf(stdout, " total rows fetched: %d\n", row_count);
+    if (row_count != 1)
+    {
+        fprintf(stderr, " Mauvais login\n");
+        return 1;
+    }
+/* Free the prepared result metadata */
+    mysql_free_result(prepare_meta_result);
+/* Close the statement */
+    if (mysql_stmt_close(stmt))
+    {
+        fprintf(stderr, " failed while closing the statement\n");
+        fprintf(stderr, " %s\n", mysql_error(dbCon));
+    }
+    printf("\nFINIT\n");
+    return 0;
 }
 
 int getUserByTokenInfos(MYSQL *dbCon, const char *token, const int userId) {
@@ -371,4 +419,124 @@ int getUserByTokenInfos(MYSQL *dbCon, const char *token, const int userId) {
     mysql_stmt_close(stmt);
     
     return status;
+}
+
+char * getSaltByEmail(MYSQL *mysql, char * email){
+    char salt[7];
+    MYSQL_STMT    *stmt;
+    MYSQL_BIND    bind[1];
+    MYSQL_RES     *prepare_meta_result;
+    MYSQL_TIME    ts;
+    unsigned long length[1];
+    int           param_count, column_count, row_count;
+    bool          is_null[1];
+    bool          error[1];
+
+/* Prepare a SELECT query to fetch data from test_table */
+    stmt = mysql_stmt_init(mysql);
+    if (!stmt)
+    {
+        fprintf(stderr, " mysql_stmt_init(), out of memory\n");
+        return "ko";
+    }
+    if (mysql_stmt_prepare(stmt, "SELECT salt FROM users WHERE email = ?", strlen("SELECT salt FROM users WHERE email = ?")))
+    {
+        fprintf(stderr, " mysql_stmt_prepare(), SELECT failed\n");
+        fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+        return "ko";
+    }
+    fprintf(stdout, " prepare, SELECT successful\n");
+/* Get the parameter count from the statement */
+    MYSQL_BIND params[1];
+    memset(params, 0, sizeof(params));
+    params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+    params[0].buffer = email;
+    params[0].buffer_length = strlen(email);
+    mysql_stmt_bind_param(stmt, params);
+    param_count= mysql_stmt_param_count(stmt);
+    fprintf(stdout, " total parameters in SELECT: %d\n", param_count);
+    if (param_count != 1) /* validate parameter count */
+    {
+        fprintf(stderr, " invalid parameter count returned by MySQL\n");
+        return "ko";
+    }
+/* Execute the SELECT query */
+    if (mysql_stmt_execute(stmt))
+    {
+        fprintf(stderr, " mysql_stmt_execute(), failed\n");
+        fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+        return "ko";
+    }
+/* Fetch result set meta information */
+    prepare_meta_result = mysql_stmt_result_metadata(stmt);
+    if (!prepare_meta_result)
+    {
+        fprintf(stderr,
+                " mysql_stmt_result_metadata(), returned no meta information\n");
+        fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+        return "ko";
+    }
+/* Get total columns in the query */
+    column_count= mysql_num_fields(prepare_meta_result);
+    fprintf(stdout,
+            " total columns in SELECT statement: %d\n",
+            column_count);
+
+    if (column_count != 1) /* validate column count */
+    {
+        fprintf(stderr, " invalid column count returned by MySQL\n");
+        return "ko";
+    }
+/* Bind the result buffers for all 4 columns before fetching them */
+    memset(bind, 0, sizeof(bind));
+/* STRING COLUMN */
+    bind[0].buffer_type= MYSQL_TYPE_STRING;
+    bind[0].buffer= (char *)salt;
+    bind[0].buffer_length= strlen(salt);
+    bind[0].is_null= &is_null[0];
+    bind[0].length= &length[0];
+    bind[0].error= &error[0];
+/* Bind the result buffers */
+    if (mysql_stmt_bind_result(stmt, bind))
+    {
+        fprintf(stderr, " mysql_stmt_bind_result() failed\n");
+        fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+        return "ko";
+    }
+/* Now buffer all results to client (optional step) */
+    if (mysql_stmt_store_result(stmt))
+    {
+        fprintf(stderr, " mysql_stmt_store_result() failed\n");
+        fprintf(stderr, " %s\n", mysql_stmt_error(stmt));
+        return "ko";
+    }
+/* Fetch all rows */
+    row_count= 0;
+    fprintf(stdout, "Fetching results ...\n");
+    mysql_stmt_fetch(stmt);
+        row_count++;
+        /* column 2 */
+        fprintf(stdout, "   column2 (string)   : ");
+        if (is_null[0])
+            fprintf(stdout, " NULL\n");
+        else
+            fprintf(stdout, " %s(%ld)\n", salt, length[0]);
+
+        fprintf(stdout, "\n");
+/* Validate rows fetched */
+    fprintf(stdout, " total rows fetched: %d\n", row_count);
+    if (row_count != 1)
+    {
+        fprintf(stderr, " MySQL failed to return all rows\n");
+        return "ko";
+    }
+/* Free the prepared result metadata */
+    mysql_free_result(prepare_meta_result);
+/* Close the statement */
+    if (mysql_stmt_close(stmt))
+    {
+        fprintf(stderr, " failed while closing the statement\n");
+        fprintf(stderr, " %s\n", mysql_error(mysql));
+    }
+    return strdup(salt);
 }
