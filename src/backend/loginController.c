@@ -9,42 +9,17 @@
 #include <string.h>
 #include <ctype.h>
 #include <openssl/sha.h>
+#include "../../includes/fileController.h"
 #include "../../includes/db.h"
 #include "../../includes/backController.h"
+#include "../../includes/fileController.h"
 #include "../../includes/backLoginSignIn.h"
 
 
-int setConnected(){
-    FILE * fp = fopen("../connectionLog.txt", "wb");
-    fputs("connected", fp);
-    fclose(fp);
-    return 0;
-}
-
 int isConnected(){
-    FILE * fp = fopen("../connectionLog.txt", "rb");
-    int close;
-    if(fp == NULL){
-        FILE * fp2 = fopen("../connectionLog.txt", "wb");
-        fputs("disconnected", fp2);
-        close = fclose(fp2);
+    if(getTokenFileInfos() == NULL)
         return -1;
-    }
-    char isConnected[13];
-    fgets(isConnected, 13, fp);
-    close = fclose(fp);
-    if(close != 0)
-        return -1;
-    if(strcmp(isConnected, "connected") == 0){
-        return 0;
-    }else if(strcmp(isConnected, "disconnected") == 0){
-        return -1;
-    }else{
-        FILE * fp3 = fopen("../connectionLog.txt", "wb");
-        fputs("disconnected", fp3);
-        fclose(fp3);
-        return -1;
-    }
+    return 0;
 }
 
 const char *verifSignIn(char *email, char *pwd, char *verifPwd, char *masterPwd, char *verifMasterPwd){
