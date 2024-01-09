@@ -154,7 +154,7 @@ int isUserExist(MYSQL *dbCon, char * email) {
 int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
 
     // hashage du password
-    char hashedPwd[257];
+    char hashedPwd[65];
     char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
     int salt2; // sel généré
     srand(time(NULL));
@@ -165,7 +165,7 @@ int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
     free(hashString);
 
     // hashage du pwd maitre avec le meme sel
-    char hashedMasterPwd[257];
+    char hashedMasterPwd[65];
     char* hashMasterString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
     strcpy(hashedMasterPwd, shaPwd(masterPwd, hashMasterString, salt));
     free(hashMasterString);
@@ -209,7 +209,7 @@ int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
         status = mysql_stmt_execute(stmt);
     }
     mysql_stmt_close(stmt);
-
+    generateNewUserToken(dbCon, email);
     return status;
 }
 

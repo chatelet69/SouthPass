@@ -90,7 +90,6 @@ loginPage::loginPage(QWidget *parent, ApplicationController *appController, MYSQ
             QMessageBox::warning(this,"Erreur" ,"Email ou mots de passes incorrects veuillez re essayer.");
         }else if(res == 0){
             QMessageBox::information(this,"Bravo !" ,"Connexion réussie !");
-            setConnected();
             appController->switchCredsPage();
             return 0;
         }
@@ -127,7 +126,6 @@ loginPage::loginPage(QWidget *parent, ApplicationController *appController, MYSQ
             res = createUser(dbCon, signMail, password, masterPwd);
             if(res == 0){
                 QMessageBox::information(this,"Bravo !" ,"Inscription réussie !");
-                setConnected();
                 appController->switchCredsPage();
                 // emit signInSuccess();
                 return 0;
