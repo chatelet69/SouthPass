@@ -77,12 +77,18 @@ loginPage::loginPage(QWidget *parent, ApplicationController *appController, MYSQ
         char logMail[50];
         QByteArray futurLogMail = loginEmail->text().toLocal8Bit();
         strcpy(logMail, futurLogMail.data());
+        if(logMail[strlen(logMail)-1] == '\n')
+            logMail[strlen(logMail)-1] = '\0';
         char logPwd[50];
         QByteArray futurLogPwd = loginPassword->text().toLocal8Bit();
         strcpy(logPwd, futurLogPwd.data());
+        if(logPwd[strlen(logMail)-1] == '\n')
+            logPwd[strlen(logMail)-1] = '\0';
         char logMasterPwd[50];
         QByteArray futurLogMasterPwd = loginMasterPassword->text().toLocal8Bit();
         strcpy(logMasterPwd, futurLogMasterPwd.data());
+        if(logMasterPwd[strlen(logMasterPwd)-1] == '\n')
+            logMasterPwd[strlen(logMasterPwd)-1] = '\0';
 
         int res;
         res = verifLogin(dbCon, logMail, logPwd, logMasterPwd);
@@ -111,15 +117,20 @@ loginPage::loginPage(QWidget *parent, ApplicationController *appController, MYSQ
         char verifPassword[50];
         QByteArray futurStringConfirmPwd = confirmPassword->text().toLocal8Bit();
         strcpy(verifPassword, futurStringConfirmPwd.data());
+        if(verifPassword[strlen(verifPassword)-1] == '\n')
+            verifPassword[strlen(verifPassword)-1] = '\0';
         // conversion signMasterPwd de Qtring à char * pour le backend en C
         char masterPwd[50];
         QByteArray futurMasterPwd = signMasterPwd->text().toLocal8Bit();
         strcpy(masterPwd, futurMasterPwd.data());
+        if(masterPwd[strlen(masterPwd)-1] == '\n')
+            masterPwd[strlen(masterPwd)-1] = '\0';
         // conversion confirmMasterPwd de Qtring à char * pour le backend en C
         char verifMasterPassword[50];
         QByteArray futurMasterConfirmPwd = confirmMasterPwd->text().toLocal8Bit();
         strcpy(verifMasterPassword, futurMasterConfirmPwd.data());
-
+        if(verifMasterPassword[strlen(verifMasterPassword)-1] == '\n')
+            verifMasterPassword[strlen(verifMasterPassword)-1] = '\0';
 
         if(strcmp(verifSignIn(signMail, password, verifPassword,masterPwd, verifMasterPassword), "ok")==0){
             int res;

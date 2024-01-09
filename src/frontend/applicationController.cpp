@@ -20,6 +20,7 @@
 #include "../../includes/db.h"
 #include "../../includes/applicationController.h"
 #include "../../includes/pincludes.h"
+#include "../../includes/pwdQuality.h"
 #include "../../includes/fileController.h"
 #include "../../includes/backLoginSignIn.h"
 #include "../../includes/pwdGeneratorPage.h"
@@ -62,9 +63,11 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     logPage = new loginPage(NULL,this, dbCon);
     credsPage = new CredentialsPage(NULL, dbCon, this->userId);
     pwdGen = new PwdGenerator(NULL, this, dbCon);
+    pwdQual = new PwdQualityPage(NULL, this, dbCon);
     stackedWidget->addWidget(credsPage);
     stackedWidget->addWidget(logPage);
     stackedWidget->addWidget(pwdGen);
+    stackedWidget->addWidget(pwdQual);
 
     mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);
@@ -128,6 +131,12 @@ void ApplicationController::switchGenPwdPage() {
         stackedWidget->setCurrentWidget(pwdGen);
 }
 
+void ApplicationController::switchPwdQuality() {
+    printf("test");
+    if(isConnected() == 0)
+        stackedWidget->setCurrentWidget(pwdQual);
+}
+
 QApplication& ApplicationController::getApplication() {
     return app;
 }
@@ -165,6 +174,7 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
     menuSouthPass->addAction(quitWindow);
     connect(seePwd, SIGNAL(triggered()), this, SLOT(switchCredsPage()));
     connect(pwdGenerator, SIGNAL(triggered()), this, SLOT(switchGenPwdPage()));
+    connect(pwdQuality, SIGNAL(triggered()), this, SLOT(switchPwdQuality()));
     connect(deco, SIGNAL(triggered()), this, SLOT(deconnexion()));
     connect(quitWindow, SIGNAL(triggered()), qApp, SLOT(quit()));
 }

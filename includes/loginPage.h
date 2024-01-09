@@ -30,9 +30,5 @@ private Q_SLOTS:
 
 private:
     MYSQL *dbCon;
-    QWidget fenetre;
-    QLineEdit *email;
-    QLineEdit *password;
-    QFormLayout *layout;
 };
 #endif //SOUTHPASS_LOGIN_PAGE_H

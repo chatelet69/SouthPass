@@ -10,6 +10,7 @@
 #include "./credentialsWidget.h"
 #include "./loginPage.h"
 #include "./pwdGeneratorPage.h"
+#include "./pwdQuality.h"
 
 #define APPLICATION_NAME "SouthPass"
 
@@ -58,6 +59,7 @@ class ApplicationController : public QObject {
         void switchCredsPage();
         void switchGenPwdPage();
         void deconnexion();
+        void switchPwdQuality();
     // void onApplicationMove();
 
 private:
@@ -69,6 +71,7 @@ private:
         MainWindow mainWindow;
         MYSQL *dbCon;
         loginPage *logPage;
+        PwdQualityPage *pwdQual;
         PwdGenerator *pwdGen;
         CredentialsPage *credsPage;
 };
