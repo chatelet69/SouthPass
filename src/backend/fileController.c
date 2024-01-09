@@ -53,6 +53,19 @@ TokenInfos *getTokenFileInfos() {
     return tokenInfos;
 }
 
+const int getUserIdByCookieFile() {
+    FILE *cookieFile = fopen(COOKIE_FILE_PATH, "rb");
+    if (cookieFile == NULL) return NULL;
+
+    int userId = 0;
+    if (cookieFile != NULL) {
+        int res = fscanf(cookieFile, "%*[^:]:%*[^:]:%d", &userId);
+        fclose(cookieFile);
+    }
+
+    return userId;
+}
+
 int saveNewTokenFile(char *tokenHash, char *email, const int id) {
     FILE *cookieFile = fopen(COOKIE_FILE_PATH, "wb");
     if (cookieFile == NULL) return EXIT_FAILURE;

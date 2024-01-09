@@ -26,7 +26,7 @@
 
 class MainWindow;
 class ApplicationController;
-class loginPage;
+class LoginPage;
 
 class MainWindow : public QMainWindow {
     public:
@@ -58,9 +58,10 @@ class ApplicationController : public QObject {
         void switchCredsPage();
         void switchGenPwdPage();
         void disconnect();
-    // void onApplicationMove();
+        void refreshCredsPage();
+        //void refreshCredsPage();
 
-private:
+    private:
         int userId;
         char isDark;
         char oldTheme;
@@ -68,7 +69,7 @@ private:
         QStackedWidget *stackedWidget;
         MainWindow mainWindow;
         MYSQL *dbCon;
-        loginPage *logPage;
+        LoginPage *logPage;
         PwdGenerator *pwdGen;
         CredentialsPage *credsPage;
 };

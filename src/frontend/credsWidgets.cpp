@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QLabel>
 #include <QDir>
+#include <QObject>
+#include <QQuickStyle>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QScrollArea>
@@ -13,8 +15,8 @@
 #include <QQmlContext>
 #include <QComboBox>
 #include <QQuickWidget>
-#include "../../includes/applicationController.h"
 #include "../../includes/credentialsWidget.h"
+#include "../../includes/applicationController.h"
 #include "../../includes/backController.h"
 #include "../../includes/models.h"
 
@@ -62,14 +64,13 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, const CredsArray credsArra
 // CredsForm
 
 CredsFormWidget::CredsFormWidget(QWidget *parent, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
+    QQuickStyle::setStyle("Fusion");
     quickWidget = new QQuickWidget();
     quickWidget->setSource(QUrl("./components/credsForm.qml"));
 
     QQmlContext *context = quickWidget->rootContext();
     context->setContextProperty("CredsFormWidget", this);
 
-    //QHBoxLayout *layout = new QHBoxLayout(this);
-    //layout->addWidget(quickWidget);
     quickWidget->setFixedSize(320,320);
     quickWidget->setWindowTitle("Nouveaux identifiants");
     quickWidget->setObjectName("credsFormWindow");
@@ -83,15 +84,17 @@ void CredsFormWidget::saveNewCreds(QString name, QString login, QString password
     QByteArray passwordBytes = password.toLocal8Bit();
     char *convertedPassword = passwordBytes.data();
 
-    //qDebug() << "name = " << name << " login = " << login << " pass = " << password;
-    //qDebug() << "name = " << convertedName << " login = " << convertedLogin << " pass = " << convertedPassword;
-
     int resStatus = addNewCredsController(dbCon, convertedName, convertedLogin, convertedPassword);
+    this->closeForm(true);
 }
 
-void CredsFormWidget::closeForm() {
+void CredsFormWidget::closeForm(bool refreshStatus) {
     this->quickWidget->close();
     this->close();
+    if (refreshStatus) {
+        qDebug() << "refresh";
+        Q_EMIT requestRefreshCredsPage();
+    }
 }
 
 // ToolBar
@@ -100,8 +103,8 @@ CredsToolBarWidget::CredsToolBarWidget(QWidget *parent, MYSQL *dbCon) : QWidget(
 {
     QHBoxLayout *toolBarLayout = new QHBoxLayout(this);
 
-    form = new CredsFormWidget(NULL, dbCon);
-    QPushButton *newCredsButton = new QPushButton();
+    form = new CredsFormWidget(this, dbCon);
+    QPushButton *newCredsButton = new QPushButton(this);
     newCredsButton->setText(QPushButton::tr("Nouvel identifiant"));
     newCredsButton->setMaximumSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
     newCredsButton->setObjectName("newCredsButton");

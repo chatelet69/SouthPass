@@ -12,3 +12,4 @@ app
 includes/config_db.h
 linux-output
 connectionLog.txt
+cmake-build-*
