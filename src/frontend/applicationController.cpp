@@ -26,13 +26,10 @@
 
 ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
     isDark = getThemePreference();
-    qDebug() << "test";
     oldTheme = isDark;
     dbCon = dbConnect();
     stackedWidget = new QStackedWidget(NULL);
-    qDebug() << "test2";
     userId = getUserIdByToken(dbCon);
-    qDebug() << "test3";
 
     QWidget *mainWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();

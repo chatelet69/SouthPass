@@ -1,6 +1,6 @@
 /*
     Filename : fileController.c
-    Description : 
+    Description : All functions that have action on files (token and config file)
 */
 
 #include <stdio.h>

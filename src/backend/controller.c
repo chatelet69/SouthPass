@@ -8,6 +8,7 @@
 #include "../../includes/backController.h"
 #include "../../includes/pincludes.h"
 #include "../../includes/fileController.h"
+#include "../../includes/cryptoModule.h"
 
 char **getPwsdList() {
     printf("e\n");
@@ -55,7 +56,10 @@ int addNewCredsController(MYSQL *dbCon, char *name, char *loginName, char *passw
     if (passwordSize == 0 || passwordSize > PASSWORD_MAX_SIZE)
         return EXIT_FAILURE;
 
+    //unsigned char *finalPass = encryptString(password, "coucou");
+    //printf("Final : %s |\n", finalPass);
     Credentials newCreds = { 0, userId, name, loginName, password };
+    //newCreds.passwordTest.cipherPassword = finalPass;
     createNewCreds(dbCon, &newCreds);
 
     return EXIT_SUCCESS;
