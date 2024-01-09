@@ -15,6 +15,7 @@
 #include "credentialsWidget.h"
 #include "models.h"
 #include "loginPage.h"
+#include "backLoginSignIn.h"
 #include <string.h>
 #include "pwdGeneratorPage.h"
 

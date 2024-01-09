@@ -14,5 +14,6 @@ int hasSpecialChar(char *);
 int verifPasswordChars(char *);
 int verifPasswordValidity(char *, char *);
 int setConnected();
+char *shaPwd(const char *, char *, char *);
 
 #endif

@@ -13,6 +13,7 @@
 #include "../../includes/backController.h"
 #include "../../includes/backLoginSignIn.h"
 
+
 int setConnected(){
     FILE * fp = fopen("../connectionLog.txt", "wb");
     fputs("connected", fp);
@@ -88,21 +89,24 @@ int verifLogin(MYSQL *dbCon, char *email, char *password, char *masterPwd) {
         return 1;
     }
     
-    char hashedPwd[257];
+    char hashedPwd[65];
     char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
     strcpy(hashedPwd, shaPwd(password, hashString, salt));
     free(hashString);
 
-    char hashedMasterPwd[257];
+    char hashedMasterPwd[65];
     char* hashMasterString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
     strcpy(hashedMasterPwd, shaPwd(masterPwd, hashMasterString, salt));
     free(hashMasterString);
 
-    int status = checkLoginDb(dbCon, salt, email, hashedPwd, hashedMasterPwd);
-    printf("STATUS = %d\n", status);
-    if (status == 0) generateNewUserToken(dbCon, email);
-
-    return (status == 0) ? EXIT_SUCCESS : status;
+    char verifEmail[255];
+    strcpy(verifEmail, checkLoginDb(dbCon, email, hashedPwd, hashedMasterPwd));
+    if (strcmp(verifEmail, email) == 0){
+        generateNewUserToken(dbCon, email);
+        return 0;
+    }else{
+        return 1;
+    }
 }
 
 int verifPasswordChars(char * str){
@@ -144,4 +148,29 @@ int hasSpecialChar(char *str) {
         str++;
     }
     return 0;
+}
+
+char * shaPwd(const char * pwd, char * hashString, char * salt){
+    char saledPwd[62];
+    strcpy(saledPwd, salt);
+    strcat(saledPwd, pwd);
+    strcat(saledPwd, salt);
+
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    const unsigned char* data = (const unsigned char*)saledPwd;
+
+    SHA256(data, strlen(saledPwd), hash);
+
+    // Convertir le hash en chaîne de caractères
+    if (hashString == NULL) {
+        fprintf(stderr, "Erreur d'allocation de mémoire\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+        sprintf(&hashString[i * 2], "%02x", hash[i]);
+    }
+    hashString[2 * SHA256_DIGEST_LENGTH] = '\0'; // Ajouter le caractère nul à la fin de la chaîne
+
+    return hashString;
 }
