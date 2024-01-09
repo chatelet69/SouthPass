@@ -21,6 +21,7 @@
 #include "../../includes/applicationController.h"
 #include "../../includes/pincludes.h"
 #include "../../includes/fileController.h"
+#include "../../includes/backLoginSignIn.h"
 #include "../../includes/pwdGeneratorPage.h"
 
 ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
@@ -29,7 +30,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     dbCon = dbConnect();
     stackedWidget = new QStackedWidget(NULL);
     userId = getUserIdByToken(dbCon);
-    
+
     QWidget *mainWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainWidget->setLayout(mainLayout);
@@ -115,12 +116,13 @@ QString ApplicationController::getStyleSheet() {
 }
 
 void ApplicationController::switchCredsPage() {
-    // VERIFIER QUE LA PERSONNE EST BIEN LOGIN
-    stackedWidget->setCurrentWidget(credsPage);
+    if(isConnected() == 0)
+        stackedWidget->setCurrentWidget(credsPage);
 }
 
 void ApplicationController::switchGenPwdPage() {
-    stackedWidget->setCurrentWidget(pwdGen);
+    if(isConnected() == 0)
+        stackedWidget->setCurrentWidget(pwdGen);
 }
 
 QApplication& ApplicationController::getApplication() {

@@ -8,6 +8,7 @@
 #define IS_WINDOWS 0
 #define IS_LINUX 1
 #endif
+#include "models.h"
 
 int getThemePreference();
 TokenInfos *getTokenFileInfos();

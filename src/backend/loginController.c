@@ -9,41 +9,17 @@
 #include <string.h>
 #include <ctype.h>
 #include <openssl/sha.h>
+#include "../../includes/fileController.h"
 #include "../../includes/db.h"
 #include "../../includes/backController.h"
+#include "../../includes/fileController.h"
 #include "../../includes/backLoginSignIn.h"
 
-int setConnected(){
-    FILE * fp = fopen("../connectionLog.txt", "wb");
-    fputs("connected", fp);
-    fclose(fp);
-    return 0;
-}
 
 int isConnected(){
-    FILE * fp = fopen("../connectionLog.txt", "rb");
-    int close;
-    if(fp == NULL){
-        FILE * fp2 = fopen("../connectionLog.txt", "wb");
-        fputs("disconnected", fp2);
-        close = fclose(fp2);
+    if(getTokenFileInfos() == NULL)
         return -1;
-    }
-    char isConnected[13];
-    fgets(isConnected, 13, fp);
-    close = fclose(fp);
-    if(close != 0)
-        return -1;
-    if(strcmp(isConnected, "connected") == 0){
-        return 0;
-    }else if(strcmp(isConnected, "disconnected") == 0){
-        return -1;
-    }else{
-        FILE * fp3 = fopen("../connectionLog.txt", "wb");
-        fputs("disconnected", fp3);
-        fclose(fp3);
-        return -1;
-    }
+    return 0;
 }
 
 const char *verifSignIn(char *email, char *pwd, char *verifPwd, char *masterPwd, char *verifMasterPwd){
@@ -88,20 +64,24 @@ int verifLogin(MYSQL *dbCon, char *email, char *password, char *masterPwd) {
         return 1;
     }
     
-    char hashedPwd[257];
+    char hashedPwd[65];
     char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
     strcpy(hashedPwd, shaPwd(password, hashString, salt));
     free(hashString);
 
-    char hashedMasterPwd[257];
+    char hashedMasterPwd[65];
     char* hashMasterString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
     strcpy(hashedMasterPwd, shaPwd(masterPwd, hashMasterString, salt));
     free(hashMasterString);
 
-    int status = checkLoginDb(dbCon, salt, email, hashedPwd, hashedMasterPwd);
-    if (status == 0) generateNewUserToken(dbCon, email);
-
-    return (status == 0) ? EXIT_SUCCESS : status;
+    char verifEmail[255];
+    strcpy(verifEmail, checkLoginDb(dbCon, email, hashedPwd, hashedMasterPwd));
+    if (strcmp(verifEmail, email) == 0){
+        generateNewUserToken(dbCon, email);
+        return 0;
+    }else{
+        return 1;
+    }
 }
 
 int verifPasswordChars(char * str){
@@ -143,4 +123,29 @@ int hasSpecialChar(char *str) {
         str++;
     }
     return 0;
+}
+
+char * shaPwd(const char * pwd, char * hashString, char * salt){
+    char saledPwd[62];
+    strcpy(saledPwd, salt);
+    strcat(saledPwd, pwd);
+    strcat(saledPwd, salt);
+
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    const unsigned char* data = (const unsigned char*)saledPwd;
+
+    SHA256(data, strlen(saledPwd), hash);
+
+    // Convertir le hash en chaîne de caractères
+    if (hashString == NULL) {
+        fprintf(stderr, "Erreur d'allocation de mémoire\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+        sprintf(&hashString[i * 2], "%02x", hash[i]);
+    }
+    hashString[2 * SHA256_DIGEST_LENGTH] = '\0'; // Ajouter le caractère nul à la fin de la chaîne
+
+    return hashString;
 }
