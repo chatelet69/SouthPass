@@ -32,7 +32,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     qDebug() << "test2";
     userId = getUserIdByToken(dbCon);
     qDebug() << "test3";
-    
+
     QWidget *mainWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainWidget->setLayout(mainLayout);

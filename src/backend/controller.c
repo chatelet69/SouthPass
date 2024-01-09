@@ -6,6 +6,7 @@
 #include "../../includes/db.h"
 #include "../../includes/models.h"
 #include "../../includes/backController.h"
+#include "../../includes/pincludes.h"
 #include "../../includes/fileController.h"
 
 char **getPwsdList() {
@@ -84,16 +85,18 @@ char *getActualDate() {
 }
 
 int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
-    int userId = getUserIdBy(dbCon, userEmail, "email");
+    char emailOption[6];
+    strcpy(emailOption, "email");
+    int userId = getUserIdBy(dbCon, userEmail, emailOption);
     printf("USER ID : %d\n", userId);
 
     if (userId != 0) {
         char *actualDateStr = getActualDate();
-        char *baseToken = (char *) malloc(sizeof(char) * 257);
+        char *baseToken = (char *) malloc(sizeof(char) * 65);
         srand(time(NULL));
         int randomVal = rand() % (2000) + 1000;
         sprintf(baseToken, "%s_%d_%s_%d", userEmail, userId, actualDateStr, randomVal);
-        char tokenHash[257];
+        char tokenHash[65];
         
         char *hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
         strcpy(tokenHash, shaPwd(baseToken, hashString, actualDateStr));
