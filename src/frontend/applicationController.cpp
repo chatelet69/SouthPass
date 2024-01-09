@@ -162,11 +162,11 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
     menuSouthPass->addAction(quitWindow);
     connect(seePwd, SIGNAL(triggered()), this, SLOT(switchCredsPage()));
     connect(pwdGenerator, SIGNAL(triggered()), this, SLOT(switchGenPwdPage()));
-    connect(deco, SIGNAL(triggered()), this, SLOT(deconnexion()));
+    connect(deco, SIGNAL(triggered()), this, SLOT(disconnect()));
     connect(quitWindow, SIGNAL(triggered()), qApp, SLOT(quit()));
 }
 
-void ApplicationController::deconnexion() {
+void ApplicationController::disconnect() {
     createTokenFile();
     switchToLoginPage();
 }

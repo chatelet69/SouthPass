@@ -57,7 +57,7 @@ class ApplicationController : public QObject {
         void switchToLoginPage();
         void switchCredsPage();
         void switchGenPwdPage();
-        void deconnexion();
+        void disconnect();
     // void onApplicationMove();
 
 private:
