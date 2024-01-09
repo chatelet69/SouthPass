@@ -85,13 +85,14 @@ char *getActualDate() {
 }
 
 int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
-    char * emailOption = "email";
+    char emailOption[6];
+    strcpy(emailOption, "email");
     int userId = getUserIdBy(dbCon, userEmail, emailOption);
     printf("USER ID : %d\n", userId);
 
     if (userId != 0) {
         char *actualDateStr = getActualDate();
-        char *baseToken = (char *) malloc(sizeof(char) * 257);
+        char *baseToken = (char *) malloc(sizeof(char) * 65);
         srand(time(NULL));
         int randomVal = rand() % (2000) + 1000;
         sprintf(baseToken, "%s_%d_%s_%d", userEmail, userId, actualDateStr, randomVal);
