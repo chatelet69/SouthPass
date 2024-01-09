@@ -322,7 +322,7 @@ const char *getSaltByEmail(MYSQL *mysql, char *email) {
     memset(bind, 0, sizeof(bind));
     bind[0].buffer_type= MYSQL_TYPE_STRING;
     bind[0].buffer= (char *)salt;
-    bind[0].buffer_length= strlen(salt);
+    bind[0].buffer_length= sizeof(salt);
     bind[0].is_null= &is_null[0];
     bind[0].length= &length[0];
     bind[0].error= &error[0];
