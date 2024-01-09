@@ -4,8 +4,12 @@
 */
 
 #include <QFile>
+#include <QMenu>
+#include <QAction>
+#include <QMenuBar>
 #include <QDebug>
 #include <QString>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QtWidgets>
 #include <QVBoxLayout>
@@ -14,21 +18,28 @@
 #include <QHBoxLayout>
 #include "../../includes/models.h"
 #include "../../includes/db.h"
+#include "../../includes/applicationController.h"
 #include "../../includes/pincludes.h"
-#define lightModePath "./style/lightMode.css"
-#define darkModePath "./style/darkMode.css"
+#include "../../includes/fileController.h"
+#include "../../includes/backLoginSignIn.h"
+#include "../../includes/pwdGeneratorPage.h"
 
 ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
-    isDark = 1;
+    isDark = getThemePreference();
+    oldTheme = isDark;
     dbCon = dbConnect();
     stackedWidget = new QStackedWidget(NULL);
-    
+    userId = getUserIdByToken(dbCon);
+
     QWidget *mainWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainWidget->setLayout(mainLayout);
 
-    QString styleSheet = ApplicationController::getStyleSheet();
+    QString styleSheet = this->getStyleSheet();
     app.setStyleSheet(styleSheet);
+
+    QMenuBar *menuBar = new QMenuBar(nullptr);
+    importMenu(menuBar);
 
     QWidget *headerWidget = new QWidget();
     headerWidget->setObjectName("headerWidget");
@@ -36,31 +47,29 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
 
     QPushButton *themeButton = new QPushButton();
     themeButton->setObjectName("themeButton");
-    connect(themeButton, &QPushButton::clicked, [=]() {
-        this->changeTheme(themeButton);
-        qDebug() << "x : " << mainWindow.getXPos();
-    });
+    connect(themeButton, &QPushButton::clicked, [=]() { this->changeTheme(themeButton); });
 
-    QIcon icon("./assets/lightThemeIcon.png");
+    const char *themeIconPath = (isDark) ? lightModeIcon : darkModeIcon;
+    QIcon icon(themeIconPath);
     themeButton->setIcon(icon);
 
+    headerLayout->addWidget(menuBar, 0, Qt::AlignLeft);
     headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
 
-    mainWindow.move(500, 500);
-    qDebug() << "x : " << mainWindow.getXPos();
-
     logPage = new loginPage(NULL,this, dbCon);
-    credsPage = new CredentialsPage(NULL, dbCon);
+    credsPage = new CredentialsPage(NULL, dbCon, this->userId);
+    pwdGen = new PwdGenerator(NULL, this, dbCon);
     stackedWidget->addWidget(credsPage);
     stackedWidget->addWidget(logPage);
+    stackedWidget->addWidget(pwdGen);
 
     mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);
     mainWindow.setCentralWidget(mainWidget);
 
-    if(isConnected() == 0){
+    if(isConnected() == 0 && userId != 0){
         ApplicationController::switchCredsPage();
-    }else{
+    } else {
         ApplicationController::switchToLoginPage();
         // connect(logPage, reinterpret_cast<const char *>(&loginPage::signInSuccess), this, SLOT(switchCredsPage()));
     }
@@ -69,6 +78,8 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
 ApplicationController::~ApplicationController() {
     // Destruction de la classe
     closeDb(dbCon);
+
+    if (oldTheme != isDark) saveThemePreference(isDark);
 }
 
 int ApplicationController::run() {
@@ -80,7 +91,7 @@ void ApplicationController::changeTheme(QPushButton *themeButton) {
     isDark = (isDark) ? 0 : 1;
     QString themeFile = (isDark) ? darkModePath : lightModePath;
 
-    const char *themeIconPath = (isDark) ? "./assets/lightThemeIcon.png" : "./assets/darkThemeIcon.png";
+    const char *themeIconPath = (isDark) ? lightModeIcon : darkModeIcon;
 
     QIcon icon(themeIconPath);
     themeButton->setIcon(icon);
@@ -95,7 +106,8 @@ void ApplicationController::changeTheme(QPushButton *themeButton) {
 }
 
 QString ApplicationController::getStyleSheet() {
-    QFile file(darkModePath);
+    const char *path = (isDark) ? darkModePath : lightModePath;
+    QFile file(path);
     file.open(QFile::ReadOnly | QFile::Text);
     QString styleSheet = QLatin1String(file.readAll());
     styleSheet.remove('\n');
@@ -104,12 +116,57 @@ QString ApplicationController::getStyleSheet() {
 }
 
 void ApplicationController::switchCredsPage() {
-    stackedWidget->setCurrentWidget(credsPage);
+    if(isConnected() == 0)
+        stackedWidget->setCurrentWidget(credsPage);
+}
+
+void ApplicationController::switchGenPwdPage() {
+    if(isConnected() == 0)
+        stackedWidget->setCurrentWidget(pwdGen);
 }
 
 QApplication& ApplicationController::getApplication() {
     return app;
 }
+
 void ApplicationController::switchToLoginPage() {
     stackedWidget->setCurrentWidget(logPage);
+}
+
+int ApplicationController::getUserId() {
+    return userId;
+}
+
+void ApplicationController::importMenu(QMenuBar *menuBar){
+// MENU
+    QMenu *menuFichier = menuBar->addMenu("Fichiers");
+    QAction *importPwd = new QAction("Importer des mots de passes", this);
+    menuFichier->addAction(importPwd);
+    QAction *exportPwd = new QAction("Exporter des mots de passes", this);
+    menuFichier->addAction(exportPwd);
+
+    QMenu *menuOutils = menuBar->addMenu("Outils");
+    QAction *seePwd = new QAction("Voir mes mots de passes", this);
+    menuOutils->addAction(seePwd);
+    QAction *pwdGenerator = new QAction("Générateur de mot passes", this);
+    menuOutils->addAction(pwdGenerator);
+    QAction *pwdQuality = new QAction("Qualité des mots de passes", this);
+    menuOutils->addAction(pwdQuality);
+    QAction *analysis = new QAction("Analyse des fuites de données", this);
+    menuOutils->addAction(analysis);
+
+    QMenu *menuSouthPass = menuBar->addMenu("SouthPass");
+    QAction *deco = new QAction("Se déconnecter", this);
+    menuSouthPass->addAction(deco);
+    QAction *quitWindow = new QAction("Quitter SouthPass", this);
+    menuSouthPass->addAction(quitWindow);
+    connect(seePwd, SIGNAL(triggered()), this, SLOT(switchCredsPage()));
+    connect(pwdGenerator, SIGNAL(triggered()), this, SLOT(switchGenPwdPage()));
+    connect(deco, SIGNAL(triggered()), this, SLOT(disconnect()));
+    connect(quitWindow, SIGNAL(triggered()), qApp, SLOT(quit()));
+}
+
+void ApplicationController::disconnect() {
+    createTokenFile();
+    switchToLoginPage();
 }

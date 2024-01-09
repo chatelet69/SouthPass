@@ -1,0 +1,8 @@
+//
+// Created by mathf on 09/01/2024.
+//
+
+#ifndef SOUTHPASS_PWDQUALITY_H
+#define SOUTHPASS_PWDQUALITY_H
+
+#endif //SOUTHPASS_PWDQUALITY_H

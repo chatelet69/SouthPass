@@ -9,6 +9,7 @@
 #include "./db.h"
 #include "./credentialsWidget.h"
 #include "./loginPage.h"
+#include "./pwdGeneratorPage.h"
 
 #define APPLICATION_NAME "SouthPass"
 
@@ -17,6 +18,11 @@
 
 #define BUTTON_MAX_WIDTH 150
 #define BUTTON_MAX_HEIGHT 50
+
+#define lightModePath "./style/lightMode.css"
+#define darkModePath "./style/darkMode.css"
+#define lightModeIcon "./assets/lightThemeIcon.png"
+#define darkModeIcon "./assets/darkThemeIcon.png"
 
 class MainWindow;
 class ApplicationController;
@@ -34,6 +40,7 @@ class MainWindow : public QMainWindow {
 };
 
 class ApplicationController : public QObject {
+    Q_OBJECT
     public:
         ApplicationController(int argc, char **argv);
         ~ApplicationController();
@@ -43,21 +50,26 @@ class ApplicationController : public QObject {
         QString getStyleSheet();
 
         QApplication& getApplication();
+        int getUserId();
 
     public Q_SLOTS:
-        void switchCredsPage();
+        void importMenu(QMenuBar *);
         void switchToLoginPage();
+        void switchCredsPage();
+        void switchGenPwdPage();
+        void disconnect();
+    // void onApplicationMove();
 
 private:
+        int userId;
         char isDark;
+        char oldTheme;
         QApplication app;
         QStackedWidget *stackedWidget;
         MainWindow mainWindow;
         MYSQL *dbCon;
         loginPage *logPage;
+        PwdGenerator *pwdGen;
         CredentialsPage *credsPage;
-
-    public Q_SLOTS:
-        void onApplicationMove();
 };
 #endif

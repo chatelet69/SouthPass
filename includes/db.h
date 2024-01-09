@@ -9,6 +9,9 @@
 
 #include "../includes/models.h"
 
+#define SUCCESS_CODE 1
+#define FAIL_CODE 2
+
 MYSQL *dbConnect();
 void closeDb(MYSQL *dbCon);
 
@@ -20,8 +23,10 @@ int isUserExist(MYSQL *, char *);
 int createUser(MYSQL *, char *, char *, char *);
 CredsArray getPasswordsList(MYSQL *dbCon, int userId);
 int createNewCreds(MYSQL *dbCon, Credentials *creds);
-char * shaPwd(const char *, char *, char *);
-int verifLogin(MYSQL *, char *, char *, char *);
-char * getSaltByEmail(MYSQL *, char *);
+char * checkLoginDb(MYSQL *dbCon, char *, char *, char *);
+const char *getSaltByEmail(MYSQL *mysql, char *email);
+int getUserByTokenInfos(MYSQL *dbCon, const char *token, const int userId);
+int saveNewUserTokenDb(MYSQL *dbCon, const int userId, char *tokenHash);
+int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption);
 
 #endif

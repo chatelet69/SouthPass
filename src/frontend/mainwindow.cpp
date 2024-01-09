@@ -5,6 +5,9 @@
 
 #include <QDebug>
 #include <QScreen>
+#include <QMenu>
+#include <QMenuBar>
+#include <QStyle>
 #include "../../includes/applicationController.h"
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), appController(appController) 
@@ -15,12 +18,13 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), appController(appC
     QScreen *primaryScreen = QGuiApplication::primaryScreen();
     QRect screenDimensions = primaryScreen->availableGeometry();
 
-    int x = screenDimensions.width() / 2;
-    int y = screenDimensions.height() / 2;
+    //int x = screenDimensions.width() / 2;
+    //int y = screenDimensions.height() / 2;
+    //qDebug() << "x : " << x << " y : " << y;
 
-    move(x, y);
-    setGeometry(x, y, WINDOW_MIN_WIDTH+50, WINDOW_MIN_HEIGHT+50);
-
+    //move(x, y);
+    //setGeometry(x, y, WINDOW_MIN_WIDTH+50, WINDOW_MIN_HEIGHT+50);
+    setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), primaryScreen->availableGeometry()));
     //connect(this, &MainWindow::move, this, &MainWindow::onApplicationMove);
 }
 

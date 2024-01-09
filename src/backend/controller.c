@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <openssl/sha.h>
 #include <string.h>
 #include "../../includes/db.h"
 #include "../../includes/models.h"
 #include "../../includes/backController.h"
+#include "../../includes/pincludes.h"
+#include "../../includes/fileController.h"
+#include "../../includes/cryptoModule.h"
 
 char **getPwsdList() {
     printf("e\n");
@@ -51,9 +56,64 @@ int addNewCredsController(MYSQL *dbCon, char *name, char *loginName, char *passw
     if (passwordSize == 0 || passwordSize > PASSWORD_MAX_SIZE)
         return EXIT_FAILURE;
 
-
+    //unsigned char *finalPass = encryptString(password, "coucou");
+    //printf("Final : %s |\n", finalPass);
     Credentials newCreds = { 0, userId, name, loginName, password };
+    //newCreds.passwordTest.cipherPassword = finalPass;
     createNewCreds(dbCon, &newCreds);
 
     return EXIT_SUCCESS;
+}
+
+int getUserIdByToken(MYSQL *dbCon) {
+    TokenInfos *tokenInfos = getTokenFileInfos();
+
+    if (tokenInfos != NULL) {
+        int res = getUserByTokenInfos(dbCon, tokenInfos->token, tokenInfos->id);
+        printf("aze\n");
+        int id = tokenInfos->id;
+        free(tokenInfos);
+        if (res == 1) return id;
+    }
+    printf("endGetUserIdByToken\n");
+
+    return 0;
+}
+
+char *getActualDate() {
+    time_t t = time(NULL);
+    struct tm *actualTime = localtime(&t);
+    char *actualDateStr = (char *) malloc(sizeof(char) * 20);
+    strftime(actualDateStr, 20, "%Y-%m-%d", actualTime);
+    return actualDateStr;
+}
+
+int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
+    char emailOption[6];
+    strcpy(emailOption, "email");
+    int userId = getUserIdBy(dbCon, userEmail, emailOption);
+    printf("USER ID : %d\n", userId);
+
+    if (userId != 0) {
+        char *actualDateStr = getActualDate();
+        char *baseToken = (char *) malloc(sizeof(char) * 65);
+        srand(time(NULL));
+        int randomVal = rand() % (2000) + 1000;
+        sprintf(baseToken, "%s_%d_%s_%d", userEmail, userId, actualDateStr, randomVal);
+        char tokenHash[65];
+        
+        char *hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
+        strcpy(tokenHash, shaPwd(baseToken, hashString, actualDateStr));
+        
+        free(hashString);
+        free(baseToken);
+        free(actualDateStr);
+
+        saveNewUserTokenDb(dbCon, userId, tokenHash);
+        saveNewTokenFile(tokenHash, userEmail, userId);
+
+        return EXIT_SUCCESS;
+    } else {
+        return -1;
+    }
 }
