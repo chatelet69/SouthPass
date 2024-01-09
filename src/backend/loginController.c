@@ -99,7 +99,6 @@ int verifLogin(MYSQL *dbCon, char *email, char *password, char *masterPwd) {
     free(hashMasterString);
 
     int status = checkLoginDb(dbCon, salt, email, hashedPwd, hashedMasterPwd);
-    printf("STATUS = %d\n", status);
     if (status == 0) generateNewUserToken(dbCon, email);
 
     return (status == 0) ? EXIT_SUCCESS : status;
