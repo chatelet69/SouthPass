@@ -23,7 +23,9 @@ public:
 public Q_SIGNAL:
 
 public Q_SLOTS:
-
+    void verifWeakPwd(QTabWidget *onglets);
+    void weakPwdList(QTabWidget *onglets);
+    void reUsedPwd(QTabWidget *onglets);
 private Q_SLOTS:
 
 private:
