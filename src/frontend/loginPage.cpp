@@ -7,12 +7,11 @@
 #include "../../includes/backLoginSignIn.h"
 #include "../../includes/pincludes.h"
 
-loginPage::loginPage(QWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
+LoginPage::LoginPage(QWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
     //Création des onglets connexion et inscription
     QTabWidget *onglets = new QTabWidget(this);
     QWidget *login = new QWidget;
     QWidget *signIn = new QWidget;
-
 
     // Page connexion
     QLabel *loginLabel = new QLabel(this);
@@ -144,6 +143,6 @@ loginPage::loginPage(QWidget *parent, ApplicationController *appController, MYSQ
 }
 
 
-void loginPage::signInSuccess(){
+void LoginPage::signInSuccess(){
     printf("Succès");
 }

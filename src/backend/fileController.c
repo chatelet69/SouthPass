@@ -39,17 +39,31 @@ TokenInfos *getTokenFileInfos() {
     char token[TOKEN_SIZE], email[MAIL_SIZE];
     int id = 0;
 
-    int res = fscanf(cookieFile, "%[^:]:%[^:]:%d", token, email, &id);
-    if (res == 3) {
-        tokenInfos = (TokenInfos *) malloc(sizeof(TokenInfos));
-        tokenInfos->id = id;
-        tokenInfos->email = strdup(email);
-        tokenInfos->token = strdup(token);
-    };
-
-    fclose(cookieFile);
+    if (cookieFile != NULL) {
+        int res = fscanf(cookieFile, "%[^:]:%[^:]:%d", token, email, &id);
+        if (res == 3) {
+            tokenInfos = (TokenInfos *) malloc(sizeof(TokenInfos));
+            tokenInfos->id = id;
+            tokenInfos->email = strdup(email);
+            tokenInfos->token = strdup(token);
+        };
+        fclose(cookieFile);
+    }
 
     return tokenInfos;
+}
+
+const int getUserIdByCookieFile() {
+    FILE *cookieFile = fopen(COOKIE_FILE_PATH, "rb");
+    if (cookieFile == NULL) return NULL;
+
+    int userId = 0;
+    if (cookieFile != NULL) {
+        int res = fscanf(cookieFile, "%*[^:]:%*[^:]:%d", &userId);
+        fclose(cookieFile);
+    }
+
+    return userId;
 }
 
 int saveNewTokenFile(char *tokenHash, char *email, const int id) {

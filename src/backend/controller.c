@@ -42,7 +42,7 @@ void printCreds(Credentials *creds, unsigned int size) {
 }
 
 int addNewCredsController(MYSQL *dbCon, char *name, char *loginName, char *password) {
-    int userId = 1;
+    const int userId = getUserIdByCookieFile();
     int loginNameSize = strlen(name);
     int loginSize = strlen(loginName);
     int passwordSize = strlen(password);
@@ -57,10 +57,12 @@ int addNewCredsController(MYSQL *dbCon, char *name, char *loginName, char *passw
         return EXIT_FAILURE;
 
     //unsigned char *finalPass = encryptString(password, "coucou");
-    //printf("Final : %s |\n", finalPass);
-    Credentials newCreds = { 0, userId, name, loginName, password };
-    //newCreds.passwordTest.cipherPassword = finalPass;
-    createNewCreds(dbCon, &newCreds);
+    if (userId != 0) {
+        Credentials newCreds = { 0, userId, name, loginName, password };
+        createNewCreds(dbCon, &newCreds);
+    } else {
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
@@ -75,7 +77,6 @@ int getUserIdByToken(MYSQL *dbCon) {
         free(tokenInfos);
         if (res == 1) return id;
     }
-    printf("endGetUserIdByToken\n");
 
     return 0;
 }
