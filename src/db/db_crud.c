@@ -38,8 +38,8 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
     CredsArray credsArray;
     credsArray.size = 0;
     credsArray.creds = NULL;
-    char *sqlQuery = (char *) malloc(sizeof(char) * 75);
-    sprintf(sqlQuery, "SELECT id,userId,name,loginName,password FROM pswd_stock WHERE userId = %d", userId);
+    char *sqlQuery = (char *) malloc(sizeof(char) * 120);
+    sprintf(sqlQuery, "SELECT psw.id,userId,name,loginName,AES_DECRYPT(psw.password, u.pwdMaster) FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
     
     if (mysql_query(dbCon, sqlQuery) != 0) {
         fprintf(stderr, "Query Failure\n");
@@ -80,11 +80,11 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
 int createNewCreds(MYSQL *dbCon, Credentials *creds) {
     int status = EXIT_FAILURE;
     if (creds->userId == 0) return status;
-    int size = strlen("INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (?,?,?,?)");
+    const char *sqlQuery = "INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (?,?,?,AES_ENCRYPT(?,(SELECT pwdMaster FROM users WHERE id = ?)))";
 
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
-    if (mysql_stmt_prepare(stmt, "INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (?,?,?,?)", size) == 0) {
-        MYSQL_BIND params[4];
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[5];
         memset(params, 0, sizeof(params));
         params[0].buffer_type = MYSQL_TYPE_LONG;
         params[0].buffer = &creds->userId;
@@ -99,7 +99,10 @@ int createNewCreds(MYSQL *dbCon, Credentials *creds) {
         
         params[3].buffer_type = MYSQL_TYPE_VARCHAR;
         params[3].buffer = creds->password;
-        params[3].buffer_length = sizeof(creds->password);
+        params[3].buffer_length = strlen(creds->password);
+        
+        params[4].buffer_type = MYSQL_TYPE_LONG;
+        params[4].buffer = &creds->userId;
         mysql_stmt_bind_param(stmt, params);
         status = mysql_stmt_execute(stmt);
     }

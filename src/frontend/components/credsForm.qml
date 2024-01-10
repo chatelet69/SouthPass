@@ -51,7 +51,7 @@ Rectangle {
         visible: true
         x: 0
         y: titleContainer.y + 80
-        color: "lightgrey"
+        color: Qt.platform.os === "linux" ? "lightgrey" : "white"
         radius: 5
         implicitWidth: inputsFormContainer.implicitWidth
         implicitHeight: inputsFormContainer.implicitHeight

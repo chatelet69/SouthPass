@@ -8,6 +8,7 @@
 #include "../../includes/backController.h"
 #include "../../includes/pincludes.h"
 #include "../../includes/fileController.h"
+#include "../../includes/cryptoModule.h"
 
 char **getPwsdList() {
     printf("e\n");
@@ -41,7 +42,7 @@ void printCreds(Credentials *creds, unsigned int size) {
 }
 
 int addNewCredsController(MYSQL *dbCon, char *name, char *loginName, char *password) {
-    int userId = 1;
+    const int userId = getUserIdByCookieFile();
     int loginNameSize = strlen(name);
     int loginSize = strlen(loginName);
     int passwordSize = strlen(password);
@@ -55,8 +56,13 @@ int addNewCredsController(MYSQL *dbCon, char *name, char *loginName, char *passw
     if (passwordSize == 0 || passwordSize > PASSWORD_MAX_SIZE)
         return EXIT_FAILURE;
 
-    Credentials newCreds = { 0, userId, name, loginName, password };
-    createNewCreds(dbCon, &newCreds);
+    //unsigned char *finalPass = encryptString(password, "coucou");
+    if (userId != 0) {
+        Credentials newCreds = { 0, userId, name, loginName, password };
+        createNewCreds(dbCon, &newCreds);
+    } else {
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
@@ -71,7 +77,6 @@ int getUserIdByToken(MYSQL *dbCon) {
         free(tokenInfos);
         if (res == 1) return id;
     }
-    printf("endGetUserIdByToken\n");
 
     return 0;
 }

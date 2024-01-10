@@ -25,19 +25,17 @@
 #include "../../includes/backLoginSignIn.h"
 #include "../../includes/pwdGeneratorPage.h"
 
-ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
+ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(nullptr),*/ app(argc, argv) {
     isDark = getThemePreference();
-    qDebug() << "test";
     oldTheme = isDark;
     dbCon = dbConnect();
     stackedWidget = new QStackedWidget(NULL);
-    qDebug() << "test2";
     userId = getUserIdByToken(dbCon);
-    qDebug() << "test3";
 
     QWidget *mainWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainWidget->setLayout(mainLayout);
+    stackedWidget->setParent(mainWidget);
 
     QString styleSheet = this->getStyleSheet();
     app.setStyleSheet(styleSheet);
@@ -60,8 +58,8 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     headerLayout->addWidget(menuBar, 0, Qt::AlignLeft);
     headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
 
-    logPage = new loginPage(NULL,this, dbCon);
-    credsPage = new CredentialsPage(NULL, dbCon, this->userId);
+    logPage = new LoginPage(NULL,this, dbCon);
+    credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
     pwdGen = new PwdGenerator(NULL, this, dbCon);
     pwdQual = new PwdQualityPage(NULL, this, dbCon);
     stackedWidget->addWidget(credsPage);
@@ -122,8 +120,10 @@ QString ApplicationController::getStyleSheet() {
 }
 
 void ApplicationController::switchCredsPage() {
-    if(isConnected() == 0)
+    if(isConnected() == 0) {
+        //refreshCredsPage();
         stackedWidget->setCurrentWidget(credsPage);
+    }
 }
 
 void ApplicationController::switchGenPwdPage() {
@@ -175,11 +175,32 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
     connect(seePwd, SIGNAL(triggered()), this, SLOT(switchCredsPage()));
     connect(pwdGenerator, SIGNAL(triggered()), this, SLOT(switchGenPwdPage()));
     connect(pwdQuality, SIGNAL(triggered()), this, SLOT(switchPwdQuality()));
-    connect(deco, SIGNAL(triggered()), this, SLOT(deconnexion()));
+    connect(deco, SIGNAL(triggered()), this, SLOT(disconnect()));
     connect(quitWindow, SIGNAL(triggered()), qApp, SLOT(quit()));
 }
 
-void ApplicationController::deconnexion() {
+void ApplicationController::disconnect() {
     createTokenFile();
     switchToLoginPage();
+}
+
+void ApplicationController::refreshCredsPage() {
+    qDebug() << "Test";
+    if (stackedWidget) {
+        // Utiliser stackedWidget en toute sécurité ici
+        qDebug() << "ok";
+    } else {
+        qDebug() << "stackedWidget is nullptr!";
+    }
+    for (int i = 0; i < stackedWidget->count(); ++i) {
+        QWidget *widget = stackedWidget->widget(i);
+        qDebug() << "Widget at index" << i << ":" << widget;
+    }
+    int oldPageIndex = stackedWidget->indexOf(credsPage);
+    qDebug() << "old index : " << oldPageIndex;
+    stackedWidget->removeWidget(credsPage);
+    //delete credsPage;
+    CredentialsPage *newCredsPage = new CredentialsPage(NULL, dbCon, userId);
+    credsPage = newCredsPage;
+    stackedWidget->insertWidget(oldPageIndex, credsPage);
 }

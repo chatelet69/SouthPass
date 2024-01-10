@@ -23,3 +23,26 @@ QApplication {
 #themeButton:hover {
     border-color: rgb(19, 19, 19);
 }
+
+/* ToolBar Creds Page */
+
+#searchCredsInput {
+    border: 1px solid gray;
+    border-radius: 4px;
+    width: 50px;
+}
+
+#credsSearchTypeBox {
+    border: 1px solid transparent;
+    background-color: rgb(235, 236, 238);
+    border-radius: 4px;
+}
+
+#newCredsButton {
+    background-color: rgb(164, 216, 164);
+    border: none;
+    border-radius: 4;
+    padding: 2;
+    height: auto;
+    color: white;
+}

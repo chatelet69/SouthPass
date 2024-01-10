@@ -27,7 +27,7 @@
 
 class MainWindow;
 class ApplicationController;
-class loginPage;
+class LoginPage;
 
 class MainWindow : public QMainWindow {
     public:
@@ -60,9 +60,11 @@ class ApplicationController : public QObject {
         void switchGenPwdPage();
         void deconnexion();
         void switchPwdQuality();
-    // void onApplicationMove();
+        void disconnect();
+        void refreshCredsPage();
+        //void refreshCredsPage();
 
-private:
+    private:
         int userId;
         char isDark;
         char oldTheme;
