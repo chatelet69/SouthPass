@@ -9,20 +9,18 @@
 
 char * testPwd(char * pwd){
     int count;
-    if(checkRockYou(pwd) == 1)
-        return "Faible";
-    if(strlen(pwd)<8)
-        return "Faible";
     if(hasSpecialChar(pwd))
         count++;
     if(hasDigit(pwd))
         count++;
     if(hasLetter(pwd))
         count++;
-    if(count <= 2)
+
+    if(checkRockYou(pwd) == 1 || strlen(pwd)<8 || count == 1)
+        return "Faible";
+    if(count == 2 || strlen(pwd)<14)
         return "Moyen";
-    if(strlen(pwd)<16)
-        return "Moyen";
+
     return "Fort";
 }
 

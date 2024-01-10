@@ -72,7 +72,7 @@ class ApplicationController : public QObject {
         QStackedWidget *stackedWidget;
         MainWindow mainWindow;
         MYSQL *dbCon;
-        loginPage *logPage;
+        LoginPage *logPage;
         PwdQualityPage *pwdQual;
         PwdGenerator *pwdGen;
         CredentialsPage *credsPage;
