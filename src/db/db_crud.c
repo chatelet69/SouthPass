@@ -173,6 +173,7 @@ int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
     strcpy(hashedMasterPwd, shaPwd(masterPwd, hashMasterString, salt));
     free(hashMasterString);
 
+    printf("\nhashsign : %s , hashmastersign %s , sel : %s\n", hashedPwd, hashedMasterPwd, salt);
     // verif si le user existe déjà (via l'email)
     int res = 0;
 

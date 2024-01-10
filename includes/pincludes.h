@@ -18,5 +18,4 @@
 #include "backLoginSignIn.h"
 #include <string.h>
 #include "pwdGeneratorPage.h"
-
 #endif

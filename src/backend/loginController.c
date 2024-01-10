@@ -76,6 +76,7 @@ int verifLogin(MYSQL *dbCon, char *email, char *password, char *masterPwd) {
 
     char verifEmail[255];
     strcpy(verifEmail, checkLoginDb(dbCon, email, hashedPwd, hashedMasterPwd));
+    printf("email : %s hash : %s hashMaster : %s", verifEmail, hashedPwd, hashedMasterPwd);
     if (strcmp(verifEmail, email) == 0){
         generateNewUserToken(dbCon, email);
         return 0;
@@ -126,7 +127,7 @@ int hasSpecialChar(char *str) {
 }
 
 char * shaPwd(const char * pwd, char * hashString, char * salt){
-    char saledPwd[62];
+    char saledPwd[65];
     strcpy(saledPwd, salt);
     strcat(saledPwd, pwd);
     strcat(saledPwd, salt);

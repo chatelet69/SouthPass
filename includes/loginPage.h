@@ -28,11 +28,7 @@ class LoginPage : public QWidget {
 
     private Q_SLOTS:
 
-    private:
-        MYSQL *dbCon;
-        QWidget fenetre;
-        QLineEdit *email;
-        QLineEdit *password;
-        QFormLayout *layout;
+private:
+    MYSQL *dbCon;
 };
 #endif //SOUTHPASS_LOGIN_PAGE_H
