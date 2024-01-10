@@ -51,7 +51,6 @@ void PwdQualityPage::verifWeakPwd(QTabWidget *onglets){
         solidityPwd->setText(solidity);
         advice->setText(advicePwd);
         verifWeaknessPwd->setLayout(layoutweakPwd);
-        printf("gros golmon");
     });
 }
 

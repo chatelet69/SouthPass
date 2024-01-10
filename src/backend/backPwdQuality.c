@@ -19,26 +19,27 @@ char * testPwd(char * pwd){
         count++;
     if(hasLetter(pwd))
         count++;
-    if(count <= 2 && strlen(pwd)<16)
+    if(count <= 2)
         return "Moyen";
-
+    if(strlen(pwd)<16)
+        return "Moyen";
     return "Fort";
 }
 
 int checkRockYou(char * pwd){
-    printf("PWD : %s", pwd);
-    FILE * fp = fopen("C:\\Users\\mathf\\OneDrive\\Bureau\\Cours\\S1\\Langage_C_avance\\Southpass\\SouthPass\\rockyou.txt", "rt");
+    FILE * fp = fopen("../../rockyou.txt", "rt");
     char verifPwd[50];
     if(fp != NULL){
-        while (fgets(verifPwd, 50, fp)!=NULL){
+        while (fgets(verifPwd, 50, fp) != NULL){
+            if(verifPwd[strlen(verifPwd)-1] == '\n')
+                verifPwd[strlen(verifPwd)-1] = '\0';
+
             if(strcmp(pwd, verifPwd) == 0){
                 fclose(fp);
-                printf("\nfound");
                 return 1;
             }
         }
     }
     fclose(fp);
-    printf("\nnot found");
     return 0;
 }
