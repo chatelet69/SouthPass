@@ -1,6 +1,6 @@
 /*
     Filename : applicationController.cpp
-    Description: Qt Application Conroller
+    Description: Qt Application Controller
 */
 
 #include <QFile>
@@ -62,10 +62,10 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
     pwdGen = new PwdGenerator(NULL, this, dbCon);
     pwdQual = new PwdQualityPage(NULL, this, dbCon);
-    stackedWidget->addWidget(credsPage);
-    stackedWidget->addWidget(logPage);
-    stackedWidget->addWidget(pwdGen);
-    stackedWidget->addWidget(pwdQual);
+    stackedWidget->addWidget((QWidget *) credsPage);
+    stackedWidget->addWidget((QWidget *) logPage);
+    stackedWidget->addWidget((QWidget *) pwdGen);
+    stackedWidget->addWidget((QWidget *) pwdQual);
 
     mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);

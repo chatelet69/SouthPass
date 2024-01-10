@@ -5,6 +5,6 @@
 
 void removeReturnLine(char *str);
 int getSizeInString(int num);
-void printCred(Credentials creds);
+void printCred(Credentials *credentials);
 
 #endif
