@@ -46,13 +46,34 @@ class CredsToolBarWidget : public QWidget {
         void showCredsForm();
 };
 
+class CredentialEditWidget : public QWidget {
+    Q_OBJECT
+    public:
+        CredentialEditWidget(QWidget *parent, const int credId, QString loginName, QString login, QString password);
+        void setCredId(const int newId);
+        void setLogin(QString newLogin);
+        void setLoginName(QString newName);
+        void setPassword(QString newPassword);
+
+    private:
+        int credId;
+        QString loginName;
+        QString login;
+        QString password;
+};
+
 class CredentialsWidget : public QWidget {
+    Q_OBJECT
     public:
         CredentialsWidget(QWidget *parent, const CredsArray credsArray);
+
+    public Q_SLOTS:
+        void showEditCred(const int credId, QString name, QString login, QString password);
 
     private:
         QVBoxLayout *contentLayout;
         QScrollArea *scrollArea;
+        CredentialEditWidget *credentialEditWidget;
 };
 
 class CredentialsPage : public QWidget {
