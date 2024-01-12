@@ -108,8 +108,24 @@ void saveThemePreference(int theme) {
 int createTokenFile() {
     FILE *cookieFile = fopen(COOKIE_FILE_PATH, "wb");
     if (cookieFile == NULL) return 1;
-
     fclose(cookieFile);
 
-    return 0;
+    return EXIT_SUCCESS;
+}
+
+int writePasswordsExportFile(char **passwordsFormatedList, int size) {
+    //char *userDownloadsPath = getUserDownloadsPath();
+    const char *userDownloadsPath = "C:/Users/${USER}/Downloads/exportedPasswords.csv";
+    FILE *exportFile = fopen(userDownloadsPath, "wt");
+
+    if (exportFile != NULL) {
+        fprintf(exportFile, "Name,Login,Password\n");
+        for (int i = 0; i < size; i++) {
+            fprintf(exportFile, "%s\n", passwordsFormatedList[i]);
+        }
+        fclose(exportFile);
+        return EXIT_SUCCESS;
+    }
+    
+    return EXIT_FAILURE;
 }

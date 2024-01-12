@@ -9,7 +9,7 @@
 
 char **getPwsdList();
 void printCreds(Credentials *creds, unsigned int size);
-void freeCredsArray(CredsArray credsArray);
+void freeCredsArray(CredsArray *credsArray);
 void printPCred(Credentials *creds);
 void freeCredentialsData(Credentials *creds);
 int getUserIdByToken(MYSQL *dbCon);
@@ -17,5 +17,6 @@ int getUserIdByToken(MYSQL *dbCon);
 char *getActualDate();
 int generateNewUserToken(MYSQL *dbCon, char *userEmail);
 int addNewCredsController(MYSQL *dbCon, char *loginName, char *login, char *password);
+int exportPasswordsController(MYSQL *dbCon, const int userId);
 
 #endif

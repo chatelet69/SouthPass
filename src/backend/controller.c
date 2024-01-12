@@ -15,13 +15,17 @@ char **getPwsdList() {
     return NULL;
 }
 
-void freeCredsArray(CredsArray credsArray) {
-    for (unsigned int i = 0; i < credsArray.size; i++) {
-        free(credsArray.creds[i].name);
-        free(credsArray.creds[i].loginName);
-        free(credsArray.creds[i].password);
+void freeCredsArray(CredsArray *credsArray) {
+    if (credsArray != NULL) {
+        for (unsigned int i = 0; i < credsArray->size; i++) {
+            free(credsArray->credentials[i].name);
+            free(credsArray->credentials[i].loginName);
+            free(credsArray->credentials[i].password);
+        }
+        free(credsArray->credentials);
+        credsArray->size = 0;
+        printf("free finished!\n");
     }
-    free(credsArray.creds);
 }
 
 void freeCredentialsData(Credentials *creds) {
@@ -72,9 +76,10 @@ int getUserIdByToken(MYSQL *dbCon) {
 
     if (tokenInfos != NULL) {
         int res = getUserByTokenInfos(dbCon, tokenInfos->token, tokenInfos->id);
-        printf("aze\n");
+        printf("tokenInfos != null  : %d\n", res);
         int id = tokenInfos->id;
         free(tokenInfos);
+        printf("tokenInfos before return : %d\n", id);
         if (res == 1) return id;
     }
 
@@ -117,4 +122,14 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
     } else {
         return -1;
     }
+}
+
+int exportPasswordsController(MYSQL *dbCon, const int userId) {
+    char **test = (char **) malloc(sizeof(char *) * 3);
+    for (int i = 0; i < 3; i++) test[i] = (char *) malloc(sizeof(char) * 120);
+    for (int i = 0; i < 3; i++) sprintf(test[i], "google.com,monop@email.com,xJEndoc31!8Eox:");
+
+    int status = writePasswordsExportFile(test, 3);
+
+    return status;
 }

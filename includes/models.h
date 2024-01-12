@@ -15,14 +15,14 @@ struct Credentials {
     char *password;
 };
 
-typedef struct {
+typedef struct TokenInfos {
     int id;
     char *token;
     char *email;
 } TokenInfos;
 
-typedef struct {
-    Credentials *creds;
+typedef struct CredsArray {
+    Credentials *credentials;
     unsigned int size;
 } CredsArray;
 

@@ -61,6 +61,7 @@ class ApplicationController : public QObject {
         void disconnect();
         void switchPwdQuality();
         void refreshCredsPage();
+        void exportPasswords();
         //void refreshCredsPage();
 
     private:
