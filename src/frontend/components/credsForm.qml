@@ -36,7 +36,10 @@ Rectangle {
                     color: cancelNewCredsButton.hovered ? "#d11717" : "#e37b7b"
                     radius: 6
                 }
-                onClicked: CredsFormWidget.closeForm()
+                onClicked: {
+                    var refreshStatus = false;
+                    CredsFormWidget.closeForm(refreshStatus);
+                }
             }
 
             Text {
