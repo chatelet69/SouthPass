@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS pswd_stock(
     id INT PRIMARY KEY AUTO_INCREMENT,
     userId INT NOT NULL,
     name VARCHAR(150),
-    password VARCHAR(255),
-    loginName VARCHAR(255)
+    loginName VARCHAR(255),
+    password VARCHAR(255)
 );
 ALTER TABLE pswd_stock ADD FOREIGN KEY (userId) REFERENCES users (id);
