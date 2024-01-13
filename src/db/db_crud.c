@@ -38,7 +38,7 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
     CredsArray credsArray;
     credsArray.size = 0;
     credsArray.credentials = NULL;
-    char *sqlQuery = (char *) malloc(sizeof(char) * 120);
+    char *sqlQuery = (char *) malloc(sizeof(char) * 160);
     sprintf(sqlQuery, "SELECT psw.id,userId,name,loginName,AES_DECRYPT(psw.password, u.pwdMaster) FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
     
     if (mysql_query(dbCon, sqlQuery) != 0) {
@@ -49,13 +49,13 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
         if (resData == NULL) {
             fprintf(stderr, "No data\n");
         } else {
-            char numFields = mysql_num_fields(resData);
+            unsigned int numFields = mysql_num_fields(resData);
             unsigned int rowsCount = mysql_num_rows(resData);
             MYSQL_ROW row;
 
             if (rowsCount > 0) {
                 int cred = 0;
-                credsArray.credentials = (Credentials *) malloc(sizeof(Credentials) * rowsCount);
+                credsArray.credentials = (Credentials *) malloc(sizeof(Credentials *) * rowsCount);
                 credsArray.size = rowsCount;
                 if (credsArray.credentials != NULL) {
                     while ((row = mysql_fetch_row(resData))) {
@@ -70,9 +70,10 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
                     }
                 }
             }
-            mysql_free_result(resData);
+            mysql_free_result_nonblocking(resData);
         }
     }
+    free(sqlQuery);
     
     return credsArray;
 }
