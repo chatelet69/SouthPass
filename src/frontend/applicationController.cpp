@@ -78,10 +78,10 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     qDebug() << "test8";
     pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
     qDebug() << "test9";
-    stackedWidget->addWidget((QWidget *) credsPage);
-    stackedWidget->addWidget((QWidget *) logPage);
-    stackedWidget->addWidget((QWidget *) pwdGen);
-    stackedWidget->addWidget((QWidget *) pwdQual);
+    stackedWidget->addWidget(credsPage);
+    stackedWidget->addWidget(logPage);
+    stackedWidget->addWidget(pwdGen);
+    stackedWidget->addWidget(pwdQual);
 
     mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);

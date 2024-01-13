@@ -16,17 +16,18 @@ CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbConnection, int userI
 
     toolBarWidget = new CredsToolBarWidget(this, this->dbCon);
 
-    CredsArray credsArray = getPasswordsList(this->dbCon, this->userId);
-    qDebug() << "size creds : " << credsArray.size;
-    printCreds(credsArray.credentials, credsArray.size);
-    this->credentialsWidget = new CredentialsWidget((QWidget *) this, credsArray);
+    CredsArray *credsArray = getPasswordsList(this->dbCon, this->userId);
+    qDebug() << "size creds : " << credsArray->size;
+    printCreds(credsArray->credentials, credsArray->size);
+    credentialsWidget = new CredentialsWidget((QWidget *) this, credsArray);
     credentialsWidget->setObjectName("credsWidget");
     qDebug() << "after credsWidget object name";
+    freeCredsArray(credsArray);
+    free(credsArray);
 
     layout->addWidget((QWidget *)toolBarWidget);
     layout->addWidget(credentialsWidget);
     setLayout(layout);
-    freeCredsArray(&credsArray);
 }
 
 void CredentialsPage::setUserId(int newId) {

@@ -20,7 +20,7 @@
 #include "../../includes/backController.h"
 #include "../../includes/models.h"
 
-CredentialsWidget::CredentialsWidget(QWidget *parent, const CredsArray credsArray) : QWidget(parent)
+CredentialsWidget::CredentialsWidget(QWidget *parent, CredsArray *credsArray) : QWidget(parent)
 {
     contentLayout = new QVBoxLayout(this);
     scrollArea = new QScrollArea(this);
@@ -31,10 +31,10 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, const CredsArray credsArra
     QWidget *credsContainer = new QWidget(this);
     credsContainer->setObjectName("credsContainer");
     QVBoxLayout *credsLayout = new QVBoxLayout(credsContainer);
-    qDebug() << "credsContainer : " << credsArray.size << " : " << credsArray.credentials;
-    if (credsArray.size > 0) {
-        qDebug() << "size is not 0 : " << credsArray.size;
-        for (unsigned int i = 0; i < credsArray.size; i++){
+    qDebug() << "credsContainer : " << credsArray->size << " : " << credsArray->credentials;
+    if (credsArray->size > 0) {
+        qDebug() << "size is not 0 : " << credsArray->size;
+        for (unsigned int i = 0; i < credsArray->size; i++){
             QWidget *credContainer = new QWidget(this);
             credContainer->setObjectName("credBox");
             QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
@@ -42,9 +42,9 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, const CredsArray credsArra
             QWidget *labelsContainer = new QWidget(credContainer);
             QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
 
-            QLabel *labelName = new QLabel(QString("Nom : %1").arg(credsArray.credentials[i].name));
-            QLabel *labelLogin = new QLabel(QString("Login : %1").arg(credsArray.credentials[i].loginName));
-            QLabel *labelPassword = new QLabel(QString("Mot de passe : %1").arg(credsArray.credentials[i].password));
+            QLabel *labelName = new QLabel(QString("Nom : %1").arg(credsArray->credentials[i].name));
+            QLabel *labelLogin = new QLabel(QString("Login : %1").arg(credsArray->credentials[i].loginName));
+            QLabel *labelPassword = new QLabel(QString("Mot de passe : %1").arg(credsArray->credentials[i].password));
 
             labelsContainer->setObjectName("credDetailsBox");
             labelsContainerLayout->addWidget(labelName);
@@ -54,8 +54,8 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, const CredsArray credsArra
             QPushButton *button = new QPushButton("Modifier");
             button->setObjectName("editCredButton");
             connect(button, &QPushButton::clicked, [=](){
-                        QString tmpName = QString::fromUtf8(credsArray.credentials[i].loginName, -1);
-                        qDebug() << "tmpName : " << tmpName;
+                        //QString tmpName = QString::fromUtf8(credsArray->credentials[i].loginName, -1);
+                        //qDebug() << "tmpName : " << tmpName;
                         // QString tmpLogin = new QString("%1").arg(credsArray.creds[i].loginName);
                         // QString tmpPass = new QString("%1").arg(credsArray.creds[i].password);
                         // showEditCred(credsArray.creds[i].id, tmpName, tmpLogin, tmpPass);
