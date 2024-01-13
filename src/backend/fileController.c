@@ -55,7 +55,7 @@ TokenInfos *getTokenFileInfos() {
 
 const int getUserIdByCookieFile() {
     FILE *cookieFile = fopen(COOKIE_FILE_PATH, "rb");
-    if (cookieFile == NULL) return NULL;
+    if (cookieFile == NULL) return 0;
 
     int userId = 0;
     if (cookieFile != NULL) {
@@ -90,9 +90,9 @@ void saveThemePreference(int theme) {
         char line[100];
         while (fgets(line, 100, configFile) != NULL) {
             pos = ftell(configFile) - strlen(line);
-            printf("%d : %s", pos, line);
+            printf("%ld : %s", pos, line);
             if (strstr(line, "theme_preference") != NULL) {
-                printf("%d : %ld\n", ftell(configFile), strlen(line));
+                printf("%ld : %ld\n", ftell(configFile), strlen(line));
                 break;
             }
         }

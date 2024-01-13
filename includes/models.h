@@ -26,4 +26,9 @@ typedef struct CredsArray {
     unsigned int size;
 } CredsArray;
 
+typedef struct ExportList {
+    char **lines;
+    unsigned int count;
+} ExportList;
+
 #endif

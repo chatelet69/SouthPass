@@ -12,6 +12,7 @@ void printCreds(Credentials *creds, unsigned int size);
 void freeCredsArray(CredsArray *credsArray);
 void printPCred(Credentials *creds);
 void freeCredentialsData(Credentials *creds);
+void freeExportList(ExportList *exportList);
 int getUserIdByToken(MYSQL *dbCon);
 
 char *getActualDate();

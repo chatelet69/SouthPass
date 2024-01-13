@@ -28,5 +28,6 @@ const char *getSaltByEmail(MYSQL *mysql, char *email);
 int getUserByTokenInfos(MYSQL *dbCon, const char *token, const int userId);
 int saveNewUserTokenDb(MYSQL *dbCon, const int userId, char *tokenHash);
 int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption);
+ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId);
 
 #endif

@@ -125,11 +125,22 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
 }
 
 int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder) {
-    char **test = (char **) malloc(sizeof(char *) * 3);
-    for (int i = 0; i < 3; i++) test[i] = (char *) malloc(sizeof(char) * 120);
-    for (int i = 0; i < 3; i++) sprintf(test[i], "google.com,monop@email.com,xJEndoc31!8Eox:");
+    ExportList exportedList = getPasswordsExportListDb(dbCon, userId);
+    //char **test = (char **) malloc(sizeof(char *) * 3);
+    //for (int i = 0; i < 3; i++) test[i] = (char *) malloc(sizeof(char) * 300);
+    //for (int i = 0; i < 3; i++) sprintf(test[i], "google.com,monop@email.com,xJEndoc31!8Eox:");
 
-    int status = writePasswordsExportFile(test, 3, exportFolder);
+    int status = writePasswordsExportFile(exportedList.lines, exportedList.count, exportFolder);
 
     return status;
+}
+
+
+void freeExportList(ExportList *exportList) {
+    for (unsigned int i = 0; i < exportList->count; i++) {
+        free(exportList->lines[i]);
+    }
+    free(exportList->lines);
+    exportList->lines = NULL;
+    exportList->count = 0;
 }

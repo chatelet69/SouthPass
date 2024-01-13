@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "../../includes/utils.h"
 #include "../../includes/db.h"
+#include "../../includes/models.h"
 #include "../../includes/pincludes.h"
 #include <openssl/sha.h>
 
@@ -419,4 +420,56 @@ int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption) {
     mysql_stmt_close(stmt);
 
     return userId;
+}
+
+ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
+    const char *sqlQuery = "SELECT CONCAT(p.name, CONCAT(',', CONCAT(p.loginName, CONCAT(',', AES_DESCRYPT(p.password, u.pwdMaster))))) \
+     FROM pswd_stock p INNER JOIN users u ON p.userId = u.id WHERE p.userId = ?";
+    ExportList exportList;
+    exportList.count = 0;
+    exportList.lines = NULL;
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[1];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_LONG;
+        params[0].buffer = (void *) &userId;
+
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            return exportList;
+        }
+        int status = mysql_stmt_execute(stmt);
+
+        if (status == EXIT_SUCCESS) {
+            unsigned int rowsCount = mysql_stmt_num_rows(stmt);
+
+            if (rowsCount > 0) {
+                exportList.lines = (char **) malloc(sizeof(char *) * rowsCount);
+                char actualLine[300];
+                MYSQL_BIND results[1];
+                memset(results, 0, sizeof(results));
+                results[0].buffer_type = MYSQL_TYPE_STRING;
+                results[0].buffer = &actualLine;
+                results[0].buffer_length = sizeof(actualLine);
+            
+                if (mysql_stmt_bind_result(stmt, results) != EXIT_SUCCESS) {
+                    mysql_stmt_close(stmt);
+                    return exportList;
+                }
+                
+                int i = 0;
+                while (mysql_stmt_fetch(stmt) == 0) {
+                    char *tmp = strdup(actualLine);
+                    exportList.lines[i] = (char *) malloc(sizeof(char) * strlen(tmp));
+                    strcpy(exportList.lines[i], tmp);
+                    i++;
+                }
+            }
+        }
+    }
+    mysql_stmt_close(stmt);
+
+    return exportList;
 }
