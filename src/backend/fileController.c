@@ -55,7 +55,7 @@ TokenInfos *getTokenFileInfos() {
 
 const int getUserIdByCookieFile() {
     FILE *cookieFile = fopen(COOKIE_FILE_PATH, "rb");
-    if (cookieFile == NULL) return NULL;
+    if (cookieFile == NULL) return 0;
 
     int userId = 0;
     if (cookieFile != NULL) {
@@ -90,9 +90,9 @@ void saveThemePreference(int theme) {
         char line[100];
         while (fgets(line, 100, configFile) != NULL) {
             pos = ftell(configFile) - strlen(line);
-            printf("%d : %s", pos, line);
+            printf("%ld : %s", pos, line);
             if (strstr(line, "theme_preference") != NULL) {
-                printf("%d : %d\n", ftell(configFile), strlen(line));
+                printf("%ld : %ld\n", ftell(configFile), strlen(line));
                 break;
             }
         }
@@ -108,8 +108,48 @@ void saveThemePreference(int theme) {
 int createTokenFile() {
     FILE *cookieFile = fopen(COOKIE_FILE_PATH, "wb");
     if (cookieFile == NULL) return 1;
-
     fclose(cookieFile);
 
-    return 0;
+    return EXIT_SUCCESS;
+}
+
+int writePasswordsExportFile(char **passwordsFormatedList, int size, char *exportFolder) {
+    char *userDownloadsPath = (char *)malloc(sizeof(char) * strlen(exportFolder) + 30);
+    sprintf(userDownloadsPath, "%s/exportPasswords.csv", exportFolder);
+    FILE *exportFile = fopen(userDownloadsPath, "wt");
+
+    if (exportFile != NULL) {
+        fprintf(exportFile, "Name,Login,Password\n");
+        for (int i = 0; i < size; i++) fprintf(exportFile, "%s\n", passwordsFormatedList[i]);
+        fclose(exportFile);
+        return EXIT_SUCCESS;
+    }
+    free(userDownloadsPath);
+    
+    return EXIT_FAILURE;
+}
+
+char *getUserDirectoryPath(const char *osName) {
+    if (strcmp(osName, "linux") == 0) {
+        char *homeDir = getenv("HOME");
+        if (homeDir != NULL) {
+            return homeDir;
+        } else {
+            return strdup("/");
+        }
+    } /*else if (strcmp(osName, "windows") == 0) {
+        //const char path[81];
+        //else return NULL;
+    }*/
+    return NULL;
+}
+
+const char *getOsName() {
+    #ifdef _WIN32
+        return "windows";
+    #elif __linux__
+        return "linux";
+    #else
+        return "unfound";
+    #endif
 }

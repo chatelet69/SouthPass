@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "../../includes/utils.h"
 #include "../../includes/db.h"
+#include "../../includes/models.h"
 #include "../../includes/pincludes.h"
 #include <openssl/sha.h>
 
@@ -34,12 +35,12 @@ int getData(MYSQL *dbCon, char *sqlQuery) {
     return EXIT_SUCCESS;
 }
 
-CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
-    CredsArray credsArray;
-    credsArray.size = 0;
-    credsArray.creds = NULL;
-    char *sqlQuery = (char *) malloc(sizeof(char) * 120);
-    sprintf(sqlQuery, "SELECT psw.id,userId,name,loginName,AES_DECRYPT(psw.password, u.pwdMaster) FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
+CredsArray *getPasswordsList(MYSQL *dbCon, int userId) {
+    CredsArray *credsArray = (CredsArray *) malloc(sizeof(CredsArray) * 1);
+    credsArray->size = 0;
+    credsArray->credentials = NULL;
+    char *sqlQuery = (char *) malloc(sizeof(char) * 160);
+    sprintf(sqlQuery, "SELECT psw.id AS id,userId,name,loginName,AES_DECRYPT(psw.password, u.pwdMaster) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
     
     if (mysql_query(dbCon, sqlQuery) != 0) {
         fprintf(stderr, "Query Failure\n");
@@ -49,21 +50,29 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
         if (resData == NULL) {
             fprintf(stderr, "No data\n");
         } else {
-            char numFields = mysql_num_fields(resData);
+            unsigned int numFields = mysql_num_fields(resData);
             unsigned int rowsCount = mysql_num_rows(resData);
             MYSQL_ROW row;
 
             if (rowsCount > 0) {
                 int cred = 0;
-                credsArray.creds = (Credentials *) malloc(sizeof(Credentials) * rowsCount);
-                credsArray.size = rowsCount;
-                if (credsArray.creds != NULL) {
+                credsArray->credentials = (Credentials *) malloc(sizeof(Credentials) * rowsCount);
+                //for (int i = 0; i < rowsCount; i++) credsArray->credentials[i] = (Credentials *) malloc(sizeof(Credentials));
+                credsArray->size = rowsCount;    
+                if (credsArray->credentials != NULL) {
                     while ((row = mysql_fetch_row(resData))) {
-                        credsArray.creds[cred].id = atoi(row[0]);
-                        credsArray.creds[cred].userId = atoi(row[1]);
-                        credsArray.creds[cred].name = strdup(row[2]);
-                        credsArray.creds[cred].loginName = strdup(row[3]);
-                        credsArray.creds[cred].password = strdup(row[4]);
+                        printf("%s %s %s\n", row[2], row[3], row[4]);
+                        credsArray->credentials[cred].id = atoi(row[0]);
+                        credsArray->credentials[cred].userId = atoi(row[1]);
+                        //credsArray->credentials[cred].name = (char *) malloc(sizeof(char) * strlen(row[2]));
+                        //strcpy(credsArray->credentials[cred].name, row[2]);
+                        //credsArray->credentials[cred].loginName = (char *) malloc(sizeof(char) * strlen(row[3]));
+                        //strcpy(credsArray->credentials[cred].loginName, row[3]);
+                        //credsArray->credentials[cred].password = (char *) malloc(sizeof(char) * strlen(row[4]));
+                        //strcpy(credsArray->credentials[cred].password, row[4]);
+                        credsArray->credentials[cred].name = strdup(row[2]);
+                        credsArray->credentials[cred].loginName = strdup(row[3]);
+                        credsArray->credentials[cred].password= strdup(row[4]);
                         //for(int i = 0; i < numFields; i++) printf("| %s |", row[i] ? row[i] : "NULL");
                         //printf("\n");
                         cred++;
@@ -73,6 +82,7 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
             mysql_free_result(resData);
         }
     }
+    free(sqlQuery);
     
     return credsArray;
 }
@@ -86,16 +96,16 @@ int createNewCreds(MYSQL *dbCon, Credentials *creds) {
     if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
         MYSQL_BIND params[5];
         memset(params, 0, sizeof(params));
-        params[0].buffer_type = MYSQL_TYPE_LONG;
+        params[0].buffer_type = MYSQL_TYPE_LONG;    
         params[0].buffer = &creds->userId;
 
         params[1].buffer_type = MYSQL_TYPE_VARCHAR;
         params[1].buffer = creds->name;
-        params[1].buffer_length = sizeof(creds->name);
+        params[1].buffer_length = strlen(creds->name);
 
         params[2].buffer_type = MYSQL_TYPE_VARCHAR;
         params[2].buffer = creds->loginName;
-        params[2].buffer_length = sizeof(creds->loginName);
+        params[2].buffer_length = strlen(creds->loginName);
         
         params[3].buffer_type = MYSQL_TYPE_VARCHAR;
         params[3].buffer = creds->password;
@@ -103,7 +113,11 @@ int createNewCreds(MYSQL *dbCon, Credentials *creds) {
         
         params[4].buffer_type = MYSQL_TYPE_LONG;
         params[4].buffer = &creds->userId;
-        mysql_stmt_bind_param(stmt, params);
+        
+        if (mysql_stmt_bind_param(stmt, params)) {
+            mysql_stmt_close(stmt);
+            return status;
+        }
         status = mysql_stmt_execute(stmt);
     }
     mysql_stmt_close(stmt);
@@ -122,7 +136,6 @@ int putData(MYSQL *dbCon, char *sqlQuery) {
 int isUserExist(MYSQL *dbCon, char * email) {
     int status = 0;
     const char * sqlQuery = "SELECT email FROM users WHERE email = ?";
-
     int size = strlen(sqlQuery);
 
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
@@ -155,7 +168,6 @@ int isUserExist(MYSQL *dbCon, char * email) {
 }
 
 int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
-
     // hashage du password
     char hashedPwd[65];
     char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
@@ -227,7 +239,7 @@ char * checkLoginDb(MYSQL *dbCon, char *email, char *hashedPwd, char *hashedMast
     bool          is_null[1];
     bool          error[1];
     char verifEmail[255];
-    char *sqlQuery = "SELECT email FROM users WHERE email = ? AND pwdAccount = ? AND pwdMaster = ?";
+    const char *sqlQuery = "SELECT email FROM users WHERE email = ? AND pwdAccount = ? AND pwdMaster = ?";
 
     stmt = mysql_stmt_init(dbCon);
     mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery));
@@ -272,6 +284,7 @@ char * checkLoginDb(MYSQL *dbCon, char *email, char *hashedPwd, char *hashedMast
 
 int getUserByTokenInfos(MYSQL *dbCon, const char *token, const int userId) {
     int status = 0;
+    printf("%d : %s\n", userId, token);
     const char *sqlQuery = "SELECT id FROM users WHERE token = ? AND id = ?";
 
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
@@ -285,8 +298,15 @@ int getUserByTokenInfos(MYSQL *dbCon, const char *token, const int userId) {
         params[1].buffer_type = MYSQL_TYPE_LONG;
         params[1].buffer = (void *)&userId;
 
-        mysql_stmt_bind_param(stmt, params);
-        mysql_stmt_execute(stmt);
+        if (mysql_stmt_bind_param(stmt, params)) {
+            mysql_stmt_close(stmt);
+            return status;
+        }
+
+        if (mysql_stmt_execute(stmt)) {
+            mysql_stmt_close(stmt);
+            return status;
+        }
         
         int rowsCount = 0;
         while (mysql_stmt_fetch(stmt) == 0) rowsCount++;
@@ -356,7 +376,11 @@ int saveNewUserTokenDb(MYSQL *dbCon, const int userId, char *tokenHash) {
         params[1].buffer_type = MYSQL_TYPE_LONG;
         params[1].buffer = (void *) &userId;
 
-        mysql_stmt_bind_param(stmt, params);
+        if (mysql_stmt_bind_param(stmt, params)) {
+            fprintf(stderr, "Error mysql saveNewUserTokenDb\n");
+            mysql_stmt_close(stmt);
+            return status;
+        }
         status = mysql_stmt_execute(stmt);
     }
     mysql_stmt_close(stmt);
@@ -378,7 +402,10 @@ int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption) {
         params[0].buffer = search;
         params[0].buffer_length = strlen(search);
 
-        mysql_stmt_bind_param(stmt, params);
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            return userId;
+        }
         int status = mysql_stmt_execute(stmt);
 
         if (status == EXIT_SUCCESS) {
@@ -387,7 +414,11 @@ int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption) {
             memset(results, 0, sizeof(results));
             results[0].buffer_type = MYSQL_TYPE_LONG;
             results[0].buffer = &tmpId;
-            mysql_stmt_bind_result(stmt, results);
+            
+            if (mysql_stmt_bind_result(stmt, results) != EXIT_SUCCESS) {
+                mysql_stmt_close(stmt);
+                return userId;
+            }
 
             if (mysql_stmt_fetch(stmt) == 0) {
                 userId = (tmpId > 0) ? tmpId : 0;
@@ -397,4 +428,61 @@ int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption) {
     mysql_stmt_close(stmt);
 
     return userId;
+}
+
+ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
+    const char *sqlQuery = "SELECT CONCAT(p.name, CONCAT(',', CONCAT(p.loginName, CONCAT(',', AES_DECRYPT(p.password, u.pwdMaster))))) AS fullLine FROM pswd_stock p INNER JOIN users u ON p.userId = u.id WHERE p.userId = ?";
+    ExportList exportList;
+    exportList.count = 0;
+    exportList.lines = NULL;
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    MYSQL_RES *metaData;
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[1];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_LONG;
+        params[0].buffer = (void *) &userId;
+
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            //fprintf(stderr, "1 Error db : %s\n", mysql_stmt_error(stmt));
+            return exportList;
+        }
+
+        int status = mysql_stmt_execute(stmt);
+        metaData = mysql_stmt_result_metadata(stmt); 
+        mysql_stmt_store_result(stmt);
+        if (metaData == NULL) return exportList;
+
+        if (status == EXIT_SUCCESS) {
+            char actualLine[300];
+            MYSQL_BIND results[1];
+            memset(results, 0, sizeof(results));
+            results[0].buffer_type = MYSQL_TYPE_STRING;
+            results[0].buffer = &actualLine;
+            results[0].buffer_length = sizeof(actualLine);
+            
+            if (mysql_stmt_bind_result(stmt, results) != EXIT_SUCCESS) {
+                mysql_stmt_close(stmt);
+                return exportList;
+            }
+
+            unsigned int rowsCount = mysql_stmt_affected_rows(stmt);
+            exportList.lines = (char **) malloc(sizeof(char *) * rowsCount);
+                
+            int i = 0;
+            while (mysql_stmt_fetch(stmt) == 0) {
+                char *tmp = strdup(actualLine);
+                exportList.lines[i] = (char *) malloc(sizeof(char) * strlen(tmp));
+                strcpy(exportList.lines[i], tmp);
+                i++;
+            }
+            exportList.count = i;
+        }
+        mysql_free_result(metaData);
+    }
+    mysql_stmt_close(stmt);
+
+    return exportList;
 }

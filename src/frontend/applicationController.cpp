@@ -26,22 +26,28 @@
 #include "../../includes/pwdGeneratorPage.h"
 
 ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(nullptr),*/ app(argc, argv) {
+    qDebug() << "a";
     isDark = getThemePreference();
     oldTheme = isDark;
     dbCon = dbConnect();
     stackedWidget = new QStackedWidget(NULL);
     userId = getUserIdByToken(dbCon);
+    qDebug() << "userId : " << userId;
 
     QWidget *mainWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainWidget->setLayout(mainLayout);
     stackedWidget->setParent(mainWidget);
 
+    qDebug() << "test1";
+
     QString styleSheet = this->getStyleSheet();
     app.setStyleSheet(styleSheet);
 
     QMenuBar *menuBar = new QMenuBar(nullptr);
     importMenu(menuBar);
+
+    qDebug() << "test2";
 
     QWidget *headerWidget = new QWidget();
     headerWidget->setObjectName("headerWidget");
@@ -51,21 +57,31 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     themeButton->setObjectName("themeButton");
     connect(themeButton, &QPushButton::clicked, [=]() { this->changeTheme(themeButton); });
 
+    qDebug() << "test3";
+
     const char *themeIconPath = (isDark) ? lightModeIcon : darkModeIcon;
     QIcon icon(themeIconPath);
     themeButton->setIcon(icon);
 
+    qDebug() << "test4";
+
     headerLayout->addWidget(menuBar, 0, Qt::AlignLeft);
     headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
 
-    logPage = new LoginPage(NULL,this, dbCon);
+    qDebug() << "test5";
+
+    logPage = new LoginPage(stackedWidget, this, dbCon);
+    qDebug() << "test6";
     credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
-    pwdGen = new PwdGenerator(NULL, this, dbCon);
-    pwdQual = new PwdQualityPage(NULL, this, dbCon);
-    stackedWidget->addWidget((QWidget *) credsPage);
-    stackedWidget->addWidget((QWidget *) logPage);
-    stackedWidget->addWidget((QWidget *) pwdGen);
-    stackedWidget->addWidget((QWidget *) pwdQual);
+    qDebug() << "test7";
+    pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
+    qDebug() << "test8";
+    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
+    qDebug() << "test9";
+    stackedWidget->addWidget(credsPage);
+    stackedWidget->addWidget(logPage);
+    stackedWidget->addWidget(pwdGen);
+    stackedWidget->addWidget(pwdQual);
 
     mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);
@@ -156,6 +172,7 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
     menuFichier->addAction(importPwd);
     QAction *exportPwd = new QAction("Exporter des mots de passes", this);
     menuFichier->addAction(exportPwd);
+    connect(exportPwd, &QAction::triggered, this, &ApplicationController::exportPasswords);
 
     QMenu *menuOutils = menuBar->addMenu("Outils");
     QAction *seePwd = new QAction("Voir mes mots de passes", this);
@@ -182,6 +199,18 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
 void ApplicationController::disconnect() {
     createTokenFile();
     switchToLoginPage();
+}
+
+void ApplicationController::exportPasswords() {
+    QString exportFolder = QFileDialog::getExistingDirectory(NULL, "Dossier ou exporter", QDir::homePath());
+    QByteArray exportFolderBytes = exportFolder.toLocal8Bit();
+    char *exportFolderConverted = exportFolderBytes.data();
+    int status(exportPasswordsController(dbCon, userId, exportFolderConverted));
+    if (status == EXIT_SUCCESS) {
+        QMessageBox::warning(stackedWidget,"Succès" ,"Mots de passes exportés dans vos téléchargements !");
+    } else {
+        QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'exportation des mots de passes !");
+    }
 }
 
 void ApplicationController::refreshCredsPage() {

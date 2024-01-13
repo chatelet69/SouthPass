@@ -58,10 +58,10 @@ class ApplicationController : public QObject {
         void switchToLoginPage();
         void switchCredsPage();
         void switchGenPwdPage();
-        void deconnexion();
-        void switchPwdQuality();
         void disconnect();
+        void switchPwdQuality();
         void refreshCredsPage();
+        void exportPasswords();
         //void refreshCredsPage();
 
     private:

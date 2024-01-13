@@ -15,13 +15,20 @@ char **getPwsdList() {
     return NULL;
 }
 
-void freeCredsArray(CredsArray credsArray) {
-    for (unsigned int i = 0; i < credsArray.size; i++) {
-        free(credsArray.creds[i].name);
-        free(credsArray.creds[i].loginName);
-        free(credsArray.creds[i].password);
+void freeCredsArray(CredsArray *credsArray) {
+    if (credsArray != NULL) {
+        printf("free start : %d\n", credsArray->size);
+        for (unsigned int i = 0; i < credsArray->size; i++) {
+            printf("free %d\n", i);
+            printf("%s %s %s\n", credsArray->credentials[i].name, credsArray->credentials[i].loginName, credsArray->credentials[i].password);
+            free(credsArray->credentials[i].name);
+            free(credsArray->credentials[i].loginName);
+            free(credsArray->credentials[i].password);
+        }
+        printf("before size -> 0\n");
+        credsArray->size = 0;
+        printf("free finished!\n");
     }
-    free(credsArray.creds);
 }
 
 void freeCredentialsData(Credentials *creds) {
@@ -72,9 +79,10 @@ int getUserIdByToken(MYSQL *dbCon) {
 
     if (tokenInfos != NULL) {
         int res = getUserByTokenInfos(dbCon, tokenInfos->token, tokenInfos->id);
-        printf("aze\n");
+        printf("tokenInfos != null  : %d\n", res);
         int id = tokenInfos->id;
         free(tokenInfos);
+        printf("tokenInfos before return : %d\n", id);
         if (res == 1) return id;
     }
 
@@ -117,4 +125,22 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
     } else {
         return -1;
     }
+}
+
+int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder) {
+    ExportList exportedList = getPasswordsExportListDb(dbCon, userId);
+
+    int status = writePasswordsExportFile(exportedList.lines, exportedList.count, exportFolder);
+
+    return status;
+}
+
+
+void freeExportList(ExportList *exportList) {
+    for (unsigned int i = 0; i < exportList->count; i++) {
+        free(exportList->lines[i]);
+    }
+    free(exportList->lines);
+    exportList->lines = NULL;
+    exportList->count = 0;
 }
