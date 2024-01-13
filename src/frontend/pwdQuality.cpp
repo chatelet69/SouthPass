@@ -75,10 +75,8 @@ void PwdQualityPage::weakPwdList(QTabWidget *onglets){
     listTitle->setText("Mots de passes faibles :");
     struct WeakPwdList *start = NULL;
     start = getAllWeaksPwd(start, dbCon);
-    // printWeaksPwd(start);
 
     free(start);
-
 
     onglets->addTab(weakList, "Liste mots de passes faibles");
 }

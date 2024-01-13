@@ -91,11 +91,11 @@ int createNewCreds(MYSQL *dbCon, Credentials *creds) {
 
         params[1].buffer_type = MYSQL_TYPE_VARCHAR;
         params[1].buffer = creds->name;
-        params[1].buffer_length = sizeof(creds->name);
+        params[1].buffer_length = strlen(creds->name);
 
         params[2].buffer_type = MYSQL_TYPE_VARCHAR;
         params[2].buffer = creds->loginName;
-        params[2].buffer_length = sizeof(creds->loginName);
+        params[2].buffer_length = strlen(creds->loginName);
         
         params[3].buffer_type = MYSQL_TYPE_VARCHAR;
         params[3].buffer = creds->password;
