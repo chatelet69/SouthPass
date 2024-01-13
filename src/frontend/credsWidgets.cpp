@@ -65,6 +65,10 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, const CredsArray credsArra
             credContainerLayout->addWidget(button);
             credsLayout->addWidget(credContainer);
         }
+    } else {
+        QLabel *noPasswordsLabel = new QLabel("Pas de mots de passes");
+        noPasswordsLabel->setObjectName("noPasswordsLabel");
+        credsLayout->addWidget(noPasswordsLabel);
     }
 
     scrollArea->setWidget(credsContainer);

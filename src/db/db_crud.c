@@ -86,16 +86,16 @@ int createNewCreds(MYSQL *dbCon, Credentials *creds) {
     if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
         MYSQL_BIND params[5];
         memset(params, 0, sizeof(params));
-        params[0].buffer_type = MYSQL_TYPE_LONG;
+        params[0].buffer_type = MYSQL_TYPE_LONG;    
         params[0].buffer = &creds->userId;
 
         params[1].buffer_type = MYSQL_TYPE_VARCHAR;
         params[1].buffer = creds->name;
-        params[1].buffer_length = sizeof(creds->name);
+        params[1].buffer_length = strlen(creds->name);
 
         params[2].buffer_type = MYSQL_TYPE_VARCHAR;
         params[2].buffer = creds->loginName;
-        params[2].buffer_length = sizeof(creds->loginName);
+        params[2].buffer_length = strlen(creds->loginName);
         
         params[3].buffer_type = MYSQL_TYPE_VARCHAR;
         params[3].buffer = creds->password;
@@ -103,7 +103,11 @@ int createNewCreds(MYSQL *dbCon, Credentials *creds) {
         
         params[4].buffer_type = MYSQL_TYPE_LONG;
         params[4].buffer = &creds->userId;
-        mysql_stmt_bind_param(stmt, params);
+        
+        if (mysql_stmt_bind_param(stmt, params)) {
+            mysql_stmt_close(stmt);
+            return status;
+        }
         status = mysql_stmt_execute(stmt);
     }
     mysql_stmt_close(stmt);
@@ -122,7 +126,6 @@ int putData(MYSQL *dbCon, char *sqlQuery) {
 int isUserExist(MYSQL *dbCon, char * email) {
     int status = 0;
     const char * sqlQuery = "SELECT email FROM users WHERE email = ?";
-
     int size = strlen(sqlQuery);
 
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
@@ -155,7 +158,6 @@ int isUserExist(MYSQL *dbCon, char * email) {
 }
 
 int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
-
     // hashage du password
     char hashedPwd[65];
     char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
