@@ -5,6 +5,7 @@
 //#include <winsock2.h>
 //#include <windows.h>
 //#include <winbase.h>
+//#include <Shlobj.h>
 #endif
 #include "db.h"
 #include "webService.h"

@@ -83,13 +83,9 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     stackedWidget->addWidget((QWidget *) pwdGen);
     stackedWidget->addWidget((QWidget *) pwdQual);
 
-    qDebug() << "test10";
-
     mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);
     mainWindow.setCentralWidget(mainWidget);
-
-    qDebug() << "jean";
 
     if(isConnected() == 0 && userId != 0){
         ApplicationController::switchCredsPage();
@@ -206,7 +202,10 @@ void ApplicationController::disconnect() {
 }
 
 void ApplicationController::exportPasswords() {
-    int status(exportPasswordsController(dbCon, userId));
+    QString exportFolder = QFileDialog::getExistingDirectory(NULL, "Dossier ou exporter", QDir::homePath());
+    QByteArray exportFolderBytes = exportFolder.toLocal8Bit();
+    char *exportFolderConverted = exportFolderBytes.data();
+    int status(exportPasswordsController(dbCon, userId, exportFolderConverted));
     if (status == EXIT_SUCCESS) {
         QMessageBox::warning(stackedWidget,"Succès" ,"Mots de passes exportés dans vos téléchargements !");
     } else {

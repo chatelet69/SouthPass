@@ -124,12 +124,12 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
     }
 }
 
-int exportPasswordsController(MYSQL *dbCon, const int userId) {
+int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder) {
     char **test = (char **) malloc(sizeof(char *) * 3);
     for (int i = 0; i < 3; i++) test[i] = (char *) malloc(sizeof(char) * 120);
     for (int i = 0; i < 3; i++) sprintf(test[i], "google.com,monop@email.com,xJEndoc31!8Eox:");
 
-    int status = writePasswordsExportFile(test, 3);
+    int status = writePasswordsExportFile(test, 3, exportFolder);
 
     return status;
 }

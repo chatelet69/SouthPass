@@ -92,7 +92,7 @@ void saveThemePreference(int theme) {
             pos = ftell(configFile) - strlen(line);
             printf("%d : %s", pos, line);
             if (strstr(line, "theme_preference") != NULL) {
-                printf("%d : %d\n", ftell(configFile), strlen(line));
+                printf("%d : %ld\n", ftell(configFile), strlen(line));
                 break;
             }
         }
@@ -113,9 +113,9 @@ int createTokenFile() {
     return EXIT_SUCCESS;
 }
 
-int writePasswordsExportFile(char **passwordsFormatedList, int size) {
-    //char *userDownloadsPath = getUserDownloadsPath();
-    const char *userDownloadsPath = "C:/Users/${USER}/Downloads/exportedPasswords.csv";
+int writePasswordsExportFile(char **passwordsFormatedList, int size, char *exportFolder) {
+    char *userDownloadsPath = (char *)malloc(sizeof(char) * strlen(exportFolder) + 30);
+    sprintf(userDownloadsPath, "%s/exportPasswords.csv", exportFolder);
     FILE *exportFile = fopen(userDownloadsPath, "wt");
 
     if (exportFile != NULL) {
@@ -126,6 +126,32 @@ int writePasswordsExportFile(char **passwordsFormatedList, int size) {
         fclose(exportFile);
         return EXIT_SUCCESS;
     }
+    free(userDownloadsPath);
     
     return EXIT_FAILURE;
+}
+
+char *getUserDirectoryPath(const char *osName) {
+    if (strcmp(osName, "linux") == 0) {
+        char *homeDir = getenv("HOME");
+        if (homeDir != NULL) {
+            return homeDir;
+        } else {
+            return strdup("/");
+        }
+    } /*else if (strcmp(osName, "windows") == 0) {
+        //const char path[81];
+        //else return NULL;
+    }*/
+    return NULL;
+}
+
+const char *getOsName() {
+    #ifdef _WIN32
+        return "windows";
+    #elif __linux__
+        return "linux";
+    #else
+        return "unfound";
+    #endif
 }

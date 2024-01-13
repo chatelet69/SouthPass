@@ -17,6 +17,6 @@ int getUserIdByToken(MYSQL *dbCon);
 char *getActualDate();
 int generateNewUserToken(MYSQL *dbCon, char *userEmail);
 int addNewCredsController(MYSQL *dbCon, char *loginName, char *login, char *password);
-int exportPasswordsController(MYSQL *dbCon, const int userId);
+int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder);
 
 #endif
