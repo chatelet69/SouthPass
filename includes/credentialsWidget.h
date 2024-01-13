@@ -65,7 +65,7 @@ class CredentialEditWidget : public QWidget {
 class CredentialsWidget : public QWidget {
     Q_OBJECT
     public:
-        CredentialsWidget(QWidget *parent, const CredsArray credsArray);
+        CredentialsWidget(QWidget *parent, CredsArray *credsArray);
 
     public Q_SLOTS:
         void showEditCred(const int credId, QString name, QString login, QString password);
