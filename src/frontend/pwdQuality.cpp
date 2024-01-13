@@ -13,8 +13,20 @@
 #include "../../includes/pincludes.h"
 
 PwdQualityPage::PwdQualityPage(QWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
+    QVBoxLayout * fenetre = new QVBoxLayout();
     QTabWidget *onglets = new QTabWidget(this);
+
+    QScreen *primaryScreen = QGuiApplication::primaryScreen();
+    QRect screenDimensions = primaryScreen->availableGeometry();
+/*
+    int x = screenDimensions.width() / 3.1;
+    int y = screenDimensions.height() / 2;
+    onglets->setMinimumSize(x, y);
+*/
+    fenetre->setObjectName("fenetreQuality");
     verifWeakPwd(onglets);
+    weakPwdList(onglets);
+    fenetre->addWidget(onglets);
 }
 
 void PwdQualityPage::verifWeakPwd(QTabWidget *onglets){
@@ -23,6 +35,8 @@ void PwdQualityPage::verifWeakPwd(QTabWidget *onglets){
     verifTitle->setText("Vérifier la solidité d'un mot de passe :");
 
     QFormLayout *layoutweakPwd = new QFormLayout;
+
+    layoutweakPwd->setObjectName("layoutForm");
     layoutweakPwd->addRow(verifTitle);
     QLineEdit *pwdInput = new QLineEdit;
     layoutweakPwd->addRow("Mot de passe à tester :", pwdInput);
@@ -57,6 +71,13 @@ void PwdQualityPage::verifWeakPwd(QTabWidget *onglets){
 
 void PwdQualityPage::weakPwdList(QTabWidget *onglets){
     QWidget *weakList = new QWidget;
+    QLabel *listTitle = new QLabel();
+    listTitle->setText("Mots de passes faibles :");
+    struct WeakPwdList *start = NULL;
+    start = getAllWeaksPwd(start, dbCon);
+    // printWeaksPwd(start);
+
+    free(start);
 
 
     onglets->addTab(weakList, "Liste mots de passes faibles");

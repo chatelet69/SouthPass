@@ -132,7 +132,6 @@ void ApplicationController::switchGenPwdPage() {
 }
 
 void ApplicationController::switchPwdQuality() {
-    printf("test");
     if(isConnected() == 0)
         stackedWidget->setCurrentWidget(pwdQual);
 }
