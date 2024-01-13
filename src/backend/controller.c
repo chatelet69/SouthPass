@@ -17,12 +17,15 @@ char **getPwsdList() {
 
 void freeCredsArray(CredsArray *credsArray) {
     if (credsArray != NULL) {
+        printf("free start : %d\n", credsArray->size);
         for (unsigned int i = 0; i < credsArray->size; i++) {
+            printf("free %d\n", i);
+            printf("%s %s %s\n", credsArray->credentials[i].name, credsArray->credentials[i].loginName, credsArray->credentials[i].password);
             free(credsArray->credentials[i].name);
             free(credsArray->credentials[i].loginName);
             free(credsArray->credentials[i].password);
         }
-        free(credsArray->credentials);
+        printf("before size -> 0\n");
         credsArray->size = 0;
         printf("free finished!\n");
     }
@@ -126,9 +129,6 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
 
 int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder) {
     ExportList exportedList = getPasswordsExportListDb(dbCon, userId);
-    //char **test = (char **) malloc(sizeof(char *) * 3);
-    //for (int i = 0; i < 3; i++) test[i] = (char *) malloc(sizeof(char) * 300);
-    //for (int i = 0; i < 3; i++) sprintf(test[i], "google.com,monop@email.com,xJEndoc31!8Eox:");
 
     int status = writePasswordsExportFile(exportedList.lines, exportedList.count, exportFolder);
 

@@ -120,9 +120,7 @@ int writePasswordsExportFile(char **passwordsFormatedList, int size, char *expor
 
     if (exportFile != NULL) {
         fprintf(exportFile, "Name,Login,Password\n");
-        for (int i = 0; i < size; i++) {
-            fprintf(exportFile, "%s\n", passwordsFormatedList[i]);
-        }
+        for (int i = 0; i < size; i++) fprintf(exportFile, "%s\n", passwordsFormatedList[i]);
         fclose(exportFile);
         return EXIT_SUCCESS;
     }
