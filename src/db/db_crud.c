@@ -35,12 +35,12 @@ int getData(MYSQL *dbCon, char *sqlQuery) {
     return EXIT_SUCCESS;
 }
 
-CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
-    CredsArray credsArray;
-    credsArray.size = 0;
-    credsArray.credentials = NULL;
+CredsArray *getPasswordsList(MYSQL *dbCon, int userId) {
+    CredsArray *credsArray = (CredsArray *) malloc(sizeof(CredsArray) * 1);
+    credsArray->size = 0;
+    credsArray->credentials = NULL;
     char *sqlQuery = (char *) malloc(sizeof(char) * 160);
-    sprintf(sqlQuery, "SELECT psw.id,userId,name,loginName,AES_DECRYPT(psw.password, u.pwdMaster) FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
+    sprintf(sqlQuery, "SELECT psw.id AS id,userId,name,loginName,AES_DECRYPT(psw.password, u.pwdMaster) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
     
     if (mysql_query(dbCon, sqlQuery) != 0) {
         fprintf(stderr, "Query Failure\n");
@@ -56,22 +56,30 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
 
             if (rowsCount > 0) {
                 int cred = 0;
-                credsArray.credentials = (Credentials *) malloc(sizeof(Credentials *) * rowsCount);
-                credsArray.size = rowsCount;
-                if (credsArray.credentials != NULL) {
+                credsArray->credentials = (Credentials *) malloc(sizeof(Credentials) * rowsCount);
+                //for (int i = 0; i < rowsCount; i++) credsArray->credentials[i] = (Credentials *) malloc(sizeof(Credentials));
+                credsArray->size = rowsCount;    
+                if (credsArray->credentials != NULL) {
                     while ((row = mysql_fetch_row(resData))) {
-                        credsArray.credentials[cred].id = atoi(row[0]);
-                        credsArray.credentials[cred].userId = atoi(row[1]);
-                        credsArray.credentials[cred].name = strdup(row[2]);
-                        credsArray.credentials[cred].loginName = strdup(row[3]);
-                        credsArray.credentials[cred].password = strdup(row[4]);
+                        printf("%s %s %s\n", row[2], row[3], row[4]);
+                        credsArray->credentials[cred].id = atoi(row[0]);
+                        credsArray->credentials[cred].userId = atoi(row[1]);
+                        //credsArray->credentials[cred].name = (char *) malloc(sizeof(char) * strlen(row[2]));
+                        //strcpy(credsArray->credentials[cred].name, row[2]);
+                        //credsArray->credentials[cred].loginName = (char *) malloc(sizeof(char) * strlen(row[3]));
+                        //strcpy(credsArray->credentials[cred].loginName, row[3]);
+                        //credsArray->credentials[cred].password = (char *) malloc(sizeof(char) * strlen(row[4]));
+                        //strcpy(credsArray->credentials[cred].password, row[4]);
+                        credsArray->credentials[cred].name = strdup(row[2]);
+                        credsArray->credentials[cred].loginName = strdup(row[3]);
+                        credsArray->credentials[cred].password= strdup(row[4]);
                         //for(int i = 0; i < numFields; i++) printf("| %s |", row[i] ? row[i] : "NULL");
                         //printf("\n");
                         cred++;
                     }
                 }
             }
-            mysql_free_result_nonblocking(resData);
+            mysql_free_result(resData);
         }
     }
     free(sqlQuery);
@@ -423,13 +431,13 @@ int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption) {
 }
 
 ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
-    const char *sqlQuery = "SELECT CONCAT(p.name, CONCAT(',', CONCAT(p.loginName, CONCAT(',', AES_DESCRYPT(p.password, u.pwdMaster))))) \
-     FROM pswd_stock p INNER JOIN users u ON p.userId = u.id WHERE p.userId = ?";
+    const char *sqlQuery = "SELECT CONCAT(p.name, CONCAT(',', CONCAT(p.loginName, CONCAT(',', AES_DECRYPT(p.password, u.pwdMaster))))) AS fullLine FROM pswd_stock p INNER JOIN users u ON p.userId = u.id WHERE p.userId = ?";
     ExportList exportList;
     exportList.count = 0;
     exportList.lines = NULL;
 
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    MYSQL_RES *metaData;
     if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
         MYSQL_BIND params[1];
         memset(params, 0, sizeof(params));
@@ -438,36 +446,41 @@ ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
 
         if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
             mysql_stmt_close(stmt);
+            //fprintf(stderr, "1 Error db : %s\n", mysql_stmt_error(stmt));
             return exportList;
         }
+
         int status = mysql_stmt_execute(stmt);
+        metaData = mysql_stmt_result_metadata(stmt); 
+        mysql_stmt_store_result(stmt);
+        if (metaData == NULL) return exportList;
 
         if (status == EXIT_SUCCESS) {
-            unsigned int rowsCount = mysql_stmt_num_rows(stmt);
-
-            if (rowsCount > 0) {
-                exportList.lines = (char **) malloc(sizeof(char *) * rowsCount);
-                char actualLine[300];
-                MYSQL_BIND results[1];
-                memset(results, 0, sizeof(results));
-                results[0].buffer_type = MYSQL_TYPE_STRING;
-                results[0].buffer = &actualLine;
-                results[0].buffer_length = sizeof(actualLine);
+            char actualLine[300];
+            MYSQL_BIND results[1];
+            memset(results, 0, sizeof(results));
+            results[0].buffer_type = MYSQL_TYPE_STRING;
+            results[0].buffer = &actualLine;
+            results[0].buffer_length = sizeof(actualLine);
             
-                if (mysql_stmt_bind_result(stmt, results) != EXIT_SUCCESS) {
-                    mysql_stmt_close(stmt);
-                    return exportList;
-                }
-                
-                int i = 0;
-                while (mysql_stmt_fetch(stmt) == 0) {
-                    char *tmp = strdup(actualLine);
-                    exportList.lines[i] = (char *) malloc(sizeof(char) * strlen(tmp));
-                    strcpy(exportList.lines[i], tmp);
-                    i++;
-                }
+            if (mysql_stmt_bind_result(stmt, results) != EXIT_SUCCESS) {
+                mysql_stmt_close(stmt);
+                return exportList;
             }
+
+            unsigned int rowsCount = mysql_stmt_affected_rows(stmt);
+            exportList.lines = (char **) malloc(sizeof(char *) * rowsCount);
+                
+            int i = 0;
+            while (mysql_stmt_fetch(stmt) == 0) {
+                char *tmp = strdup(actualLine);
+                exportList.lines[i] = (char *) malloc(sizeof(char) * strlen(tmp));
+                strcpy(exportList.lines[i], tmp);
+                i++;
+            }
+            exportList.count = i;
         }
+        mysql_free_result(metaData);
     }
     mysql_stmt_close(stmt);
 
