@@ -42,7 +42,7 @@ CredsArray *getPasswordsList(MYSQL *dbCon, int userId) {
     char *sqlQuery = (char *) malloc(sizeof(char) * 256);
     
     if (sqlQuery == NULL) return NULL;
-    sprintf(sqlQuery, "SELECT psw.id AS id,userId,name,loginName,AES_DECRYPT(psw.password, u.pwdMaster) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
+    sprintf(sqlQuery, "SELECT psw.id AS id,userId,name,loginName,AES_DECRYPT(psw.password, UNHEX(u.pwdMaster)) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
     
     if (mysql_query(dbCon, sqlQuery) != 0) {
         fprintf(stderr, "Query Failure\n");
@@ -50,7 +50,7 @@ CredsArray *getPasswordsList(MYSQL *dbCon, int userId) {
     } else {
         MYSQL_RES *resData = mysql_store_result(dbCon);
         if (resData != NULL) {
-            unsigned int numFields = mysql_num_fields(resData);
+            //unsigned int numFields = mysql_num_fields(resData);
             unsigned int rowsCount = mysql_num_rows(resData);
             MYSQL_ROW row;
 
@@ -60,7 +60,6 @@ CredsArray *getPasswordsList(MYSQL *dbCon, int userId) {
                 credsArray->size = rowsCount;    
                 if (credsArray->credentials != NULL) {
                     while ((row = mysql_fetch_row(resData))) {
-                        printf("db : %s %s %s\n", row[2], row[3], row[4]);
                         credsArray->credentials[cred].id = atoi(row[0]);
                         credsArray->credentials[cred].userId = atoi(row[1]);
                         credsArray->credentials[cred].name = (row[2] ? strdup(row[2]) : strdup("Inconnu"));
@@ -81,7 +80,7 @@ CredsArray *getPasswordsList(MYSQL *dbCon, int userId) {
 int createNewCreds(MYSQL *dbCon, Credentials *creds) {
     int status = EXIT_FAILURE;
     if (creds->userId == 0) return status;
-    const char *sqlQuery = "INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (?,?,?,AES_ENCRYPT(?,(SELECT pwdMaster FROM users WHERE id = ?)))";
+    const char *sqlQuery = "INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (?,?,?,AES_ENCRYPT(?,(SELECT UNHEX(pwdMaster) FROM users WHERE id = ?)))";
 
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
     if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
@@ -422,7 +421,7 @@ int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption) {
 }
 
 ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
-    const char *sqlQuery = "SELECT CONCAT(p.name, CONCAT(',', CONCAT(p.loginName, CONCAT(',', AES_DECRYPT(p.password, u.pwdMaster))))) AS fullLine FROM pswd_stock p INNER JOIN users u ON p.userId = u.id WHERE p.userId = ?";
+    const char *sqlQuery = "SELECT CONCAT(p.name, CONCAT(',', CONCAT(p.loginName, CONCAT(',', AES_DECRYPT(p.password, UNHEX(u.pwdMaster)))))) AS fullLine FROM pswd_stock p INNER JOIN users u ON p.userId = u.id WHERE p.userId = ?";
     ExportList exportList;
     exportList.count = 0;
     exportList.lines = NULL;

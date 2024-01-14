@@ -7,9 +7,8 @@
 
 #include "./models.h"
 
-char **getPwsdList();
 void printCreds(Credentials *creds, unsigned int size);
-void freeCredsArray(CredsArray *credsArray);
+void freeCredsArray(struct CredsArray *credsArray);
 void freeCredentialsData(Credentials *creds);
 void freeExportList(ExportList *exportList);
 int getUserIdByToken(MYSQL *dbCon);
