@@ -129,6 +129,40 @@ int writePasswordsExportFile(char **passwordsFormatedList, int size, char *expor
     return EXIT_FAILURE;
 }
 
+CredsArray *parseImportCredsList(char *importedFilePath) {
+    FILE *importFile = fopen(importedFilePath, "rt");
+
+    if (importFile != NULL) {
+        CredsArray *credsArray = (CredsArray *) malloc(sizeof(credsArray));
+        credsArray->size = 0;
+        char line[350];
+        int resStatus = 0;
+
+        char tmpName[50], tmpLogin[200], tmpPassword[40];
+
+        int i = 0, linesCount = 0;
+        while(fgets(line, 301, importFile) != NULL) linesCount++;
+        fseek(importFile, 0, SEEK_SET);
+
+        credsArray->credentials = (Credentials *) malloc(sizeof(Credentials) * linesCount);
+        while (fgets(line, 301, importFile) != NULL) { 
+            resStatus = sscanf(line, "%[^,],%[^,],%s", tmpName, tmpLogin, tmpPassword);
+            if (resStatus == 3) {
+                credsArray->credentials[i].name = strdup(tmpName);
+                credsArray->credentials[i].loginName = strdup(tmpLogin);
+                credsArray->credentials[i].password = strdup(tmpPassword);
+                printf("%s %s %s\n", tmpName, tmpLogin, tmpPassword);
+                credsArray->size += 1;
+                i++;
+            }
+        }
+        fclose(importFile);
+        return credsArray;
+    }
+
+    return NULL;
+}
+
 char *getUserDirectoryPath(const char *osName) {
     if (strcmp(osName, "linux") == 0) {
         char *homeDir = getenv("HOME");

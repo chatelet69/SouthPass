@@ -127,6 +127,24 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
     }
 }
 
+int importPasswordsController(MYSQL *dbCon, const int userId, char *importedFile) {
+    int status = EXIT_FAILURE;
+    CredsArray *credsArray = parseImportCredsList(importedFile);
+    printf("Parsed : %s %s\n", credsArray->credentials[0].name, credsArray->credentials[0].password);
+
+    for (unsigned int i = 0; i < credsArray->size; i++) {
+        if (credsArray->credentials != NULL) {
+            credsArray->credentials[i].userId = userId;
+            status = createNewCreds(dbCon, &credsArray->credentials[i]);
+        }
+    }
+
+    freeCredsArray(credsArray);
+    free(credsArray);
+    
+    return status;
+}
+
 int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder) {
     ExportList exportedList = getPasswordsExportListDb(dbCon, userId);
 
