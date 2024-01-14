@@ -109,12 +109,16 @@ QApplication {
 #newCredsButton {
     background-color: rgb(164, 216, 164);
     border: none;
-    border-radius: 4;
-    padding: 2;
+    border-radius: 4px;
+    padding: 2px;
     height: auto;
     color: white;
 }
 
 #newCredsButton:hover {
     background-color: #78d860;
+}
+#fenetreQuality{
+    background-color: #78d860;
+    width: 100px;
 }

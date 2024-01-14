@@ -73,7 +73,6 @@ CredsArray *getPasswordsList(MYSQL *dbCon, int userId) {
         }
     }
     free(sqlQuery);
-    
     return credsArray;
 }
 

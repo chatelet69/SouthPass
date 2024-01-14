@@ -13,8 +13,14 @@
 #include "../../includes/pincludes.h"
 
 PwdQualityPage::PwdQualityPage(QWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
+    QVBoxLayout * fenetre = new QVBoxLayout();
     QTabWidget *onglets = new QTabWidget(this);
+
+    fenetre->setObjectName("fenetreQuality");
     verifWeakPwd(onglets);
+    weakPwdList(onglets);
+    reUsedPwd(onglets);
+    fenetre->addWidget(onglets);
 }
 
 void PwdQualityPage::verifWeakPwd(QTabWidget *onglets){
@@ -23,6 +29,8 @@ void PwdQualityPage::verifWeakPwd(QTabWidget *onglets){
     verifTitle->setText("Vérifier la solidité d'un mot de passe :");
 
     QFormLayout *layoutweakPwd = new QFormLayout;
+
+    layoutweakPwd->setObjectName("layoutForm");
     layoutweakPwd->addRow(verifTitle);
     QLineEdit *pwdInput = new QLineEdit;
     layoutweakPwd->addRow("Mot de passe à tester :", pwdInput);
@@ -57,14 +65,35 @@ void PwdQualityPage::verifWeakPwd(QTabWidget *onglets){
 
 void PwdQualityPage::weakPwdList(QTabWidget *onglets){
     QWidget *weakList = new QWidget;
-
+    QLabel *listTitle = new QLabel();
+    listTitle->setText("Mots de passes faibles :");
+    struct WeakPwdList *start = NULL;
+    start = getAllWeaksPwd(start, dbCon);
+    /*
+     * start = début de la liste des pwd faible avec url, username et pwd dans cette liste
+     * Faire l'affichage
+     */
+    free(start);
 
     onglets->addTab(weakList, "Liste mots de passes faibles");
 }
 
 
 void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
-    QWidget *UsedPwd = new QWidget;
+    QWidget *weakList = new QWidget;
+    QLabel *listTitle = new QLabel();
+    listTitle->setText("Mots de passes réutilisés :");
 
-    onglets->addTab(UsedPwd, "Mots de passe réutilisés");
+/*
+    struct ReUsedPwdByWebsite *start = NULL;
+    start = getReUsedPwd(start,dbCon);
+    printReUsedPwd(start);
+*/
+    /*
+     * start = début de la liste des pwd faible avec url, username et pwd dans cette liste
+     * Faire l'affichage
+     */
+
+    //    free(start);
+    onglets->addTab(weakList, "Liste mots de passes faibles");
 }
