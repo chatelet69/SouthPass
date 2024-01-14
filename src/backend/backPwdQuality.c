@@ -48,10 +48,10 @@ int checkRockYou(char * pwd){
 
 struct WeakPwdList * getAllWeaksPwd(struct WeakPwdList *start, MYSQL * dbCon){
     TokenInfos *tokenInfos = getTokenFileInfos();
-    CredsArray credsArray = getPasswordsList(dbCon, tokenInfos->id);
-    for (int i = 0; i < credsArray.size; ++i) {
-        if(strcmp(testPwd(credsArray.creds[i].password), "Faible") == 0)
-            start = addWeakPwd(start, credsArray.creds[i].name, credsArray.creds[i].loginName, credsArray.creds[i].password);
+    CredsArray *credsArray = getPasswordsList(dbCon, tokenInfos->id);
+    for (int i = 0; i < credsArray->size; ++i) {
+        if(strcmp(testPwd(credsArray->credentials[i].password), "Faible") == 0)
+            start = addWeakPwd(start, credsArray->credentials[i].name, credsArray->credentials[i].loginName, credsArray->credentials[i].password);
     }
     freeCredsArray(credsArray);
     printWeaksPwd(start);
