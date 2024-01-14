@@ -39,42 +39,32 @@ CredsArray *getPasswordsList(MYSQL *dbCon, int userId) {
     CredsArray *credsArray = (CredsArray *) malloc(sizeof(CredsArray) * 1);
     credsArray->size = 0;
     credsArray->credentials = NULL;
-    char *sqlQuery = (char *) malloc(sizeof(char) * 160);
-    sprintf(sqlQuery, "SELECT psw.id AS id,userId,name,loginName,AES_DECRYPT(psw.password, u.pwdMaster) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
+    char *sqlQuery = (char *) malloc(sizeof(char) * 256);
+    
+    if (sqlQuery == NULL) return NULL;
+    sprintf(sqlQuery, "SELECT psw.id AS id,userId,name,loginName,AES_DECRYPT(psw.password, UNHEX(u.pwdMaster)) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
     
     if (mysql_query(dbCon, sqlQuery) != 0) {
         fprintf(stderr, "Query Failure\n");
         return credsArray;
     } else {
         MYSQL_RES *resData = mysql_store_result(dbCon);
-        if (resData == NULL) {
-            fprintf(stderr, "No data\n");
-        } else {
-            unsigned int numFields = mysql_num_fields(resData);
+        if (resData != NULL) {
+            //unsigned int numFields = mysql_num_fields(resData);
             unsigned int rowsCount = mysql_num_rows(resData);
             MYSQL_ROW row;
 
             if (rowsCount > 0) {
                 int cred = 0;
                 credsArray->credentials = (Credentials *) malloc(sizeof(Credentials) * rowsCount);
-                //for (int i = 0; i < rowsCount; i++) credsArray->credentials[i] = (Credentials *) malloc(sizeof(Credentials));
                 credsArray->size = rowsCount;    
                 if (credsArray->credentials != NULL) {
                     while ((row = mysql_fetch_row(resData))) {
-                        printf("%s %s %s\n", row[2], row[3], row[4]);
                         credsArray->credentials[cred].id = atoi(row[0]);
                         credsArray->credentials[cred].userId = atoi(row[1]);
-                        //credsArray->credentials[cred].name = (char *) malloc(sizeof(char) * strlen(row[2]));
-                        //strcpy(credsArray->credentials[cred].name, row[2]);
-                        //credsArray->credentials[cred].loginName = (char *) malloc(sizeof(char) * strlen(row[3]));
-                        //strcpy(credsArray->credentials[cred].loginName, row[3]);
-                        //credsArray->credentials[cred].password = (char *) malloc(sizeof(char) * strlen(row[4]));
-                        //strcpy(credsArray->credentials[cred].password, row[4]);
-                        credsArray->credentials[cred].name = strdup(row[2]);
-                        credsArray->credentials[cred].loginName = strdup(row[3]);
-                        credsArray->credentials[cred].password= strdup(row[4]);
-                        //for(int i = 0; i < numFields; i++) printf("| %s |", row[i] ? row[i] : "NULL");
-                        //printf("\n");
+                        credsArray->credentials[cred].name = (row[2] ? strdup(row[2]) : strdup("Inconnu"));
+                        credsArray->credentials[cred].loginName = (row[3] ? strdup(row[3]) : strdup("Inconnu"));
+                        credsArray->credentials[cred].password = (row[4] ? strdup(row[4]) : strdup("Inconnu"));
                         cred++;
                     }
                 }
@@ -90,7 +80,7 @@ CredsArray *getPasswordsList(MYSQL *dbCon, int userId) {
 int createNewCreds(MYSQL *dbCon, Credentials *creds) {
     int status = EXIT_FAILURE;
     if (creds->userId == 0) return status;
-    const char *sqlQuery = "INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (?,?,?,AES_ENCRYPT(?,(SELECT pwdMaster FROM users WHERE id = ?)))";
+    const char *sqlQuery = "INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (?,?,?,AES_ENCRYPT(?,(SELECT UNHEX(pwdMaster) FROM users WHERE id = ?)))";
 
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
     if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
@@ -431,7 +421,7 @@ int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption) {
 }
 
 ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
-    const char *sqlQuery = "SELECT CONCAT(p.name, CONCAT(',', CONCAT(p.loginName, CONCAT(',', AES_DECRYPT(p.password, u.pwdMaster))))) AS fullLine FROM pswd_stock p INNER JOIN users u ON p.userId = u.id WHERE p.userId = ?";
+    const char *sqlQuery = "SELECT CONCAT(p.name, CONCAT(',', CONCAT(p.loginName, CONCAT(',', AES_DECRYPT(p.password, UNHEX(u.pwdMaster)))))) AS fullLine FROM pswd_stock p INNER JOIN users u ON p.userId = u.id WHERE p.userId = ?";
     ExportList exportList;
     exportList.count = 0;
     exportList.lines = NULL;

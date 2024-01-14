@@ -172,6 +172,8 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
     menuFichier->addAction(importPwd);
     QAction *exportPwd = new QAction("Exporter des mots de passes", this);
     menuFichier->addAction(exportPwd);
+    
+    connect(importPwd, &QAction::triggered, this, &ApplicationController::importPasswords);
     connect(exportPwd, &QAction::triggered, this, &ApplicationController::exportPasswords);
 
     QMenu *menuOutils = menuBar->addMenu("Outils");
@@ -199,6 +201,18 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
 void ApplicationController::disconnect() {
     createTokenFile();
     switchToLoginPage();
+}
+
+void ApplicationController::importPasswords() {
+    QString importedFile = QFileDialog::getOpenFileName(NULL, "Fichier CSV à importer", QDir::homePath(), tr("Csv files (*.csv)"));
+    QByteArray importedFileBytes = importedFile.toLocal8Bit();
+    char *importedPasswordsFile = importedFileBytes.data();
+    int status(importPasswordsController(dbCon, userId, importedPasswordsFile));
+    if (status == EXIT_SUCCESS) {
+        QMessageBox::warning(stackedWidget,"Succès" ,"Mots de passes importés avec succès !");
+    } else {
+        QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'importation des mots de passes !");
+    }
 }
 
 void ApplicationController::exportPasswords() {

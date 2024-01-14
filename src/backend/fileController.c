@@ -17,6 +17,7 @@ int getThemePreference() {
     char line[121];
     char prop[2][40];
     while (fgets(line, 120, configFile) != NULL) {
+        // scan de la ligne pour en extraire la propriété et sa valeur
         int res = sscanf(line, "%s : %s", prop[0], prop[1]);
         if (res == 2) {
             if (strcmp(prop[0], "theme_preference") == 0) {
@@ -114,6 +115,7 @@ int createTokenFile() {
 }
 
 int writePasswordsExportFile(char **passwordsFormatedList, int size, char *exportFolder) {
+    int status = EXIT_FAILURE;
     char *userDownloadsPath = (char *)malloc(sizeof(char) * strlen(exportFolder) + 30);
     sprintf(userDownloadsPath, "%s/exportPasswords.csv", exportFolder);
     FILE *exportFile = fopen(userDownloadsPath, "wt");
@@ -122,11 +124,50 @@ int writePasswordsExportFile(char **passwordsFormatedList, int size, char *expor
         fprintf(exportFile, "Name,Login,Password\n");
         for (int i = 0; i < size; i++) fprintf(exportFile, "%s\n", passwordsFormatedList[i]);
         fclose(exportFile);
-        return EXIT_SUCCESS;
+        status = EXIT_SUCCESS;
     }
     free(userDownloadsPath);
     
-    return EXIT_FAILURE;
+    return status;
+}
+
+CredsArray *parseImportCredsList(char *importedFilePath) {
+    FILE *importFile = fopen(importedFilePath, "rt");
+
+    if (importFile != NULL) {
+        CredsArray *credsArray = (CredsArray *) malloc(sizeof(CredsArray));
+        if (credsArray == NULL) return NULL;
+
+        credsArray->size = 0;
+        credsArray->credentials = NULL;
+        char line[350];
+        int resStatus = 0;
+
+        char tmpName[50], tmpLogin[200], tmpPassword[40];
+
+        int i = 0, linesCount = 0;
+        while(fgets(line, 301, importFile) != NULL) linesCount++;
+        fseek(importFile, 0, SEEK_SET);
+
+        credsArray->credentials = (Credentials *) malloc(sizeof(Credentials) * linesCount);
+        if (credsArray->credentials == NULL) return NULL;
+
+        while (fgets(line, 301, importFile) != NULL) { 
+            resStatus = sscanf(line, "%[^,],%[^,],%s", tmpName, tmpLogin, tmpPassword);
+            if (resStatus == 3) {
+                credsArray->credentials[i].name = strdup(tmpName);
+                credsArray->credentials[i].loginName = strdup(tmpLogin);
+                credsArray->credentials[i].password = strdup(tmpPassword);
+                printf("%s %s %s\n", tmpName, tmpLogin, tmpPassword);
+                credsArray->size += 1;
+                i++;
+            }
+        }
+        fclose(importFile);
+        return credsArray;
+    }
+
+    return NULL;
 }
 
 char *getUserDirectoryPath(const char *osName) {

@@ -10,24 +10,16 @@
 #include "../../includes/fileController.h"
 #include "../../includes/cryptoModule.h"
 
-char **getPwsdList() {
-    printf("e\n");
-    return NULL;
-}
-
-void freeCredsArray(CredsArray *credsArray) {
+void freeCredsArray(struct CredsArray *credsArray) {
     if (credsArray != NULL) {
-        printf("free start : %d\n", credsArray->size);
         for (unsigned int i = 0; i < credsArray->size; i++) {
-            printf("free %d\n", i);
-            printf("%s %s %s\n", credsArray->credentials[i].name, credsArray->credentials[i].loginName, credsArray->credentials[i].password);
+            //printf("%s %s %s\n", credsArray->credentials[i].name, credsArray->credentials[i].loginName, credsArray->credentials[i].password);
             free(credsArray->credentials[i].name);
             free(credsArray->credentials[i].loginName);
             free(credsArray->credentials[i].password);
         }
-        printf("before size -> 0\n");
+        free(credsArray->credentials);
         credsArray->size = 0;
-        printf("free finished!\n");
     }
 }
 
@@ -125,6 +117,25 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
     } else {
         return -1;
     }
+}
+
+int importPasswordsController(MYSQL *dbCon, const int userId, char *importedFile) {
+    int status = EXIT_FAILURE;
+    CredsArray *credsArray = parseImportCredsList(importedFile);
+
+    if (credsArray != NULL) {
+        for (unsigned int i = 0; i < credsArray->size; i++) {
+            if (credsArray->credentials != NULL) {
+                credsArray->credentials[i].userId = userId;
+                status = createNewCreds(dbCon, &credsArray->credentials[i]);
+            }
+        }
+
+        freeCredsArray(credsArray);
+        if (credsArray != NULL) free(credsArray);
+    }
+    
+    return status;
 }
 
 int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder) {
