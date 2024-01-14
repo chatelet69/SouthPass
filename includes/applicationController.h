@@ -62,6 +62,7 @@ class ApplicationController : public QObject {
         void switchPwdQuality();
         void refreshCredsPage();
         void exportPasswords();
+        void importPasswords();
         //void refreshCredsPage();
 
     private:
