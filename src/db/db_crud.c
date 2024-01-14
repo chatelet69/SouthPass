@@ -38,8 +38,8 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
     CredsArray credsArray;
     credsArray.size = 0;
     credsArray.creds = NULL;
-    char *sqlQuery = (char *) malloc(sizeof(char) * 120);
-    sprintf(sqlQuery, "SELECT psw.id,userId,name,loginName,AES_DECRYPT(psw.password, u.pwdMaster) FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
+    char *sqlQuery = (char *) malloc(sizeof(char) * 256);
+    sprintf(sqlQuery, "SELECT psw.id AS id,userId,name,loginName,AES_DECRYPT(psw.password, UNHEX(u.pwdMaster)) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE userId = %d", userId);
     
     if (mysql_query(dbCon, sqlQuery) != 0) {
         fprintf(stderr, "Query Failure\n");
@@ -73,14 +73,14 @@ CredsArray getPasswordsList(MYSQL *dbCon, int userId) {
             mysql_free_result(resData);
         }
     }
-    
+    free(sqlQuery);
     return credsArray;
 }
 
 int createNewCreds(MYSQL *dbCon, Credentials *creds) {
     int status = EXIT_FAILURE;
     if (creds->userId == 0) return status;
-    const char *sqlQuery = "INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (?,?,?,AES_ENCRYPT(?,(SELECT pwdMaster FROM users WHERE id = ?)))";
+    const char *sqlQuery = "INSERT INTO pswd_stock (userId,name,loginName,password) VALUES (?,?,?,AES_ENCRYPT(?,(SELECT UNHEX(pwdMaster) FROM users WHERE id = ?)))";
 
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
     if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
@@ -155,7 +155,6 @@ int isUserExist(MYSQL *dbCon, char * email) {
 }
 
 int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
-
     // hashage du password
     char hashedPwd[65];
     char* hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);

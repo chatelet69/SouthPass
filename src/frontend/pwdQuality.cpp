@@ -16,16 +16,10 @@ PwdQualityPage::PwdQualityPage(QWidget *parent, ApplicationController *appContro
     QVBoxLayout * fenetre = new QVBoxLayout();
     QTabWidget *onglets = new QTabWidget(this);
 
-    QScreen *primaryScreen = QGuiApplication::primaryScreen();
-    QRect screenDimensions = primaryScreen->availableGeometry();
-/*
-    int x = screenDimensions.width() / 3.1;
-    int y = screenDimensions.height() / 2;
-    onglets->setMinimumSize(x, y);
-*/
     fenetre->setObjectName("fenetreQuality");
     verifWeakPwd(onglets);
     weakPwdList(onglets);
+    reUsedPwd(onglets);
     fenetre->addWidget(onglets);
 }
 
@@ -75,7 +69,10 @@ void PwdQualityPage::weakPwdList(QTabWidget *onglets){
     listTitle->setText("Mots de passes faibles :");
     struct WeakPwdList *start = NULL;
     start = getAllWeaksPwd(start, dbCon);
-
+    /*
+     * start = début de la liste des pwd faible avec url, username et pwd dans cette liste
+     * Faire l'affichage
+     */
     free(start);
 
     onglets->addTab(weakList, "Liste mots de passes faibles");
@@ -83,7 +80,20 @@ void PwdQualityPage::weakPwdList(QTabWidget *onglets){
 
 
 void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
-    QWidget *UsedPwd = new QWidget;
+    QWidget *weakList = new QWidget;
+    QLabel *listTitle = new QLabel();
+    listTitle->setText("Mots de passes réutilisés :");
 
-    onglets->addTab(UsedPwd, "Mots de passe réutilisés");
+/*
+    struct ReUsedPwdByWebsite *start = NULL;
+    start = getReUsedPwd(start,dbCon);
+    printReUsedPwd(start);
+*/
+    /*
+     * start = début de la liste des pwd faible avec url, username et pwd dans cette liste
+     * Faire l'affichage
+     */
+
+    //    free(start);
+    onglets->addTab(weakList, "Liste mots de passes faibles");
 }
