@@ -7,15 +7,16 @@
 
 #include "./models.h"
 
-char **getPwsdList();
 void printCreds(Credentials *creds, unsigned int size);
-void freeCredsArray(CredsArray credsArray);
-void printPCred(Credentials *creds);
+void freeCredsArray(struct CredsArray *credsArray);
 void freeCredentialsData(Credentials *creds);
+void freeExportList(ExportList *exportList);
 int getUserIdByToken(MYSQL *dbCon);
 
 char *getActualDate();
 int generateNewUserToken(MYSQL *dbCon, char *userEmail);
 int addNewCredsController(MYSQL *dbCon, char *loginName, char *login, char *password);
+int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder);
+int importPasswordsController(MYSQL *dbCon, const int userId, char *importedFile);
 
 #endif

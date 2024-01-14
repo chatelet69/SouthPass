@@ -16,10 +16,6 @@ int getSizeInString(int num) {
     return count;
 }
 
-void printCred(Credentials creds) {
-    printf("id : %d\tname : %s\tlogin : %s\tpassword : %s\n", creds.id, creds.name, creds.loginName, creds.password);
-}
-
-void printPCred(Credentials *creds) {
-    printf("id : %d\tuser id : %d\tname : %s\tlogin : %s\tpassword : %s\n", creds->id, creds->userId, creds->name, creds->loginName, creds->password);
+void printCred(Credentials *credentials) {
+    printf("id : %d\tuser id : %d\tname : %s\tlogin : %s\tpassword : %s\n", credentials->id, credentials->userId, credentials->name, credentials->loginName, credentials->password);
 }

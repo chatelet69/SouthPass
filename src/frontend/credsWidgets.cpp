@@ -20,7 +20,7 @@
 #include "../../includes/backController.h"
 #include "../../includes/models.h"
 
-CredentialsWidget::CredentialsWidget(QWidget *parent, const CredsArray credsArray) : QWidget(parent)
+CredentialsWidget::CredentialsWidget(QWidget *parent, CredsArray *credsArray) : QWidget(parent)
 {
     contentLayout = new QVBoxLayout(this);
     scrollArea = new QScrollArea(this);
@@ -31,34 +31,59 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, const CredsArray credsArra
     QWidget *credsContainer = new QWidget(this);
     credsContainer->setObjectName("credsContainer");
     QVBoxLayout *credsLayout = new QVBoxLayout(credsContainer);
-    for (unsigned int i = 0; i < credsArray.size; i++) {
-        QWidget *credContainer = new QWidget(this);
-        credContainer->setObjectName("credBox");
-        QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
+    qDebug() << "credsContainer : " << credsArray->size << " : " << credsArray->credentials;
+    if (credsArray->size > 0) {
+        qDebug() << "size is not 0 : " << credsArray->size;
+        for (unsigned int i = 0; i < credsArray->size; i++){
+            QWidget *credContainer = new QWidget(this);
+            credContainer->setObjectName("credBox");
+            QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
 
-        QWidget *labelsContainer = new QWidget(credContainer);
-        QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
-        
-        QLabel *labelName = new QLabel(QString("Nom : %1").arg(credsArray.creds[i].name));
-        QLabel *labelLogin = new QLabel(QString("Login : %1").arg(credsArray.creds[i].loginName));
-        QLabel *labelPassword = new QLabel(QString("Mot de passe : %1").arg(credsArray.creds[i].password));
-        
-        labelsContainer->setObjectName("credDetailsBox");
-        labelsContainerLayout->addWidget(labelName);
-        labelsContainerLayout->addWidget(labelLogin);
-        labelsContainerLayout->addWidget(labelPassword);
+            QWidget *labelsContainer = new QWidget(credContainer);
+            QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
 
-        QPushButton *button = new QPushButton("Modifier");
-        button->setObjectName("editCredButton");
+            QLabel *labelName = new QLabel(QString("Nom : %1").arg(credsArray->credentials[i].name));
+            QLabel *labelLogin = new QLabel(QString("Login : %1").arg(credsArray->credentials[i].loginName));
+            QLabel *labelPassword = new QLabel(QString("Mot de passe : %1").arg(credsArray->credentials[i].password));
 
-        credContainerLayout->addWidget(labelsContainer);
-        credContainerLayout->addWidget(button);
-        credsLayout->addWidget(credContainer);
+            labelsContainer->setObjectName("credDetailsBox");
+            labelsContainerLayout->addWidget(labelName);
+            labelsContainerLayout->addWidget(labelLogin);
+            labelsContainerLayout->addWidget(labelPassword);
+
+            QPushButton *button = new QPushButton("Modifier");
+            button->setObjectName("editCredButton");
+            connect(button, &QPushButton::clicked, [=](){
+                        //QString tmpName = QString::fromUtf8(credsArray->credentials[i].loginName, -1);
+                        //qDebug() << "tmpName : " << tmpName;
+                        // QString tmpLogin = new QString("%1").arg(credsArray.creds[i].loginName);
+                        // QString tmpPass = new QString("%1").arg(credsArray.creds[i].password);
+                        // showEditCred(credsArray.creds[i].id, tmpName, tmpLogin, tmpPass);
+                    });
+
+            credContainerLayout->addWidget(labelsContainer);
+            credContainerLayout->addWidget(button);
+            credsLayout->addWidget(credContainer);
+        }
+    } else {
+        QLabel *noPasswordsLabel = new QLabel("Pas de mots de passes");
+        noPasswordsLabel->setObjectName("noPasswordsLabel");
+        credsLayout->addWidget(noPasswordsLabel);
     }
 
     scrollArea->setWidget(credsContainer);
     contentLayout->addWidget(scrollArea);
     setLayout(contentLayout);
+}
+
+void CredentialsWidget::showEditCred(const int credId, QString name, QString login, QString password) {
+    qDebug() << "name: " << name << " : " << login << " : " <<  password;
+    this->credentialEditWidget = new CredentialEditWidget(this, credId, name, login, password);
+    this->credentialEditWidget->setCredId(credId);
+    this->credentialEditWidget->setLoginName(name);
+    this->credentialEditWidget->setLogin(login);
+    this->credentialEditWidget->setPassword(password);
+    this->credentialEditWidget->show();
 }
 
 // CredsForm
@@ -127,4 +152,43 @@ CredsToolBarWidget::CredsToolBarWidget(QWidget *parent, MYSQL *dbCon) : QWidget(
 
 void CredsToolBarWidget::showCredsForm() {
     form->quickWidget->show();
+}
+
+// Cred Edit Window
+
+CredentialEditWidget::CredentialEditWidget(QWidget *parent, const int credId, QString loginName, QString login, QString password) {
+    this->setWindowTitle("Editer l'identifiant");
+
+    QWidget *labelsContainer = new QWidget(this);
+    QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
+
+    QLineEdit *nameInput = new QLineEdit(this);
+    QLabel *labelName = new QLabel("Nom :");
+    nameInput->insert(loginName);
+    nameInput->setParent(labelName);
+    //labelName->setBuddy(nameInput);
+
+    QLabel *labelLogin = new QLabel("Login :");
+    QLabel *labelPassword = new QLabel("Mot de passe :");
+
+    labelsContainer->setObjectName("credDetailsBox");
+    labelsContainerLayout->addWidget(labelName);
+    labelsContainerLayout->addWidget(labelLogin);
+    labelsContainerLayout->addWidget(labelPassword);
+}
+
+void CredentialEditWidget::setCredId(const int newId) {
+    this->credId = newId;
+}
+
+void CredentialEditWidget::setLoginName(QString newName) {
+    this->loginName = newName;
+}
+
+void CredentialEditWidget::setLogin(QString newLogin) {
+    this->login = newLogin;
+}
+
+void CredentialEditWidget::setPassword(QString newPassword) {
+    this->password = newPassword;
 }
