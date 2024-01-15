@@ -18,5 +18,6 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail);
 int addNewCredsController(MYSQL *dbCon, char *loginName, char *login, char *password);
 int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder);
 int importPasswordsController(MYSQL *dbCon, const int userId, char *importedFile);
+LeaksList *getDataLeaks(MYSQL *dbCon, const int userId);
 
 #endif

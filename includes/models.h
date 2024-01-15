@@ -31,4 +31,21 @@ typedef struct ExportList {
     unsigned int count;
 } ExportList;
 
+typedef struct CredentialLeak {
+    char *website;
+    char *login;
+    char *password;
+    char *leakDate;
+} CredentialLeak;
+
+typedef struct LeaksList {
+    struct CredentialLeak *credentialLeaks;
+    int count;
+} LeaksList;
+
+typedef struct LoginsList {
+    char **logins;
+    int count;
+} LoginsList;
+
 #endif
