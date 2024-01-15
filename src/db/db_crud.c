@@ -7,6 +7,7 @@
 #include "../../includes/db.h"
 #include "../../includes/models.h"
 #include "../../includes/pincludes.h"
+#include "../../includes/backPwdQuality.h"
 #include <openssl/sha.h>
 
 // Fonction de récupération 
@@ -474,4 +475,78 @@ ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
     mysql_stmt_close(stmt);
 
     return exportList;
+}
+
+struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
+    struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList) * 1);
+    pwdList->pwd = NULL;
+    pwdList->size = 0;
+    char *sqlQuery = (char *) malloc(sizeof(char) * 600);
+
+    if (sqlQuery == NULL) return NULL;
+    sprintf(sqlQuery, "SELECT AES_DECRYPT(psw.password, UNHEX(u.pwdMaster)) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE psw.userId = %d GROUP BY password", userId);
+    if (mysql_query(dbCon, sqlQuery) != 0) {
+        fprintf(stderr, "Query Failure\n");
+        return pwdList;
+    } else {
+        MYSQL_RES *resData = mysql_store_result(dbCon);
+        if (resData != NULL) {
+            //unsigned int numFields = mysql_num_fields(resData);
+            unsigned int rowsCount = mysql_num_rows(resData);
+            MYSQL_ROW row;
+
+            if (rowsCount > 0) {
+                int nbPwd = 0;
+                pwdList->pwd = (char *) malloc(sizeof(char) * rowsCount);
+                pwdList->size = rowsCount;
+                if (pwdList->pwd != NULL) {
+                    while ((row = mysql_fetch_row(resData))) {
+                        pwdList[nbPwd].pwd = strdup(row[0]);
+                        nbPwd++;
+                    }
+                }
+            }
+            mysql_free_result(resData);
+        }
+    }
+    free(sqlQuery);
+    return pwdList;
+}
+
+struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id){
+    struct WebsiteByPwd *websiteList = (struct WebsiteByPwd *) malloc(sizeof(struct WebsiteByPwd) * 1);
+    websiteList->website = NULL;
+    websiteList->size = 0;
+    char *sqlQuery = (char *) malloc(sizeof(char) * 600);
+
+    if (sqlQuery == NULL) return NULL;
+    sprintf(sqlQuery, "SELECT name, loginName FROM pswd_stock WHERE password = AES_ENCRYPT('%s',(SELECT UNHEX(pwdMaster) FROM users WHERE id = %d))", pwd, id);
+
+    if (mysql_query(dbCon, sqlQuery) != 0) {
+        fprintf(stderr, "Query Failure\n");
+        return websiteList;
+    } else {
+        MYSQL_RES *resData = mysql_store_result(dbCon);
+        if (resData != NULL) {
+            //unsigned int numFields = mysql_num_fields(resData);
+            unsigned int rowsCount = mysql_num_rows(resData);
+            MYSQL_ROW row;
+
+            if (rowsCount > 0) {
+                int nbWebsites = 0;
+                websiteList->website = (char *) malloc(sizeof(char) * rowsCount);
+                websiteList->size = rowsCount;
+                if (websiteList->website != NULL) {
+                    while ((row = mysql_fetch_row(resData))) {
+                        websiteList[nbWebsites].website = strdup(row[0]);
+                        websiteList[nbWebsites].username = strdup(row[1]);
+                        nbWebsites++;
+                    }
+                }
+            }
+            mysql_free_result(resData);
+        }
+    }
+    free(sqlQuery);
+    return websiteList;
 }

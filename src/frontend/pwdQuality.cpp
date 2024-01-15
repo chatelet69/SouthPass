@@ -3,6 +3,8 @@
 //
 #include <QLineEdit>
 #include <QFormLayout>
+#include <stdlib.h>
+#include <stdio.h>
 #include <QApplication>
 #include <QCheckBox>
 #include <QMessageBox>
@@ -10,6 +12,7 @@
 #include "../../includes/applicationController.h"
 #include "../../includes/pwdQuality.h"
 #include "../../includes/backPwdQuality.h"
+#include "../../includes/fileController.h"
 #include "../../includes/pincludes.h"
 
 PwdQualityPage::PwdQualityPage(QWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
@@ -78,12 +81,27 @@ void PwdQualityPage::weakPwdList(QTabWidget *onglets){
     onglets->addTab(weakList, "Liste mots de passes faibles");
 }
 
-
 void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
     QWidget *weakList = new QWidget;
     QLabel *listTitle = new QLabel();
     listTitle->setText("Mots de passes réutilisés :");
 
+    TokenInfos *tokenInfos = getTokenFileInfos();
+    struct PwdList *pwds = getUniquePwd(dbCon, tokenInfos->id);
+    for (int i = 0; i < pwds->size; ++i) {
+        printf("\n\n      Sites ayant le mot de passe : %s i : %d", pwds[i].pwd, i);
+        struct WebsiteByPwd *websites = getWebsiteByPwd(dbCon, pwds[i].pwd, tokenInfos->id);
+        for (int j = 0; j < websites->size; ++j) {
+            printf("\nSite : %s, login : %s", websites[j].website, websites[j].username);
+        }
+        printf("\n");
+        for (int j = 0; j < websites->size; ++j) {
+            free(websites[j].website);
+        }
+    }
+    for (int j = 0; j < pwds->size; ++j) {
+        free(pwds[j].pwd);
+    }
 /*
     struct ReUsedPwdByWebsite *start = NULL;
     start = getReUsedPwd(start,dbCon);

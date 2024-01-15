@@ -160,5 +160,3 @@ int verifIfPwdExist(struct ReUsedPwdByWebsite *websiteByPwdArray, char * pwd){
     return 0;
 }
 */
-
-

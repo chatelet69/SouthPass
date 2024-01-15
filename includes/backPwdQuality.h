@@ -13,6 +13,41 @@ struct WeakPwdList{
     char * pwd;
     struct WeakPwdList *next;
 };
+
+struct PwdList{
+    char * pwd;
+    unsigned int size;
+};
+
+struct WebsiteByPwd{
+    char * website;
+    char * username;
+    unsigned int size;
+};
+
+// WeakPwdList
+struct WeakPwdList * getAllWeaksPwd(struct WeakPwdList *start, MYSQL * dbCon);
+struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * site, char * username, char * pwd);
+void printWeaksPwd(struct WeakPwdList *start);
+
+// PwdQuality
+char * testPwd(char * pwd);
+int checkRockYou(char * pwd);
+
+// ReUsedPwd
+
+
+
+
+
+
+
+
+
+
+
+
+// ReUsedPwd fail
 /*
 struct Websites{
     char * url;
@@ -26,13 +61,6 @@ struct ReUsedPwdByWebsite{
     struct ReUsedPwdByWebsite *next;
 };
 */
-
-// WeakPwdList
-struct WeakPwdList * getAllWeaksPwd(struct WeakPwdList *start, MYSQL * dbCon);
-struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * site, char * username, char * pwd);
-void printWeaksPwd(struct WeakPwdList *start);
-
-// ReUsedPwd
 /*
 struct ReUsedPwdByWebsite * getReUsedPwd(struct ReUsedPwdByWebsite * websiteByPwdArray, MYSQL * dbCon);
 struct Websites * addWebsitesByPwd(struct Websites *prevWeb, char * url, char * username);
@@ -41,10 +69,4 @@ struct ReUsedPwdByWebsite * addPwd(struct ReUsedPwdByWebsite * websiteByPwdArray
 int verifIfPwdExist(struct ReUsedPwdByWebsite *websiteByPwdArray, char * pwd);
 void freeWebsitesList(struct Websites *webList);
 */
-
-
-
-// PwdQuality
-char * testPwd(char * pwd);
-int checkRockYou(char * pwd);
 #endif //SOUTHPASS_BACKPWDQUALITY_H
