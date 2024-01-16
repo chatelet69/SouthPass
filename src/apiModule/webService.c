@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
 #include <cjson/cJSON.h>
@@ -25,9 +27,12 @@ size_t writeBodyToString(void *ptr, size_t size, size_t nmemb, void *stream) {
 }
 
 size_t writeBodyToJson(void *content, size_t size, size_t nmemb, void *stream) {
+    printf("nci\n");
     size_t realSize = size * nmemb;
-    cJSON *json = (cJSON *)stream;
+    JsonMemoryStruct *tmp = (JsonMemoryStruct *)stream;
+    //cJSON *json = (cJSON *)stream;
 
+    printf("test : %s\n", (char *) content);
     cJSON *root = cJSON_ParseWithLength((char *)content, realSize);
     if (root == NULL) return 0;
 
@@ -38,6 +43,10 @@ size_t writeBodyToJson(void *content, size_t size, size_t nmemb, void *stream) {
         fclose(fp);
         free(formattedJson);
     }
+
+    tmp->size += realSize;
+    tmp->json = root;
+    //strncpy(tmp->json, (char *) content, realSize);
 
     return realSize;
 }
@@ -87,7 +96,7 @@ char *getHttpRequest(char *url) {
 }
 
 cJSON *getJsonFromRequest(char *url) {
-    const char *pathToCert = CART_PATH;
+    const char *pathToCert = CERT_CA_PATH;
     CURL *curl;
     CURLcode res;
     cJSON *jsonData = cJSON_CreateObject();
@@ -117,4 +126,51 @@ cJSON *getJsonFromRequest(char *url) {
     }
 
     return jsonData;
+}
+
+cJSON *getJsonFromGetRequest(char *url, char *key) {
+    CURL *curl;
+    CURLcode res;
+    curl = curl_easy_init();
+
+    JsonMemoryStruct chunkBody;
+    chunkBody.size = 0;
+    chunkBody.json = cJSON_CreateObject();
+    
+    if(curl && url) {
+        if (strstr(url, "http://") == NULL && strstr(url, "https://") == NULL) {
+            return NULL;
+        } else {
+            curl_off_t downloadSize;
+            struct curl_slist *headers = NULL;
+            headers = curl_slist_append(headers, "Accept: */*");
+            headers = curl_slist_append(headers, "Accept-Encoding: gzip, deflate, br");
+            headers = curl_slist_append(headers, "Connection: keep-alive");
+
+            curl_easy_setopt(curl, CURLOPT_URL, url);
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+            curl_easy_setopt(curl, CURLOPT_ENCODING, "");
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, "a remettre");
+            //curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+            //curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+            curl_easy_setopt(curl, CURLOPT_CAINFO, CERT_CA_PATH);
+            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+            //curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeBodyToJson);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &chunkBody);
+
+            res = curl_easy_perform(curl);  // Code de retour
+            if(res != CURLE_OK)
+                fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            
+            res = curl_easy_getinfo(curl, CURLINFO_SIZE_DOWNLOAD_T, &downloadSize);
+            printf("dl size : %" CURL_FORMAT_CURL_OFF_T "\n", downloadSize);
+            
+            curl_slist_free_all(headers);
+            curl_easy_cleanup(curl);    // clean de l'instance
+            return chunkBody.json;
+        }
+    }
+
+    return NULL;
 }
