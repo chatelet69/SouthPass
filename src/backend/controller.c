@@ -156,16 +156,3 @@ void freeExportList(ExportList *exportList) {
     exportList->lines = NULL;
     exportList->count = 0;
 }
-
-LeaksList *getDataLeaks(MYSQL *dbCon, const int userId) {
-    if (userId == 0) return NULL;
-
-    //LoginsList = getUniquesLoginsById(dbCon, userId);
-    char *url = strdup("https://larche.ovh/apparts");
-    //char *resData = getHttpRequest(url);
-    cJSON *resData = getJsonFromRequest(url);
-    free(url);
-    printf("RES DATA : %s\n", cJSON_Print(resData));
-
-    return NULL;
-}
