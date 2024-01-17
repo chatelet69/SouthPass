@@ -4,6 +4,6 @@
 #include "models.h"
 
 void printJson(cJSON *item);
-LeaksList *parseJsonToLeaksList(cJSON *json, char *login);
+CredentialLeak *parseJsonToLeaksList(struct LeaksList *list, cJSON *json, char *login);
 
 #endif

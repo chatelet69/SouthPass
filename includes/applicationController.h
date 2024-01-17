@@ -11,6 +11,7 @@
 #include "./loginPage.h"
 #include "./pwdGeneratorPage.h"
 #include "./pwdQuality.h"
+#include "./dataLeak.h"
 
 #define APPLICATION_NAME "SouthPass"
 
@@ -63,6 +64,7 @@ class ApplicationController : public QObject {
         void refreshCredsPage();
         void exportPasswords();
         void importPasswords();
+        void switchLeaksPage();
         //void refreshCredsPage();
 
     private:
@@ -77,5 +79,6 @@ class ApplicationController : public QObject {
         PwdQualityPage *pwdQual;
         PwdGenerator *pwdGen;
         CredentialsPage *credsPage;
+        DataLeaksPage *dataLeaksPage;
 };
 #endif
