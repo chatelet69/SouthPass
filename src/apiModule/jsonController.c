@@ -17,32 +17,36 @@ void printJson(cJSON *item) {
     }
 }
 
-LeaksList *parseJsonToLeaksList(cJSON *json, char *login) {
-    LeaksList *list = (LeaksList *) malloc(sizeof(LeaksList));
-    list->count = 0;
-    list->credentialLeaks = NULL;
-
+CredentialLeak *parseJsonToLeaksList(struct LeaksList *list, cJSON *json, char *login) {
     const cJSON *successStatusItem = cJSON_GetObjectItem(json, "success");
     if (cJSON_IsBool(successStatusItem) && successStatusItem->valueint == 1) {
-        int index = 0;
+        int index = list->count;
         cJSON *sources = cJSON_GetObjectItem(json, "sources");
         cJSON *foundCount = cJSON_GetObjectItem(json, "found");
         cJSON *source = NULL;
 
-        list->credentialLeaks = (CredentialLeak *) malloc(sizeof(CredentialLeak) * foundCount->valueint);
-        cJSON_ArrayForEach(source, sources) {
-            cJSON *name = cJSON_GetObjectItem(source, "name");
-            cJSON *date = cJSON_GetObjectItem(source, "date");
-            if (name != NULL) {
-                printf("name ==== %s\n", cJSON_Print(name));
-                list->credentialLeaks[index].website = strdup(cJSON_Print(name));
-                list->credentialLeaks[index].login = strdup(login);
-                list->credentialLeaks[index].leakDate = strdup(cJSON_Print(date));
-                list->count += 1;
-                index++;
+        // Si une liste de credentials existe on réalloue un nouveau bloc avec realloc
+        if (list->credentialLeaks == NULL) {
+            list->credentialLeaks = (CredentialLeak *) malloc(sizeof(CredentialLeak) * foundCount->valueint);
+        } else {
+            list->credentialLeaks = (CredentialLeak *) realloc(list->credentialLeaks, sizeof(CredentialLeak) * (foundCount->valueint + list->count));
+        }
+
+        if (list->credentialLeaks != NULL) {
+            cJSON_ArrayForEach(source, sources) {
+                cJSON *name = cJSON_GetObjectItem(source, "name");
+                cJSON *date = cJSON_GetObjectItem(source, "date");
+                if (name != NULL) {
+                    list->credentialLeaks[index].website = strdup(cJSON_Print(name));
+                    list->credentialLeaks[index].login = strdup(login);
+                    list->credentialLeaks[index].leakDate = strdup(cJSON_Print(date));
+                    list->count += 1;
+                    index++;
+                }
             }
         }
     }
 
-    return list;
+    // On retourne la nouvelle adresse de la liste de credentialLeaks
+    return list->credentialLeaks;
 }

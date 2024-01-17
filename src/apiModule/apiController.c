@@ -65,35 +65,30 @@ int getRemainingCreditsIntelx() {
 
 LeaksList *getDataLeaksFromLeakCheck(MYSQL *dbCon, const int userId) {
     if (userId == 0) return NULL;
-    char *key = getLeakCheckKey();
-    printf("key : %s\n", key);
+    char *key = getLeakCheckKey();  // Récupération de la clé dans le fichier de config
+    LeaksList *leaksList = (LeaksList *) malloc(sizeof(LeaksList));
+    leaksList->count = 0;
+    leaksList->credentialLeaks = NULL;
 
     LoginsList *uniquesLogins = getUniquesLoginsById(dbCon, userId);
-    if (uniquesLogins != NULL) {
+    if (uniquesLogins != NULL && key != NULL) {
         char *actualLogin = NULL;
         for (int i = 0; i < uniquesLogins->count; i++) {
-            printf("uniques : %s\n", uniquesLogins->logins[i]);
             actualLogin = strdup(uniquesLogins->logins[i]);
+            char *url = (char *) malloc(sizeof(char) * (strlen(LEAKCHECK_BASE_URL) + strlen(actualLogin) + strlen(key) + 15));
+            sprintf(url, "%s?key=%s&check=%s", LEAKCHECK_BASE_URL, key, actualLogin);
+            
+            cJSON *resData = getJsonFromGetRequest(url, strdup(key));
+            free(url);
+            leaksList->credentialLeaks = parseJsonToLeaksList(leaksList, resData, actualLogin);
         }
         if (actualLogin != NULL) free(actualLogin);
     }
-    char *login = strdup("helloyou@hotmail.com");
-    char *url = (char *) malloc(sizeof(char) * (strlen(LEAKCHECK_BASE_URL) + strlen(login) + strlen(key) + 15));
-    sprintf(url, "%s?key=%s&check=%s", LEAKCHECK_BASE_URL, key, login);
     
-    cJSON *resData = getJsonFromGetRequest(url, strdup(key));
-    free(url);
+    // Clean
+    //printLeaksList(leaksList);
     free(uniquesLogins);
-    printf("RES DATA : %s\n", cJSON_Print(resData));
+    if (key != NULL) free(key);
 
-    LeaksList *leaksList = parseJsonToLeaksList(resData, login);
-    printLeaksList(leaksList);
-
-    // Clean des pointeurs
-    free(login);
-    freeLeaksList(leaksList);
-    free(leaksList);
-    free(key);
-
-    return NULL;
+    return leaksList;
 }

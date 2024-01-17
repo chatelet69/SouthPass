@@ -27,12 +27,9 @@ size_t writeBodyToString(void *ptr, size_t size, size_t nmemb, void *stream) {
 }
 
 size_t writeBodyToJson(void *content, size_t size, size_t nmemb, void *stream) {
-    printf("nci\n");
     size_t realSize = size * nmemb;
     JsonMemoryStruct *tmp = (JsonMemoryStruct *)stream;
-    //cJSON *json = (cJSON *)stream;
 
-    printf("test : %s\n", (char *) content);
     cJSON *root = cJSON_ParseWithLength((char *)content, realSize);
     if (root == NULL) return 0;
 
@@ -46,7 +43,6 @@ size_t writeBodyToJson(void *content, size_t size, size_t nmemb, void *stream) {
 
     tmp->size += realSize;
     tmp->json = root;
-    //strncpy(tmp->json, (char *) content, realSize);
 
     return realSize;
 }
@@ -141,7 +137,6 @@ cJSON *getJsonFromGetRequest(char *url, char *key) {
         if (strstr(url, "http://") == NULL && strstr(url, "https://") == NULL) {
             return NULL;
         } else {
-            curl_off_t downloadSize;
             struct curl_slist *headers = NULL;
             headers = curl_slist_append(headers, "Accept: */*");
             headers = curl_slist_append(headers, "Accept-Encoding: gzip, deflate, br");
@@ -154,7 +149,7 @@ cJSON *getJsonFromGetRequest(char *url, char *key) {
             //curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
             //curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
             curl_easy_setopt(curl, CURLOPT_CAINFO, CERT_CA_PATH);
-            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+            //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
             //curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeBodyToJson);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &chunkBody);
@@ -162,9 +157,6 @@ cJSON *getJsonFromGetRequest(char *url, char *key) {
             res = curl_easy_perform(curl);  // Code de retour
             if(res != CURLE_OK)
                 fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-            
-            res = curl_easy_getinfo(curl, CURLINFO_SIZE_DOWNLOAD_T, &downloadSize);
-            printf("dl size : %" CURL_FORMAT_CURL_OFF_T "\n", downloadSize);
             
             curl_slist_free_all(headers);
             curl_easy_cleanup(curl);    // clean de l'instance
