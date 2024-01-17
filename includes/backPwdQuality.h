@@ -15,7 +15,7 @@ struct WeakPwdList{
 };
 
 struct PwdList{
-    char * pwd;
+    char ** pwd;
     unsigned int size;
 };
 struct Website{

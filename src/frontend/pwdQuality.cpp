@@ -9,6 +9,7 @@
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <cstdlib>
 #include <QScrollArea>
 #include <QWidget>
 #include "../../includes/applicationController.h"
@@ -97,17 +98,15 @@ void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
     TokenInfos *tokenInfos = getTokenFileInfos();
     struct PwdList *pwds = getUniquePwd(dbCon, tokenInfos->id);
     for (unsigned int i = 0; i < pwds->size; ++i) {
-        printf("\nI : %d", i);
         QHBoxLayout *pwdListLayout = new QHBoxLayout();
         char pwdList[200];
-        sprintf(pwdList, "Sites ayant le mot de passe : %s", pwds[i].pwd);
+        sprintf(pwdList, "Sites ayant le mot de passe : %s", pwds->pwd[i]);
         QLabel *displayPwd = new QLabel();
         displayPwd->setText(pwdList);
         pwdListLayout->addWidget(displayPwd);
         verticalLayout->addLayout(pwdListLayout);
-        struct WebsiteByPwd *websites = getWebsiteByPwd(dbCon, pwds[i].pwd, tokenInfos->id);
+        struct WebsiteByPwd * websites = getWebsiteByPwd(dbCon, pwds->pwd[i], tokenInfos->id);
         for (unsigned int j = 0; j < websites->size; ++j) {
-            printf("\nJ = %d", j);
             QHBoxLayout *websiteListLayout = new QHBoxLayout();
             char websiteList[200];
             sprintf(websiteList, "url : %s, login : %s", websites->website[j].website, websites->website[j].username);
@@ -116,14 +115,12 @@ void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
             websiteListLayout->addWidget(displayWeb);
             verticalLayout->addLayout(websiteListLayout);
         }
-        for (unsigned int k = 0; k < websites->size; ++k) {
-            free(websites->website[k].username);
-            free(websites->website[k].website);
-        }
         free(websites->website);
+        free(websites);
+
     }
     for (unsigned int j = 0; j < pwds->size; ++j) {
-        free(pwds[j].pwd);
+        free(pwds->pwd[j]);
     }
     free(pwds);
 

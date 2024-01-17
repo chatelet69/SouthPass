@@ -478,9 +478,7 @@ ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
 }
 
 struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
-    struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList *) * 1);
-    pwdList->pwd = NULL;
-    pwdList->size = 0;
+    struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList));
     char *sqlQuery = (char *) malloc(sizeof(char) * 600);
 
     if (sqlQuery == NULL) return NULL;
@@ -491,18 +489,16 @@ struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
     } else {
         MYSQL_RES *resData = mysql_store_result(dbCon);
         if (resData != NULL) {
-            //unsigned int numFields = mysql_num_fields(resData);
             unsigned int rowsCount = mysql_num_rows(resData);
             MYSQL_ROW row;
 
             if (rowsCount > 0) {
-                printf("\nROROROWS COUNT : %d", rowsCount);
-                int nbPwd = 0;
-                pwdList->pwd = (char *) malloc(sizeof(char) * rowsCount);
+                pwdList->pwd = (char **) malloc(sizeof(char*) * rowsCount);
                 pwdList->size = rowsCount;
                 if (pwdList->pwd != NULL) {
+                    int nbPwd = 0;
                     while ((row = mysql_fetch_row(resData))) {
-                        pwdList[nbPwd].pwd = strdup(row[0]);
+                        pwdList->pwd[nbPwd] = strdup(row[0]);
                         nbPwd++;
                     }
                 }
@@ -511,14 +507,12 @@ struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
         }
     }
     free(sqlQuery);
-    printf("\nsize : %d, lastPwd : %s", pwdList->size, pwdList[pwdList->size - 1].pwd);
+    // OK
     return pwdList;
 }
 
 struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id){
-    struct WebsiteByPwd *websiteList = (struct WebsiteByPwd *) malloc(sizeof(struct WebsiteByPwd *));
-    websiteList->website = NULL;
-    websiteList->size = 0;
+    struct WebsiteByPwd *websiteList = (struct WebsiteByPwd *) malloc(sizeof(struct WebsiteByPwd));
     char *sqlQuery = (char *) malloc(sizeof(char) * 600);
 
     if (sqlQuery == NULL) return NULL;
@@ -532,13 +526,12 @@ struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id){
         if (resData != NULL) {
             //unsigned int numFields = mysql_num_fields(resData);
             unsigned int rowsCount = mysql_num_rows(resData);
-            printf("\nROWSCOUNT : %u pour le pwd : %s", rowsCount, pwd);
             MYSQL_ROW row;
             if (rowsCount > 0) {
                 int nbWebsites = 0;
                 websiteList->website = (struct Website *) malloc(sizeof(struct Website) * rowsCount);
-                websiteList->website->website = (char *) malloc(sizeof(char) * rowsCount);
-                websiteList->website->username = (char *) malloc(sizeof(char) * rowsCount);
+                websiteList->website->website= (char *) malloc(sizeof(char) * 255);
+                websiteList->website->username = (char *) malloc(sizeof(char) * 255);
 
                 websiteList->size = rowsCount;
                 if (websiteList->website != NULL) {
@@ -553,5 +546,6 @@ struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id){
         }
     }
     free(sqlQuery);
+    // OK
     return websiteList;
 }
