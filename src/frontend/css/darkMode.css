@@ -109,12 +109,38 @@ QApplication {
 #newCredsButton {
     background-color: rgb(164, 216, 164);
     border: none;
-    border-radius: 4;
-    padding: 2;
+    border-radius: 4px;
+    padding: 2px;
     height: auto;
     color: white;
 }
 
 #newCredsButton:hover {
     background-color: #78d860;
+}
+#fenetreQuality{
+    background-color: #78d860;
+    width: 100px;
+}
+
+/* Data Leak Page */
+
+#credLeakBox {
+    border: 2px solid rgb(60, 67, 73);
+    background-color: rgba(255, 255, 255, 0.795);
+    border-radius: 16px;
+}
+
+#credLeakDetailBox {
+    text-align: center;
+    background-color: transparent;
+    padding: 5px;
+}
+
+#credLeakDetailBox QLabel {
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.795);
+    border: 1px solid rgb(167, 167, 167);
+    border-radius: 8px;
+    padding: 5px;
 }

@@ -15,15 +15,37 @@ struct Credentials {
     char *password;
 };
 
-typedef struct {
+typedef struct TokenInfos {
     int id;
     char *token;
     char *email;
 } TokenInfos;
 
-typedef struct {
-    Credentials *creds;
+typedef struct CredsArray {
+    Credentials *credentials;
     unsigned int size;
 } CredsArray;
+
+typedef struct ExportList {
+    char **lines;
+    unsigned int count;
+} ExportList;
+
+typedef struct CredentialLeak {
+    char *website;
+    char *login;
+    char *password;
+    char *leakDate;
+} CredentialLeak;
+
+typedef struct LeaksList {
+    struct CredentialLeak *credentialLeaks;
+    int count;
+} LeaksList;
+
+typedef struct LoginsList {
+    char **logins;
+    int count;
+} LoginsList;
 
 #endif

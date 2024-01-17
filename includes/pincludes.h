@@ -5,7 +5,9 @@
 //#include <winsock2.h>
 //#include <windows.h>
 //#include <winbase.h>
+//#include <Shlobj.h>
 #endif
+
 #include "db.h"
 #include "webService.h"
 #include "applicationController.h"
@@ -18,5 +20,6 @@
 #include "backLoginSignIn.h"
 #include <string.h>
 #include "pwdGeneratorPage.h"
+#include "jsonController.h"
 
 #endif

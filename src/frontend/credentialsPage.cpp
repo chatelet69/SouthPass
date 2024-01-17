@@ -9,17 +9,32 @@
 #include "../../includes/credentialsWidget.h"
 #include "../../includes/pincludes.h"
 
-CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbCon, int userId) : QWidget(parent), dbCon(dbCon) {
+CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbConnection, int userId) : QWidget(parent), dbCon(dbCon) {
+    this->dbCon = dbConnection;
+    this->setUserId(userId);
     QVBoxLayout *layout = new QVBoxLayout();
 
-    toolBarWidget = new CredsToolBarWidget(this, dbCon);
+    toolBarWidget = new CredsToolBarWidget(this, this->dbCon);
 
-    CredsArray credsArray = getPasswordsList(dbCon, userId);
-    credentialsWidget = new CredentialsWidget(this, credsArray);
+    CredsArray *credsArray = getPasswordsList(this->dbCon, this->userId);
+    // printCreds(credsArray->credentials, credsArray->size);
+    credentialsWidget = new CredentialsWidget((QWidget *) this, credsArray);
     credentialsWidget->setObjectName("credsWidget");
     freeCredsArray(credsArray);
+    free(credsArray);
 
-    layout->addWidget(toolBarWidget);
+    layout->addWidget((QWidget *)toolBarWidget);
     layout->addWidget(credentialsWidget);
     setLayout(layout);
+}
+
+void CredentialsPage::setUserId(int newId) {
+    this->userId = newId;
+}
+
+void CredentialsPage::initCredsListWidget() {
+    //CredsArray credsArray = getPasswordsList(this->dbCon, this->userId);
+    //this->credentialsWidget = new CredentialsWidget(this, credsArray);
+    //credentialsWidget->setObjectName("credsWidget");
+    //freeCredsArray(credsArray);
 }

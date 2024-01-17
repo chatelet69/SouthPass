@@ -16,23 +16,19 @@
 #include "applicationController.h"
 class ApplicationController;
 
-class loginPage : public QWidget {
-Q_OBJECT
-public:
-    loginPage(QWidget *parent,ApplicationController *, MYSQL *dbCon);
+class LoginPage : public QWidget {
+    Q_OBJECT
+    public:
+        LoginPage(QWidget *parent,ApplicationController *, MYSQL *dbCon);
 
-public Q_SIGNAL:
-    static void signInSuccess();
+    public Q_SIGNAL:
+        static void signInSuccess();
 
-public Q_SLOTS:
+    public Q_SLOTS:
 
-private Q_SLOTS:
+    private Q_SLOTS:
 
 private:
     MYSQL *dbCon;
-    QWidget fenetre;
-    QLineEdit *email;
-    QLineEdit *password;
-    QFormLayout *layout;
 };
 #endif //SOUTHPASS_LOGIN_PAGE_H

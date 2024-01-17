@@ -10,6 +10,8 @@
 #include "./credentialsWidget.h"
 #include "./loginPage.h"
 #include "./pwdGeneratorPage.h"
+#include "./pwdQuality.h"
+#include "./dataLeak.h"
 
 #define APPLICATION_NAME "SouthPass"
 
@@ -26,7 +28,7 @@
 
 class MainWindow;
 class ApplicationController;
-class loginPage;
+class LoginPage;
 
 class MainWindow : public QMainWindow {
     public:
@@ -58,9 +60,14 @@ class ApplicationController : public QObject {
         void switchCredsPage();
         void switchGenPwdPage();
         void disconnect();
-    // void onApplicationMove();
+        void switchPwdQuality();
+        void refreshCredsPage();
+        void exportPasswords();
+        void importPasswords();
+        void switchLeaksPage();
+        //void refreshCredsPage();
 
-private:
+    private:
         int userId;
         char isDark;
         char oldTheme;
@@ -68,8 +75,10 @@ private:
         QStackedWidget *stackedWidget;
         MainWindow mainWindow;
         MYSQL *dbCon;
-        loginPage *logPage;
+        LoginPage *logPage;
+        PwdQualityPage *pwdQual;
         PwdGenerator *pwdGen;
         CredentialsPage *credsPage;
+        DataLeaksPage *dataLeaksPage;
 };
 #endif

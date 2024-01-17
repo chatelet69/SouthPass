@@ -15,6 +15,10 @@ TokenInfos *getTokenFileInfos();
 void saveThemePreference(int theme);
 int saveNewTokenFile(char *tokenHash, char *email, const int id);
 int createTokenFile();
+const int getUserIdByCookieFile();
+int writePasswordsExportFile(char **, int size, char *exportFolder);
+CredsArray *parseImportCredsList(char *importedFilePath);
+char *getLeakCheckKey();
 
 #define TOKEN_SIZE 65
 #define MAIL_SIZE 50

@@ -6,22 +6,22 @@
 #include "../../includes/db.h"
 #include "../../includes/models.h"
 #include "../../includes/backController.h"
+#include "../../includes/webService.h"
 #include "../../includes/pincludes.h"
 #include "../../includes/fileController.h"
 #include "../../includes/cryptoModule.h"
 
-char **getPwsdList() {
-    printf("e\n");
-    return NULL;
-}
-
-void freeCredsArray(CredsArray credsArray) {
-    for (unsigned int i = 0; i < credsArray.size; i++) {
-        free(credsArray.creds[i].name);
-        free(credsArray.creds[i].loginName);
-        free(credsArray.creds[i].password);
+void freeCredsArray(struct CredsArray *credsArray) {
+    if (credsArray != NULL) {
+        for (unsigned int i = 0; i < credsArray->size; i++) {
+            //printf("%s %s %s\n", credsArray->credentials[i].name, credsArray->credentials[i].loginName, credsArray->credentials[i].password);
+            free(credsArray->credentials[i].name);
+            free(credsArray->credentials[i].loginName);
+            free(credsArray->credentials[i].password);
+        }
+        free(credsArray->credentials);
+        credsArray->size = 0;
     }
-    free(credsArray.creds);
 }
 
 void freeCredentialsData(Credentials *creds) {
@@ -42,7 +42,7 @@ void printCreds(Credentials *creds, unsigned int size) {
 }
 
 int addNewCredsController(MYSQL *dbCon, char *name, char *loginName, char *password) {
-    int userId = 1;
+    const int userId = getUserIdByCookieFile();
     int loginNameSize = strlen(name);
     int loginSize = strlen(loginName);
     int passwordSize = strlen(password);
@@ -57,10 +57,12 @@ int addNewCredsController(MYSQL *dbCon, char *name, char *loginName, char *passw
         return EXIT_FAILURE;
 
     //unsigned char *finalPass = encryptString(password, "coucou");
-    //printf("Final : %s |\n", finalPass);
-    Credentials newCreds = { 0, userId, name, loginName, password };
-    //newCreds.passwordTest.cipherPassword = finalPass;
-    createNewCreds(dbCon, &newCreds);
+    if (userId != 0) {
+        Credentials newCreds = { 0, userId, name, loginName, password };
+        createNewCreds(dbCon, &newCreds);
+    } else {
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
@@ -70,12 +72,10 @@ int getUserIdByToken(MYSQL *dbCon) {
 
     if (tokenInfos != NULL) {
         int res = getUserByTokenInfos(dbCon, tokenInfos->token, tokenInfos->id);
-        printf("aze\n");
         int id = tokenInfos->id;
         free(tokenInfos);
         if (res == 1) return id;
     }
-    printf("endGetUserIdByToken\n");
 
     return 0;
 }
@@ -116,4 +116,41 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
     } else {
         return -1;
     }
+}
+
+int importPasswordsController(MYSQL *dbCon, const int userId, char *importedFile) {
+    int status = EXIT_FAILURE;
+    CredsArray *credsArray = parseImportCredsList(importedFile);
+
+    if (credsArray != NULL) {
+        for (unsigned int i = 0; i < credsArray->size; i++) {
+            if (credsArray->credentials != NULL) {
+                credsArray->credentials[i].userId = userId;
+                status = createNewCreds(dbCon, &credsArray->credentials[i]);
+            }
+        }
+
+        freeCredsArray(credsArray);
+        if (credsArray != NULL) free(credsArray);
+    }
+    
+    return status;
+}
+
+int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder) {
+    ExportList exportedList = getPasswordsExportListDb(dbCon, userId);
+
+    int status = writePasswordsExportFile(exportedList.lines, exportedList.count, exportFolder);
+
+    return status;
+}
+
+
+void freeExportList(ExportList *exportList) {
+    for (unsigned int i = 0; i < exportList->count; i++) {
+        free(exportList->lines[i]);
+    }
+    free(exportList->lines);
+    exportList->lines = NULL;
+    exportList->count = 0;
 }

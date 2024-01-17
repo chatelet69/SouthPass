@@ -126,7 +126,7 @@ int hasSpecialChar(char *str) {
 }
 
 char * shaPwd(const char * pwd, char * hashString, char * salt){
-    char saledPwd[62];
+    char saledPwd[65];
     strcpy(saledPwd, salt);
     strcat(saledPwd, pwd);
     strcat(saledPwd, salt);
