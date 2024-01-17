@@ -33,35 +33,39 @@ DataLeaksPage::DataLeaksPage(QWidget *parent, MYSQL *dbConnection, int userId) :
     QWidget *credsContainer = new QWidget(this);
     credsContainer->setObjectName("credsContainer");
     QVBoxLayout *credsLayout = new QVBoxLayout(credsContainer);
-    if (leaksList->count > 0) {
-        for (unsigned int i = 0; i < leaksList->count; i++){
-            QWidget *credContainer = new QWidget(this);
-            credContainer->setObjectName("credLeakBox");
-            QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
+    if (leaksList != NULL) {
+        if (leaksList->count > 0) {
+            for (unsigned int i = 0; i < leaksList->count; i++){
+                QWidget *credContainer = new QWidget(this);
+                credContainer->setObjectName("credLeakBox");
+                QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
 
-            QWidget *labelsContainer = new QWidget(credContainer);
-            QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
+                QWidget *labelsContainer = new QWidget(credContainer);
+                QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
 
-            QLabel *labelWesite = new QLabel(QString("Site : %1").arg(leaksList->credentialLeaks[i].website));
-            QLabel *labelLogin = new QLabel(QString("Mail : %1").arg(leaksList->credentialLeaks[i].login));
-            QLabel *labelLeakDate = new QLabel(QString("Date : %1").arg(leaksList->credentialLeaks[i].leakDate));
+                QLabel *labelWesite = new QLabel(QString("Site : %1").arg(leaksList->credentialLeaks[i].website));
+                QLabel *labelLogin = new QLabel(QString("Mail : %1").arg(leaksList->credentialLeaks[i].login));
+                QLabel *labelLeakDate = new QLabel(QString("Date : %1").arg(leaksList->credentialLeaks[i].leakDate));
 
-            labelsContainer->setObjectName("credLeakDetailBox");
-            labelsContainerLayout->addWidget(labelWesite);
-            labelsContainerLayout->addWidget(labelLogin);
-            labelsContainerLayout->addWidget(labelLeakDate);
+                labelsContainer->setObjectName("credLeakDetailBox");
+                labelsContainerLayout->addWidget(labelWesite);
+                labelsContainerLayout->addWidget(labelLogin);
+                labelsContainerLayout->addWidget(labelLeakDate);
 
-            credContainerLayout->addWidget(labelsContainer);
-            credsLayout->addWidget(credContainer);
+                credContainerLayout->addWidget(labelsContainer);
+                credsLayout->addWidget(credContainer);
+            }
         }
     } else {
-        QLabel *noPasswordsLabel = new QLabel("Pas de fuites de données");
+        QLabel *noPasswordsLabel = new QLabel("Pas de fuites de données (ou Clé invalide)");
         noPasswordsLabel->setObjectName("noDataLeaks");
         credsLayout->addWidget(noPasswordsLabel);
     }
 
-    freeLeaksList(leaksList);
-    free(leaksList);
+    if (leaksList != NULL) {
+        freeLeaksList(leaksList);
+        free(leaksList);
+    }
 
     scrollArea->setWidget(credsContainer);
     contentLayout->addWidget(scrollArea);
