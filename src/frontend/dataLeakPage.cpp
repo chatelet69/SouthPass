@@ -46,7 +46,7 @@ DataLeaksPage::DataLeaksPage(QWidget *parent, MYSQL *dbConnection, int userId) :
             QLabel *labelLogin = new QLabel(QString("Mail : %1").arg(leaksList->credentialLeaks[i].login));
             QLabel *labelLeakDate = new QLabel(QString("Date : %1").arg(leaksList->credentialLeaks[i].leakDate));
 
-            labelsContainer->setObjectName("credDetailsBox");
+            labelsContainer->setObjectName("credLeakDetailBox");
             labelsContainerLayout->addWidget(labelWesite);
             labelsContainerLayout->addWidget(labelLogin);
             labelsContainerLayout->addWidget(labelLeakDate);

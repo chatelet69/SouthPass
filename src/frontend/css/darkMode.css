@@ -122,3 +122,25 @@ QApplication {
     background-color: #78d860;
     width: 100px;
 }
+
+/* Data Leak Page */
+
+#credLeakBox {
+    border: 2px solid rgb(60, 67, 73);
+    background-color: rgba(255, 255, 255, 0.795);
+    border-radius: 16px;
+}
+
+#credLeakDetailBox {
+    text-align: center;
+    background-color: transparent;
+    padding: 5px;
+}
+
+#credLeakDetailBox QLabel {
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.795);
+    border: 1px solid rgb(167, 167, 167);
+    border-radius: 8px;
+    padding: 5px;
+}

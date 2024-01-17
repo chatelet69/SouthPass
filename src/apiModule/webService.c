@@ -145,7 +145,7 @@ cJSON *getJsonFromGetRequest(char *url, char *key) {
             curl_easy_setopt(curl, CURLOPT_URL, url);
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
             curl_easy_setopt(curl, CURLOPT_ENCODING, "");
-            curl_easy_setopt(curl, CURLOPT_USERAGENT, "a remettre");
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.");
             //curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
             //curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
             curl_easy_setopt(curl, CURLOPT_CAINFO, CERT_CA_PATH);
