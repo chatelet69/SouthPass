@@ -12,6 +12,9 @@
 #define SUCCESS_CODE 1
 #define FAIL_CODE 2
 
+#define SUCCESS_CODE 1
+#define FAIL_CODE 2
+
 MYSQL *dbConnect();
 void closeDb(MYSQL *dbCon);
 

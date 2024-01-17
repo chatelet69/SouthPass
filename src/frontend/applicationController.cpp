@@ -37,13 +37,11 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     mainWidget->setLayout(mainLayout);
     stackedWidget->setParent(mainWidget);
 
-
     QString styleSheet = this->getStyleSheet();
     app.setStyleSheet(styleSheet);
 
     QMenuBar *menuBar = new QMenuBar(nullptr);
     importMenu(menuBar);
-
 
     QWidget *headerWidget = new QWidget();
     headerWidget->setObjectName("headerWidget");
@@ -53,11 +51,9 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     themeButton->setObjectName("themeButton");
     connect(themeButton, &QPushButton::clicked, [=]() { this->changeTheme(themeButton); });
 
-
     const char *themeIconPath = (isDark) ? lightModeIcon : darkModeIcon;
     QIcon icon(themeIconPath);
     themeButton->setIcon(icon);
-
 
     headerLayout->addWidget(menuBar, 0, Qt::AlignLeft);
     headerLayout->addWidget(themeButton, 0, Qt::AlignRight);

@@ -274,7 +274,6 @@ char * checkLoginDb(MYSQL *dbCon, char *email, char *hashedPwd, char *hashedMast
 
 int getUserByTokenInfos(MYSQL *dbCon, const char *token, const int userId) {
     int status = 0;
-    printf("%d : %s\n", userId, token);
     const char *sqlQuery = "SELECT id FROM users WHERE token = ? AND id = ?";
 
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
