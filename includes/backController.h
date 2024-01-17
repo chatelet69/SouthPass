@@ -5,6 +5,8 @@
 #define LOGIN_MAX_SIZE 255
 #define PASSWORD_MAX_SIZE 40
 
+#define LEAKCHECK_BASE_URL "https://leakcheck.io/api/public"
+
 #include "./models.h"
 
 void printCreds(Credentials *creds, unsigned int size);
@@ -18,5 +20,12 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail);
 int addNewCredsController(MYSQL *dbCon, char *loginName, char *login, char *password);
 int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder);
 int importPasswordsController(MYSQL *dbCon, const int userId, char *importedFile);
+
+// API
+void printLeaksList(LeaksList *list);
+void freeLeaksList(struct LeaksList *list);
+LeaksList *getDataLeaks(MYSQL *dbCon, const int userId);
+int getRemainingCreditsIntelx();
+LeaksList *getDataLeaksFromLeakCheck(MYSQL *dbCon, const int userId);
 
 #endif

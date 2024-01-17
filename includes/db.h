@@ -7,7 +7,7 @@
 #include <mysql.h>
 #endif
 
-#include "../includes/models.h"
+#include "models.h"
 
 #define SUCCESS_CODE 1
 #define FAIL_CODE 2
@@ -31,5 +31,6 @@ int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption);
 ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId);
 struct PwdList *getUniquePwd(MYSQL *dbCon, int userId);
 struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id);
+LoginsList *getUniquesLoginsById(MYSQL *dbCon, const int userId);
 
 #endif
