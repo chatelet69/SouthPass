@@ -475,3 +475,62 @@ ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
 
     return exportList;
 }
+
+LoginsList *getUniquesLoginsById(MYSQL *dbCon, const int userId) {
+    const char *sqlQuery = "SELECT DISTINCT loginName FROM pswd_stock WHERE userId = ?";
+    LoginsList *loginsList = NULL;
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    MYSQL_RES *metaData;
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[1];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_LONG;
+        params[0].buffer = (void *) &userId;
+
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            //fprintf(stderr, "1 Error db : %s\n", mysql_stmt_error(stmt));
+            return loginsList;
+        }
+
+        int status = mysql_stmt_execute(stmt);
+        metaData = mysql_stmt_result_metadata(stmt); 
+        mysql_stmt_store_result(stmt);
+        if (metaData == NULL) return loginsList;
+
+        if (status == EXIT_SUCCESS) {
+            loginsList = (LoginsList *) malloc(sizeof(LoginsList));
+            loginsList->count = 0;
+
+            char actualLine[255];
+            MYSQL_BIND results[1];
+            memset(results, 0, sizeof(results));
+            results[0].buffer_type = MYSQL_TYPE_STRING;
+            results[0].buffer = &actualLine;
+            results[0].buffer_length = sizeof(actualLine);
+            
+            if (mysql_stmt_bind_result(stmt, results) != EXIT_SUCCESS) {
+                mysql_stmt_close(stmt);
+                return loginsList;
+            }
+
+            unsigned int rowsCount = mysql_stmt_affected_rows(stmt);
+            loginsList->logins = (char **) malloc(sizeof(char *) * rowsCount);
+                
+            int i = 0;
+            while (mysql_stmt_fetch(stmt) == 0) {
+                char *tmp = strdup(actualLine);
+                // On ajoute chaque login à la liste
+                loginsList->logins[i] = (char *) malloc(sizeof(char) * strlen(tmp));
+                strcpy(loginsList->logins[i], tmp);
+                i++;
+            }
+            loginsList->count = i;
+        }
+        mysql_free_result(metaData);
+    }
+    mysql_stmt_close(stmt);
+
+    return loginsList;
+}

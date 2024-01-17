@@ -6,6 +6,7 @@
 #include "../../includes/db.h"
 #include "../../includes/models.h"
 #include "../../includes/backController.h"
+#include "../../includes/webService.h"
 #include "../../includes/pincludes.h"
 #include "../../includes/fileController.h"
 #include "../../includes/cryptoModule.h"

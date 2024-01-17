@@ -21,14 +21,13 @@ int getThemePreference() {
         int res = sscanf(line, "%s : %s", prop[0], prop[1]);
         if (res == 2) {
             if (strcmp(prop[0], "theme_preference") == 0) {
-                return (strcmp(prop[1], "dark") == 0 ? 1 : 0);
+                break;
             }
         }
     }
-
     fclose(configFile);
 
-    return 0;
+    return (strcmp(prop[1], "dark") == 0 ? 1 : 0);
 }
 
 TokenInfos *getTokenFileInfos() {
@@ -193,4 +192,26 @@ const char *getOsName() {
     #else
         return "unfound";
     #endif
+}
+
+char *getLeakCheckKey() {
+    FILE *configFile = fopen(CONFIG_FILE_PATH, "rt");
+    if (configFile == NULL) return NULL;
+
+    char line[121];
+    char prop[2][40];
+    char *key = NULL;
+    while (fgets(line, 120, configFile) != NULL) {
+        // scan de la ligne pour en extraire la propriété et sa valeur
+        int res = sscanf(line, "%s : %s", prop[0], prop[1]);
+        if (res == 2) {
+            if (strcmp(prop[0], "leakcheck_key") == 0) {
+                key = strdup(prop[1]);
+                break;
+            }
+        }
+    }
+    fclose(configFile);
+
+    return key;
 }
