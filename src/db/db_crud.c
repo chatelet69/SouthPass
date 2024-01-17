@@ -522,6 +522,7 @@ LoginsList *getUniquesLoginsById(MYSQL *dbCon, const int userId) {
             int i = 0;
             while (mysql_stmt_fetch(stmt) == 0) {
                 char *tmp = strdup(actualLine);
+                // On ajoute chaque login à la liste
                 loginsList->logins[i] = (char *) malloc(sizeof(char) * strlen(tmp));
                 strcpy(loginsList->logins[i], tmp);
                 i++;

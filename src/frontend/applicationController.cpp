@@ -78,10 +78,13 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     qDebug() << "test8";
     pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
     qDebug() << "test9";
+    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+
     stackedWidget->addWidget(credsPage);
     stackedWidget->addWidget(logPage);
     stackedWidget->addWidget(pwdGen);
     stackedWidget->addWidget(pwdQual);
+    stackedWidget->addWidget(dataLeaksPage);
 
     mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);
@@ -161,6 +164,10 @@ void ApplicationController::switchToLoginPage() {
     stackedWidget->setCurrentWidget(logPage);
 }
 
+void ApplicationController::switchLeaksPage() {
+    stackedWidget->setCurrentWidget(dataLeaksPage);
+}
+
 int ApplicationController::getUserId() {
     return userId;
 }
@@ -185,6 +192,7 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
     menuOutils->addAction(pwdQuality);
     QAction *analysis = new QAction("Analyse des fuites de données", this);
     menuOutils->addAction(analysis);
+    connect(analysis, &QAction::triggered, this, &ApplicationController::switchLeaksPage);
 
     QMenu *menuSouthPass = menuBar->addMenu("SouthPass");
     QAction *deco = new QAction("Se déconnecter", this);
