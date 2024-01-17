@@ -3,11 +3,13 @@
 //
 #include <QLineEdit>
 #include <QFormLayout>
-#include <stdlib.h>
-#include <stdio.h>
 #include <QApplication>
+#include <QScrollArea>
+#include <QVBoxLayout>
 #include <QCheckBox>
+#include <QHBoxLayout>
 #include <QMessageBox>
+#include <QScrollArea>
 #include <QWidget>
 #include "../../includes/applicationController.h"
 #include "../../includes/pwdQuality.h"
@@ -16,9 +18,8 @@
 #include "../../includes/pincludes.h"
 
 PwdQualityPage::PwdQualityPage(QWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
-    QVBoxLayout * fenetre = new QVBoxLayout();
+    QVBoxLayout * fenetre = new QVBoxLayout(this);
     QTabWidget *onglets = new QTabWidget(this);
-
     fenetre->setObjectName("fenetreQuality");
     verifWeakPwd(onglets);
     weakPwdList(onglets);
@@ -82,36 +83,51 @@ void PwdQualityPage::weakPwdList(QTabWidget *onglets){
 }
 
 void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
-    QWidget *weakList = new QWidget;
+    scrollArea = new QScrollArea();
+
+    QWidget *reUsedList = new QWidget;
+    QVBoxLayout *verticalLayout = new QVBoxLayout(reUsedList);  // Utiliser reUsedList comme parent du layout
+
+    QVBoxLayout *hLayout = new QVBoxLayout();
     QLabel *listTitle = new QLabel();
     listTitle->setText("Mots de passes réutilisés :");
+    hLayout->addWidget(listTitle);
+    verticalLayout->addLayout(hLayout);
 
     TokenInfos *tokenInfos = getTokenFileInfos();
     struct PwdList *pwds = getUniquePwd(dbCon, tokenInfos->id);
-    for (int i = 0; i < pwds->size; ++i) {
-        printf("\n\n      Sites ayant le mot de passe : %s i : %d", pwds[i].pwd, i);
+    for (unsigned int i = 0; i < pwds->size; ++i) {
+        printf("\nI : %d", i);
+        QHBoxLayout *pwdListLayout = new QHBoxLayout();
+        char pwdList[200];
+        sprintf(pwdList, "Sites ayant le mot de passe : %s", pwds[i].pwd);
+        QLabel *displayPwd = new QLabel();
+        displayPwd->setText(pwdList);
+        pwdListLayout->addWidget(displayPwd);
+        verticalLayout->addLayout(pwdListLayout);
         struct WebsiteByPwd *websites = getWebsiteByPwd(dbCon, pwds[i].pwd, tokenInfos->id);
-        for (int j = 0; j < websites->size; ++j) {
-            printf("\nSite : %s, login : %s", websites[j].website, websites[j].username);
+        for (unsigned int j = 0; j < websites->size; ++j) {
+            printf("\nJ = %d", j);
+            QHBoxLayout *websiteListLayout = new QHBoxLayout();
+            char websiteList[200];
+            sprintf(websiteList, "url : %s, login : %s", websites->website[j].website, websites->website[j].username);
+            QLabel *displayWeb = new QLabel();
+            displayWeb->setText(websiteList);
+            websiteListLayout->addWidget(displayWeb);
+            verticalLayout->addLayout(websiteListLayout);
         }
-        printf("\n");
-        for (int j = 0; j < websites->size; ++j) {
-            free(websites[j].website);
+        for (unsigned int k = 0; k < websites->size; ++k) {
+            free(websites->website[k].username);
+            free(websites->website[k].website);
         }
+        free(websites->website);
     }
-    for (int j = 0; j < pwds->size; ++j) {
+    for (unsigned int j = 0; j < pwds->size; ++j) {
         free(pwds[j].pwd);
     }
-/*
-    struct ReUsedPwdByWebsite *start = NULL;
-    start = getReUsedPwd(start,dbCon);
-    printReUsedPwd(start);
-*/
-    /*
-     * start = début de la liste des pwd faible avec url, username et pwd dans cette liste
-     * Faire l'affichage
-     */
+    free(pwds);
 
-    //    free(start);
-    onglets->addTab(weakList, "Liste mots de passes faibles");
+    scrollArea->setWidget(reUsedList);
+    onglets->addTab(scrollArea, "Mots de passes réutilisés");
+
 }
