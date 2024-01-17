@@ -26,20 +26,17 @@
 #include "../../includes/pwdGeneratorPage.h"
 
 ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(nullptr),*/ app(argc, argv) {
-    qDebug() << "a";
     isDark = getThemePreference();
     oldTheme = isDark;
     dbCon = dbConnect();
     stackedWidget = new QStackedWidget(NULL);
     userId = getUserIdByToken(dbCon);
-    qDebug() << "userId : " << userId;
 
     QWidget *mainWidget = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainWidget->setLayout(mainLayout);
     stackedWidget->setParent(mainWidget);
 
-    qDebug() << "test1";
 
     QString styleSheet = this->getStyleSheet();
     app.setStyleSheet(styleSheet);
@@ -47,7 +44,6 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     QMenuBar *menuBar = new QMenuBar(nullptr);
     importMenu(menuBar);
 
-    qDebug() << "test2";
 
     QWidget *headerWidget = new QWidget();
     headerWidget->setObjectName("headerWidget");
@@ -57,26 +53,21 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     themeButton->setObjectName("themeButton");
     connect(themeButton, &QPushButton::clicked, [=]() { this->changeTheme(themeButton); });
 
-    qDebug() << "test3";
 
     const char *themeIconPath = (isDark) ? lightModeIcon : darkModeIcon;
     QIcon icon(themeIconPath);
     themeButton->setIcon(icon);
 
-    qDebug() << "test4";
 
     headerLayout->addWidget(menuBar, 0, Qt::AlignLeft);
     headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
 
-    qDebug() << "test5";
 
     logPage = new LoginPage(stackedWidget, this, dbCon);
-    qDebug() << "test6";
     credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
-    qDebug() << "test7";
     pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
-    qDebug() << "test8";
     pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
+
     qDebug() << "test9";
     dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
 

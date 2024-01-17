@@ -30,5 +30,8 @@ private Q_SLOTS:
 
 private:
     MYSQL *dbCon;
+    QVBoxLayout *contentLayout;
+    QScrollArea *scrollArea;
+    CredentialEditWidget *credentialEditWidget;
 };
 #endif //SOUTHPASS_PWDQUAL_H

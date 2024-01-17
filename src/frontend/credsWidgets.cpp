@@ -31,9 +31,9 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, CredsArray *credsArray) : 
     QWidget *credsContainer = new QWidget(this);
     credsContainer->setObjectName("credsContainer");
     QVBoxLayout *credsLayout = new QVBoxLayout(credsContainer);
-    qDebug() << "credsContainer : " << credsArray->size << " : " << credsArray->credentials;
+    // qDebug() << "credsContainer : " << credsArray->size << " : " << credsArray->credentials;
     if (credsArray->size > 0) {
-        qDebug() << "size is not 0 : " << credsArray->size;
+       // qDebug() << "size is not 0 : " << credsArray->size;
         for (unsigned int i = 0; i < credsArray->size; i++){
             QWidget *credContainer = new QWidget(this);
             credContainer->setObjectName("credBox");
@@ -77,7 +77,7 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, CredsArray *credsArray) : 
 }
 
 void CredentialsWidget::showEditCred(const int credId, QString name, QString login, QString password) {
-    qDebug() << "name: " << name << " : " << login << " : " <<  password;
+    //qDebug() << "name: " << name << " : " << login << " : " <<  password;
     this->credentialEditWidget = new CredentialEditWidget(this, credId, name, login, password);
     this->credentialEditWidget->setCredId(credId);
     this->credentialEditWidget->setLoginName(name);

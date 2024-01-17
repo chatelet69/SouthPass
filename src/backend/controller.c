@@ -72,10 +72,8 @@ int getUserIdByToken(MYSQL *dbCon) {
 
     if (tokenInfos != NULL) {
         int res = getUserByTokenInfos(dbCon, tokenInfos->token, tokenInfos->id);
-        printf("tokenInfos != null  : %d\n", res);
         int id = tokenInfos->id;
         free(tokenInfos);
-        printf("tokenInfos before return : %d\n", id);
         if (res == 1) return id;
     }
 
