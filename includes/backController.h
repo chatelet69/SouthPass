@@ -27,5 +27,6 @@ void freeLeaksList(struct LeaksList *list);
 LeaksList *getDataLeaks(MYSQL *dbCon, const int userId);
 int getRemainingCreditsIntelx();
 LeaksList *getDataLeaksFromLeakCheck(MYSQL *dbCon, const int userId);
+CredsArray *searchCredsBy(MYSQL *dbCon, int userId, char *searchValue, const char *searchType);
 
 #endif
