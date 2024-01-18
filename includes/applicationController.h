@@ -37,7 +37,6 @@ class MainWindow : public QMainWindow {
 
     private:
         ApplicationController& appController;
-
         void onApplicationMove(QMoveEvent *event);
 };
 

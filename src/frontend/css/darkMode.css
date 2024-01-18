@@ -1,7 +1,7 @@
 /* Dark Mode Main Window */
 
 QMainWindow {
-    background-color: rgb(112, 112, 145);
+    background-color: #617073;
 }
 
 QApplication {
@@ -11,15 +11,16 @@ QApplication {
 /* Header */
 
 #headerWidget {
-    border: 2px solid red;
+    border: 5px solid red;
+    height: 15px;
 }
+
 
 #themeButton {
     background-color: rgb(238, 238, 238);
     border-radius: 4px;
-    height: auto;
-    width: auto;
-    max-width: 30px;
+    height: 15px;
+    width: 15px;
     border: 2px solid transparent;
 }
 
@@ -143,4 +144,38 @@ QApplication {
     border: 1px solid rgb(167, 167, 167);
     border-radius: 8px;
     padding: 5px;
+}
+#displayNbWebsites{
+    color: white;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    font-size: 24px;
+}
+#backPwdQuality{
+    background-color: #7A93AC;
+}
+
+#boxPwdQuality {
+    background-color: white;
+    border-radius: 4px;
+    padding: 20px 20px 20px 20px;
+}
+#boxPwd{
+    padding: 10px;
+}
+
+#solidityPwd{
+    background-color: white;
+    border-radius: 4px;
+    padding: 20px 20px 20px 20px;
+    font-size: 12px;
+}
+#verifTitle{
+    font-size: 24px;
+    color: white;
+    margin: 10px;
+}
+#pwdInput{
+    width: 70%;
 }
