@@ -176,10 +176,10 @@ CredsToolBarWidget::CredsToolBarWidget(QWidget *parent, MYSQL *dbCon) : QWidget(
     connect(searchInput, &QLineEdit::textChanged, this, &CredsToolBarWidget::searchCreds);
 
     QComboBox *searchType = new QComboBox();
-    searchType->setPlaceholderText("Type");
     searchType->setObjectName("credsSearchTypeBox");
+    searchType->insertItem(0, "Email");
     searchType->insertItem(1, "Site");
-    searchType->insertItem(0, "Mail");
+    searchType->setCurrentIndex(0);
 
     toolBarLayout->addWidget(searchInput);
     toolBarLayout->addWidget(searchType);
