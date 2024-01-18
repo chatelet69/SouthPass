@@ -10,47 +10,54 @@
 #include <QCheckBox>
 
 PwdGenerator::PwdGenerator(QWidget *parent,ApplicationController *, MYSQL *dbCon){
-    QLabel *pwdGenTitle = new QLabel(this);
-    pwdGenTitle->setText("Générateur mot de passe :");
+    QVBoxLayout * fenetre = new QVBoxLayout(this);
+    QWidget * mainWidget = new QWidget();
+    mainWidget->setObjectName("genPwdMain");
+    QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
     QFormLayout *layoutPwdGen = new QFormLayout;
+
+    QLabel *pwdGenTitle = new QLabel();
+    pwdGenTitle->setText("Générer un mot de passe :");
+    pwdGenTitle->setAlignment(Qt::AlignCenter);
+    pwdGenTitle->setObjectName("genPwdTitle");
     QSpinBox *lengthPwd = new QSpinBox();
     lengthPwd->setMinimum(8);
     lengthPwd->setMaximum(40);
     lengthPwd->setValue(25);
     lengthPwd->setSingleStep(1);
 
-    QCheckBox *useMajChars = new QCheckBox("Utiliser des lettres majuscules (A-Z)", this);
-    QCheckBox *useNumbers = new QCheckBox("Utiliser des chiffres (0-9)", this);
-    QCheckBox *useSymbols = new QCheckBox("Utiliser des symboles (@!$%&*)", this);
+    QCheckBox *useMajChars = new QCheckBox("Utiliser des lettres majuscules (A-Z)");
+    QCheckBox *useNumbers = new QCheckBox("Utiliser des chiffres (0-9)");
+    QCheckBox *useSymbols = new QCheckBox("Utiliser des symboles (@!$%&*)");
     QPushButton *genPwdBtn = new QPushButton("Générer le mot de passe");
 
 
-    layoutPwdGen->addRow(pwdGenTitle);
+    mainLayout->addWidget(pwdGenTitle);
     layoutPwdGen->addRow("Longueur du mot de passe :", lengthPwd);
     layoutPwdGen->addRow(useMajChars);
     layoutPwdGen->addRow(useNumbers);
     layoutPwdGen->addRow(useSymbols);
     layoutPwdGen->addRow(genPwdBtn);
-    QLabel *titleResultPwd = new QLabel(this);
-    QLabel *resultPwd = new QLabel(this);
-    layoutPwdGen->addRow(titleResultPwd);
-    layoutPwdGen->addRow(resultPwd);
+    mainLayout->addLayout(layoutPwdGen);
 
-
-    setLayout(layoutPwdGen);
-
+    QLabel *titleResultPwd = new QLabel("Mot de passe généré :");
+    mainLayout->addWidget(titleResultPwd);
+    // mainWidget->setLayout(mainLayout);
+    fenetre->addWidget(mainWidget);
+    setLayout(fenetre);
     connect(genPwdBtn, &QPushButton::clicked, this, [=](){
 
-        int verifLength, verifMaj, verifNum, verifSymbols, length;
+        int verifMaj, verifNum, verifSymbols, length;
 
         useMajChars->isChecked() ? verifMaj = 1 : verifMaj = 0;
         useNumbers->isChecked() ? verifNum = 1 : verifNum = 0;
         useSymbols->isChecked() ? verifSymbols = 1 : verifSymbols = 0;
         length = lengthPwd->value();
 
-        titleResultPwd->setText("Mot de passe généré :");
-        resultPwd->setText(generatePwd(length, verifMaj, verifNum, verifSymbols));
-        setLayout(layoutPwdGen);
+        char result[200];
+        sprintf(result, "Mot de passe généré : %s", generatePwd(length, verifMaj, verifNum, verifSymbols));
+        titleResultPwd->setText(result);
+        setLayout(fenetre);
         return 0;
     });
 }

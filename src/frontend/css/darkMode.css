@@ -179,3 +179,15 @@ QApplication {
 #pwdInput{
     width: 70%;
 }
+QCheckBox:checked{
+    background-color: lightskyblue;
+    width: 40px;
+}
+#genPwdMain{
+    background-color: #7A93AC;
+    border: 2px solid white;
+}
+#genPwdTitle{
+    color: white;
+    font-size: 24px;
+}
