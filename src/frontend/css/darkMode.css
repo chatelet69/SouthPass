@@ -11,8 +11,35 @@ QApplication {
 /* Header */
 
 #headerWidget {
-    border: 5px solid red;
-    height: 15px;
+    /*border: 2px solid red;*/
+    background-color: transparent;
+}
+
+#headerWidget QMenuBar {
+    background-color: rgb(103, 127, 189);
+    border: none;
+    font-weight: bold;
+    color: white;
+    padding: 6px;
+    spacing: 10px;
+    border-radius: 6px;
+}
+
+#headerWidget QMenuBar::item {
+    padding: 6px;
+    border-radius: 6px;
+}
+
+#headerWidget QMenu {
+    color: white;
+    font-weight: bold;
+    border-radius: 6px;
+    background-color: #6da1b1;
+}
+
+#headerWidget QMenu::selected {
+    background-color: rgba(255, 255, 255, 0.489);
+    color: gray;
 }
 
 

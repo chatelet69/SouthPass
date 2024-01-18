@@ -4,7 +4,9 @@
 
 #ifndef SOUTHPASS_PWDGENCONTROLLER_H
 #define SOUTHPASS_PWDGENCONTROLLER_H
+
 #include "pincludes.h"
 #include <time.h>
 char * generatePwd(int length, int useMajChars, int useNumbers, int useSymbols);
+
 #endif //SOUTHPASS_PWDGENCONTROLLER_H

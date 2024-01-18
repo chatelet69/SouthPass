@@ -35,5 +35,6 @@ ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId);
 struct PwdList *getUniquePwd(MYSQL *dbCon, int userId);
 struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id);
 LoginsList *getUniquesLoginsById(MYSQL *dbCon, const int userId);
+CredsArray *getPasswordsListBy(MYSQL *dbCon, int userId, char *searchValue, const char *searchType);
 
 #endif

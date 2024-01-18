@@ -17,7 +17,6 @@ CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbConnection, int userI
     toolBarWidget = new CredsToolBarWidget(this, this->dbCon);
 
     CredsArray *credsArray = getPasswordsList(this->dbCon, this->userId);
-    // printCreds(credsArray->credentials, credsArray->size);
     credentialsWidget = new CredentialsWidget((QWidget *) this, credsArray);
     credentialsWidget->setObjectName("credsWidget");
     freeCredsArray(credsArray);
@@ -37,4 +36,27 @@ void CredentialsPage::initCredsListWidget() {
     //this->credentialsWidget = new CredentialsWidget(this, credsArray);
     //credentialsWidget->setObjectName("credsWidget");
     //freeCredsArray(credsArray);
+}
+
+void CredentialsPage::showAllCredentials() {
+    CredsArray *credsArray = getPasswordsList(this->dbCon, this->userId);
+
+    if (credsArray != NULL) {
+        if (credsArray->size > 0) this->credentialsWidget->updateCredentialsList(credsArray);
+        freeCredsArray(credsArray);
+        free(credsArray);
+    }
+}
+
+void CredentialsPage::refreshSearchCreds(char *searchedValue) {
+    if (searchedValue != NULL) {
+        CredsArray *credsArray = searchCredsBy(this->dbCon, this->userId, searchedValue, "loginName");
+
+        if (credsArray != NULL) {
+            if (credsArray->size > 0) this->credentialsWidget->updateCredentialsList(credsArray);
+            freeCredsArray(credsArray);
+            free(credsArray);
+        }
+
+    }
 }

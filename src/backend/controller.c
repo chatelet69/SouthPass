@@ -154,3 +154,18 @@ void freeExportList(ExportList *exportList) {
     exportList->lines = NULL;
     exportList->count = 0;
 }
+
+CredsArray *searchCredsBy(MYSQL *dbCon, int userId, char *searchValue, const char *searchType) {
+    if (searchValue != NULL) {
+        if (strlen(searchValue) > 255 || strlen(searchValue) == 0) return NULL;
+        char *finalSearch = (char *) malloc(sizeof(char) * (strlen(searchValue) + 5));
+        sprintf(finalSearch, "%s%%", searchValue);
+
+        CredsArray *credsArray = getPasswordsListBy(dbCon, userId, finalSearch, searchType);
+        free(finalSearch);
+
+        return credsArray;
+    }
+
+    return NULL;
+}

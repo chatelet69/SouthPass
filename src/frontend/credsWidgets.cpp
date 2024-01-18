@@ -28,9 +28,9 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, CredsArray *credsArray) : 
     scrollArea->setMinimumHeight(300);
     scrollArea->setMaximumHeight(600);
 
-    QWidget *credsContainer = new QWidget(this);
+    credsContainer = new QWidget(this);
     credsContainer->setObjectName("credsContainer");
-    QVBoxLayout *credsLayout = new QVBoxLayout(credsContainer);
+    credsLayout = new QVBoxLayout(credsContainer);
     // qDebug() << "credsContainer : " << credsArray->size << " : " << credsArray->credentials;
     if (credsArray->size > 0) {
        // qDebug() << "size is not 0 : " << credsArray->size;
@@ -74,6 +74,7 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, CredsArray *credsArray) : 
     scrollArea->setWidget(credsContainer);
     contentLayout->addWidget(scrollArea);
     setLayout(contentLayout);
+    this->show();
 }
 
 void CredentialsWidget::showEditCred(const int credId, QString name, QString login, QString password) {
@@ -84,6 +85,40 @@ void CredentialsWidget::showEditCred(const int credId, QString name, QString log
     this->credentialEditWidget->setLogin(login);
     this->credentialEditWidget->setPassword(password);
     this->credentialEditWidget->show();
+}
+
+void CredentialsWidget::updateCredentialsList(CredsArray *credsArray) {
+    if (credsArray != NULL) {
+        ApplicationController *tmpApp;
+        dynamic_cast<ApplicationController*>(tmpApp)->deleteChildsOfLayout(credsLayout);
+
+        for (unsigned int i = 0; i < credsArray->size; i++) {
+            QWidget *credContainer = new QWidget(this);
+            credContainer->setObjectName("credBox");
+            QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
+
+            QWidget *labelsContainer = new QWidget(credContainer);
+            QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
+
+            QLabel *labelName = new QLabel(QString("Nom : %1").arg(credsArray->credentials[i].name));
+            QLabel *labelLogin = new QLabel(QString("Login : %1").arg(credsArray->credentials[i].loginName));
+            QLabel *labelPassword = new QLabel(QString("Mot de passe : %1").arg(credsArray->credentials[i].password));
+
+            labelsContainer->setObjectName("credDetailsBox");
+            labelsContainerLayout->addWidget(labelName);
+            labelsContainerLayout->addWidget(labelLogin);
+            labelsContainerLayout->addWidget(labelPassword);
+
+            QPushButton *button = new QPushButton("Modifier");
+            button->setObjectName("editCredButton");
+            connect(button, &QPushButton::clicked, [=](){});
+
+            credContainerLayout->addWidget(labelsContainer);
+            credContainerLayout->addWidget(button);
+            credsLayout->addWidget(credContainer);
+        }
+    }
+    this->repaint();
 }
 
 // CredsForm
@@ -135,15 +170,16 @@ CredsToolBarWidget::CredsToolBarWidget(QWidget *parent, MYSQL *dbCon) : QWidget(
     newCredsButton->setObjectName("newCredsButton");
     connect(newCredsButton, &QPushButton::clicked, this, &CredsToolBarWidget::showCredsForm);
 
-    QLineEdit *searchInput = new QLineEdit();
-    searchInput->setPlaceholderText("Chercher un id");
+    searchInput = new QLineEdit();
+    searchInput->setPlaceholderText("Chercher un identifiant");
     searchInput->setObjectName("searchCredsInput");
+    connect(searchInput, &QLineEdit::textChanged, this, &CredsToolBarWidget::searchCreds);
 
     QComboBox *searchType = new QComboBox();
-    searchType->setPlaceholderText("Type");
     searchType->setObjectName("credsSearchTypeBox");
+    searchType->insertItem(0, "Email");
     searchType->insertItem(1, "Site");
-    searchType->insertItem(0, "Mail");
+    searchType->setCurrentIndex(0);
 
     toolBarLayout->addWidget(searchInput);
     toolBarLayout->addWidget(searchType);
@@ -152,6 +188,16 @@ CredsToolBarWidget::CredsToolBarWidget(QWidget *parent, MYSQL *dbCon) : QWidget(
 
 void CredsToolBarWidget::showCredsForm() {
     form->quickWidget->show();
+}
+
+void CredsToolBarWidget::searchCreds() {
+    QString inputValue = this->searchInput->text();
+    if ((int) inputValue.size() > 0) {
+        QByteArray inputByteArray = inputValue.toUtf8();
+        ((CredentialsPage*)parentWidget())->refreshSearchCreds(inputByteArray.data());
+    } else {
+        ((CredentialsPage*)parentWidget())->showAllCredentials();
+    }
 }
 
 // Cred Edit Window

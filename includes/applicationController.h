@@ -52,6 +52,7 @@ class ApplicationController : public QObject {
 
         QApplication& getApplication();
         int getUserId();
+        void deleteChildsOfLayout(QLayout *layout);
 
     public Q_SLOTS:
         void importMenu(QMenuBar *);

@@ -42,6 +42,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     app.setStyleSheet(styleSheet);
 
     QMenuBar *menuBar = new QMenuBar(nullptr);
+    //menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     importMenu(menuBar);
 
     QWidget *headerWidget = new QWidget();
@@ -56,7 +57,8 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     QIcon icon(themeIconPath);
     themeButton->setIcon(icon);
 
-    headerLayout->addWidget(menuBar, 0, Qt::AlignLeft);
+    headerLayout->addWidget(menuBar, 15, Qt::AlignLeft);
+    //headerLayout->addWidget(menuBar);
     headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
 
 
@@ -128,7 +130,6 @@ QString ApplicationController::getStyleSheet() {
 
 void ApplicationController::switchCredsPage() {
     if(isConnected() == 0) {
-        //refreshCredsPage();
         stackedWidget->setCurrentWidget(credsPage);
     }
 }
@@ -162,6 +163,7 @@ int ApplicationController::getUserId() {
 void ApplicationController::importMenu(QMenuBar *menuBar){
 // MENU
     QMenu *menuFichier = menuBar->addMenu("Fichiers");
+    menuFichier->setObjectName("fileMenu");
     QAction *importPwd = new QAction("Importer des mots de passes", this);
     menuFichier->addAction(importPwd);
     QAction *exportPwd = new QAction("Exporter des mots de passes", this);
@@ -171,6 +173,7 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
     connect(exportPwd, &QAction::triggered, this, &ApplicationController::exportPasswords);
 
     QMenu *menuOutils = menuBar->addMenu("Outils");
+    menuOutils->setObjectName("toolsMenu");
     QAction *seePwd = new QAction("Voir mes mots de passes", this);
     menuOutils->addAction(seePwd);
     QAction *pwdGenerator = new QAction("Générateur de mot passes", this);
@@ -241,4 +244,12 @@ void ApplicationController::refreshCredsPage() {
     CredentialsPage *newCredsPage = new CredentialsPage(NULL, dbCon, userId);
     credsPage = newCredsPage;
     stackedWidget->insertWidget(oldPageIndex, credsPage);
+}
+
+void ApplicationController::deleteChildsOfLayout(QLayout *layout) {
+    QLayoutItem *child;
+    while ((child = layout->takeAt(0)) != nullptr) {
+        delete child->widget();
+        delete child;
+    }
 }
