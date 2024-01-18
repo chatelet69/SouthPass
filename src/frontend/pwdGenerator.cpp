@@ -1,6 +1,8 @@
-//
-// Created by mathf on 08/01/2024.
-//
+/*
+    Filename : pwdGenerator.cpp
+    Description : Password Generator Page
+*/
+
 #include "../../includes/pincludes.h"
 #include "../../includes/pwdGenController.h"
 #include <QAbstractSlider>
