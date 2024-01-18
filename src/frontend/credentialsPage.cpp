@@ -4,9 +4,9 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QMainWindow>
-#include "../../includes/applicationController.h"
+#include "../../includes/applicationController.hpp"
 #include "../../includes/db.h"
-#include "../../includes/credentialsWidget.h"
+#include "../../includes/credentialsWidget.hpp"
 #include "../../includes/pincludes.h"
 
 CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbConnection, int userId) : QWidget(parent), dbCon(dbCon) {

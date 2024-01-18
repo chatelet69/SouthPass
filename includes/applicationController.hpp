@@ -7,11 +7,11 @@
 #include <QLabel>
 #include <QStackedWidget>
 #include "./db.h"
-#include "./credentialsWidget.h"
-#include "./loginPage.h"
+#include "./credentialsWidget.hpp"
+#include "./loginPage.hpp"
 #include "./pwdGeneratorPage.h"
 #include "./pwdQuality.h"
-#include "./dataLeak.h"
+#include "./dataLeak.hpp"
 
 #define APPLICATION_NAME "SouthPass"
 

@@ -8,7 +8,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QStyle>
-#include "../../includes/applicationController.h"
+#include "../../includes/applicationController.hpp"
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), appController(appController) 
 {

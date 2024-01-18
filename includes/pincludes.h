@@ -10,13 +10,13 @@
 
 #include "db.h"
 #include "webService.h"
-#include "applicationController.h"
+#include "applicationController.hpp"
 #include "utils.h"
 #include "backController.h"
 #include "backLoginSignIn.h"
-#include "credentialsWidget.h"
+#include "credentialsWidget.hpp"
 #include "models.h"
-#include "loginPage.h"
+#include "loginPage.hpp"
 #include "backLoginSignIn.h"
 #include <string.h>
 #include "pwdGeneratorPage.h"

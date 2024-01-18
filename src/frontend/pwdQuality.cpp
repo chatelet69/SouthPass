@@ -11,7 +11,7 @@
 #include <QMessageBox>
 #include <cstdlib>
 #include <QWidget>
-#include "../../includes/applicationController.h"
+#include "../../includes/applicationController.hpp"
 #include "../../includes/pwdQuality.h"
 #include "../../includes/backPwdQuality.h"
 #include "../../includes/fileController.h"

@@ -15,8 +15,8 @@
 #include <QQmlContext>
 #include <QComboBox>
 #include <QQuickWidget>
-#include "../../includes/credentialsWidget.h"
-#include "../../includes/applicationController.h"
+#include "../../includes/credentialsWidget.hpp"
+#include "../../includes/applicationController.hpp"
 #include "../../includes/backController.h"
 #include "../../includes/models.h"
 

@@ -19,7 +19,7 @@
 #include <QHBoxLayout>
 #include "../../includes/models.h"
 #include "../../includes/db.h"
-#include "../../includes/applicationController.h"
+#include "../../includes/applicationController.hpp"
 #include "../../includes/pincludes.h"
 #include "../../includes/pwdQuality.h"
 #include "../../includes/fileController.h"
