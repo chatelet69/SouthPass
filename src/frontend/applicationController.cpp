@@ -5,6 +5,7 @@
 
 #include <QFile>
 #include <QMenu>
+#include <QMainWindow>
 #include <QAction>
 #include <QMenuBar>
 #include <QDebug>
