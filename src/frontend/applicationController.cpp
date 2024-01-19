@@ -1,6 +1,6 @@
 /*
     Filename : applicationController.cpp
-    Description: Qt Application Controller
+    Description: Qt / SouthPass Application Controller
 */
 
 #include <QFile>
@@ -144,7 +144,8 @@ QString ApplicationController::getStyleSheet() {
 }
 
 void ApplicationController::switchCredsPage() {
-    if(isConnected() == 0) {
+    if(isConnected() == 0 && this->credsPage != NULL) {
+        this->credsPage->showAllCredentials();
         stackedWidget->setCurrentWidget(credsPage);
     }
 }

@@ -8,7 +8,7 @@
 #include "../../includes/fileController.h"
 #include "../../includes/backLoginSignIn.h"
 
-char * testPwd(char * pwd){
+const char *testPwd(char * pwd){
     if(pwd == NULL)
         return NULL;
 
