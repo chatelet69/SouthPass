@@ -23,7 +23,7 @@ PwdQualityPage::PwdQualityPage(QWidget *parent, ApplicationController *appContro
     fenetre->setObjectName("fenetreQuality");
     verifWeakPwd(onglets);
     weakPwdList(onglets);
-    reUsedPwd(onglets);
+    this->reUsedPwd(onglets);
     fenetre->addWidget(onglets);
 }
 

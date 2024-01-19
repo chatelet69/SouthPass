@@ -50,43 +50,12 @@ void CredentialsWidget::importCredentialsList(CredsArray *credsArray) {
         QWidget *credContainer = new QWidget(this);
         credContainer->setObjectName("credBox");
         QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
-            
+
         QWidget *labelsContainer = new QWidget(credContainer);
-        QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
-
-        QLabel *labelName = new QLabel(QString("Nom : %1").arg(credsArray->credentials[i].name));
-        QLabel *labelLogin = new QLabel(QString("Login : %1").arg(credsArray->credentials[i].loginName));
-        QLabel *labelPassword = new QLabel(QString("Mot de passe : %1").arg(credsArray->credentials[i].password));
-
-        labelsContainer->setObjectName("credDetailsBox");
-        labelsContainerLayout->addWidget(labelName);
-        labelsContainerLayout->addWidget(labelLogin);
-        labelsContainerLayout->addWidget(labelPassword);
+        this->importCredDetailsBox(labelsContainer, &credsArray->credentials[i]);
 
         QWidget *buttonsContainer = new QWidget(this);
-        QVBoxLayout *buttonsLayout = new QVBoxLayout(buttonsContainer);
-        QPushButton *editCredButton = new QPushButton("Modifier");
-        editCredButton->setObjectName("editCredButton");
-        connect(editCredButton, &QPushButton::clicked, [=](){
-            //QString tmpName = QString::fromUtf8(credsArray->credentials[i].loginName, -1);
-            //qDebug() << "tmpName : " << tmpName;
-            // QString tmpLogin = new QString("%1").arg(credsArray.creds[i].loginName);
-            // QString tmpPass = new QString("%1").arg(credsArray.creds[i].password);
-            // showEditCred(credsArray.creds[i].id, tmpName, tmpLogin, tmpPass);
-        });
-
-        QPushButton *deleteCredButton = new QPushButton("Supprimer");
-        deleteCredButton->setObjectName("deleteCredButton");
-        deleteCredButton->setProperty("credentialId", credsArray->credentials[i].id);
-        deleteCredButton->setProperty("credentialUserId", credsArray->credentials[i].userId);
-        connect(deleteCredButton, &QPushButton::clicked, [=]() {
-            int credId = deleteCredButton->property("credentialId").toInt();
-            int userId = deleteCredButton->property("credentialUserId").toInt();
-            ((CredentialsPage*)(this->parent()))->deleteCredential(credId, userId);
-        });
-
-        buttonsLayout->addWidget(editCredButton);
-        buttonsLayout->addWidget(deleteCredButton);
+        this->importCredButtons(buttonsContainer, labelsContainer, &credsArray->credentials[i]);
 
         credContainerLayout->addWidget(labelsContainer);
         credContainerLayout->addWidget(buttonsContainer);
@@ -94,12 +63,8 @@ void CredentialsWidget::importCredentialsList(CredsArray *credsArray) {
     }
 }
 
-void CredentialsWidget::showEditCred(const int credId, QString name, QString login, QString password) {
+void CredentialsWidget::showEditCred(const int credId, const int userId, QString name, QString login, QString password) {
     this->credentialEditWidget = new CredentialEditWidget(this, credId, name, login, password);
-    this->credentialEditWidget->setCredId(credId);
-    this->credentialEditWidget->setLoginName(name);
-    this->credentialEditWidget->setLogin(login);
-    this->credentialEditWidget->setPassword(password);
     this->credentialEditWidget->show();
 }
 
@@ -111,6 +76,64 @@ void CredentialsWidget::updateCredentialsList(CredsArray *credsArray) {
         this->importCredentialsList(credsArray);
     }
     this->repaint();
+}
+
+void CredentialsWidget::importCredDetailsBox(QWidget *labelsContainer, Credentials *credentials) {
+    if (credentials != NULL && labelsContainer != NULL) {
+        QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
+
+        //QWidget *namesLabelsContainer = new QWidget(this);
+        //QVBoxLayout *nameLabelsLayout = new QVBoxLayout(namesLabelsContainer);
+        //QLabel *labelNameTitle = new QLabel("Nom");
+        //QLabel *labelNameText = new QLabel(credentials->name);
+        //nameLabelsLayout->addWidget(labelNameTitle);
+        //nameLabelsLayout->addWidget(labelNameText);
+        //namesLabelsContainer->setObjectName("nameLabelsContainer");
+        QLabel *nameLabel = new QLabel(QString("Nom : %1").arg(credentials->name));
+        nameLabel->setObjectName("nameLabel");
+
+        QLabel *loginLabel = new QLabel(QString("Login : %1").arg(credentials->loginName));
+        loginLabel->setObjectName("loginLabel");
+        QLabel *passwordLabel = new QLabel(QString("Mot de passe : %1").arg(credentials->password));
+        passwordLabel->setObjectName("passwordLabel");
+
+        labelsContainer->setObjectName("credDetailsBox");
+        labelsContainerLayout->addWidget(nameLabel);
+        labelsContainerLayout->addWidget(loginLabel);
+        labelsContainerLayout->addWidget(passwordLabel);
+    }
+}
+
+void CredentialsWidget::importCredButtons(QWidget *buttonsContainer, QWidget *labelsContainer, Credentials *credentials) {
+    if (credentials != NULL && buttonsContainer != nullptr && labelsContainer != nullptr) {
+        QVBoxLayout *buttonsLayout = new QVBoxLayout(buttonsContainer);
+        
+        QPushButton *editCredButton = new QPushButton("Modifier");
+        editCredButton->setObjectName("editCredButton");
+        editCredButton->setProperty("credentialId", credentials->id);
+        editCredButton->setProperty("credentialUserId", credentials->userId);
+        connect(editCredButton, &QPushButton::clicked, [=](){
+            QString tmpName = (labelsContainer->findChild<QLabel*>("nameLabel"))->text();
+            QString tmpLoginName = (labelsContainer->findChild<QLabel*>("loginLabel"))->text();
+            QString tmpPass = (labelsContainer->findChild<QLabel*>("passwordLabel"))->text();
+            int credId = editCredButton->property("credentialId").toInt();
+            int userId = editCredButton->property("credentialUserId").toInt();
+            this->showEditCred(credId, userId, tmpName, tmpLoginName, tmpPass);
+        });
+
+        QPushButton *deleteCredButton = new QPushButton("Supprimer");
+        deleteCredButton->setObjectName("deleteCredButton");
+        deleteCredButton->setProperty("credentialId", credentials->id);
+        deleteCredButton->setProperty("credentialUserId", credentials->userId);
+        connect(deleteCredButton, &QPushButton::clicked, [=]() {
+            int credId = deleteCredButton->property("credentialId").toInt();
+            int userId = deleteCredButton->property("credentialUserId").toInt();
+            ((CredentialsPage*)(this->parent()))->deleteCredential(credId, userId);
+        });
+
+        buttonsLayout->addWidget(editCredButton);
+        buttonsLayout->addWidget(deleteCredButton);
+    }
 }
 
 // CredsForm
@@ -207,20 +230,27 @@ void CredsToolBarWidget::searchCreds() {
 
 CredentialEditWidget::CredentialEditWidget(QWidget *parent, const int credId, QString loginName, QString login, QString password) {
     this->setWindowTitle("Editer l'identifiant");
+    QScreen *primaryScreen = QGuiApplication::primaryScreen();
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, QSize(300, 300), primaryScreen->availableGeometry()));
 
     QWidget *labelsContainer = new QWidget(this);
     QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
 
-    QLineEdit *nameInput = new QLineEdit(this);
+    QWidget *nameEditContainer = new QWidget(this);
+    QVBoxLayout *nameEditLayout = new QVBoxLayout(nameEditContainer);
+
     QLabel *labelName = new QLabel("Nom :");
-    nameInput->insert(loginName);
-    nameInput->setParent(labelName);
+    QLineEdit *nameInput = new QLineEdit(nameEditContainer);
+    nameInput->insert(loginName.split(": ")[1]);
+    //nameInput->setParent(labelName);
+    nameEditLayout->addWidget(labelName);
+    nameEditLayout->addWidget(nameInput);
 
     QLabel *labelLogin = new QLabel("Login :");
     QLabel *labelPassword = new QLabel("Mot de passe :");
 
     labelsContainer->setObjectName("credDetailsBox");
-    labelsContainerLayout->addWidget(labelName);
+    labelsContainerLayout->addWidget(nameEditContainer);
     labelsContainerLayout->addWidget(labelLogin);
     labelsContainerLayout->addWidget(labelPassword);
 }

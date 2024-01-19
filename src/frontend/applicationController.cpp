@@ -41,6 +41,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
 
     QString styleSheet = this->getStyleSheet();
     app.setStyleSheet(styleSheet);
+    //app.setStyle(QStyleFactory::create("Windows"));
 
     QWidget *headerWidget = new QWidget();
     this->importHeader(headerWidget);

@@ -74,7 +74,7 @@ class CredentialsWidget : public QWidget {
         void importCredentialsList(CredsArray *credsArray);
 
     public Q_SLOTS:
-        void showEditCred(const int credId, QString name, QString login, QString password);
+        void showEditCred(const int credId, const int userId, QString name, QString login, QString password);
 
     private:
         QVBoxLayout *contentLayout;
@@ -82,6 +82,9 @@ class CredentialsWidget : public QWidget {
         CredentialEditWidget *credentialEditWidget;
         QWidget *credsContainer;
         QVBoxLayout *credsLayout;
+
+        void importCredDetailsBox(QWidget *labelsContainer, Credentials *credentials);
+        void importCredButtons(QWidget *buttonsContainer, QWidget *labelsContainer, Credentials *credentials);
 };
 
 class CredentialsPage : public QWidget {
