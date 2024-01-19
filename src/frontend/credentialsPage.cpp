@@ -11,7 +11,7 @@
 
 CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbConnection, int userId) : QWidget(parent), dbCon(dbCon) {
     this->dbCon = dbConnection;
-    this->setUserId(userId);
+    this->userId = userId;
     QVBoxLayout *layout = new QVBoxLayout();
 
     toolBarWidget = new CredsToolBarWidget(this, this->dbCon);
@@ -27,15 +27,13 @@ CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbConnection, int userI
     setLayout(layout);
 }
 
-void CredentialsPage::setUserId(int newId) {
-    this->userId = newId;
+CredentialsPage::~CredentialsPage() {
+    delete toolBarWidget;
+    delete credentialsWidget;
 }
 
-void CredentialsPage::initCredsListWidget() {
-    //CredsArray credsArray = getPasswordsList(this->dbCon, this->userId);
-    //this->credentialsWidget = new CredentialsWidget(this, credsArray);
-    //credentialsWidget->setObjectName("credsWidget");
-    //freeCredsArray(credsArray);
+void CredentialsPage::setUserId(int newId) {
+    this->userId = newId;
 }
 
 void CredentialsPage::showAllCredentials() {
@@ -48,9 +46,10 @@ void CredentialsPage::showAllCredentials() {
     }
 }
 
-void CredentialsPage::refreshSearchCreds(char *searchedValue) {
+void CredentialsPage::refreshSearchCreds(char *searchedValue, int typeValue) {
     if (searchedValue != NULL) {
-        CredsArray *credsArray = searchCredsBy(this->dbCon, this->userId, searchedValue, "loginName");
+        const char *type = (typeValue) ? "name" : "loginName";
+        CredsArray *credsArray = searchCredsBy(this->dbCon, this->userId, searchedValue, type);
 
         if (credsArray != NULL) {
             if (credsArray->size > 0) this->credentialsWidget->updateCredentialsList(credsArray);
@@ -58,5 +57,12 @@ void CredentialsPage::refreshSearchCreds(char *searchedValue) {
             free(credsArray);
         }
 
+    }
+}
+
+void CredentialsPage::deleteCredential(int credentialId, int userId) {
+    int status = deleteCredentialController(dbCon, credentialId, userId);
+    if (status == EXIT_SUCCESS) {
+        this->showAllCredentials();
     }
 }

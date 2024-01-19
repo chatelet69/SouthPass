@@ -38,7 +38,7 @@ Rectangle {
                 }
                 onClicked: {
                     var refreshStatus = false;
-                    CredsFormWidget.closeForm(refreshStatus);
+                    CredsFormWidget.closeNewCredsForm(refreshStatus);
                 }
             }
 
@@ -100,6 +100,9 @@ Rectangle {
                     var name = nameInput.text;
                     var username = usernameInput.text;
                     var password = passwordInput.text;
+                    nameInput.text = ""
+                    usernameInput.text = ""
+                    passwordInput.text = ""
                     CredsFormWidget.saveNewCreds(name, username, password);
                 }
             }

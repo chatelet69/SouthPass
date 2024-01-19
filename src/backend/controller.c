@@ -169,3 +169,11 @@ CredsArray *searchCredsBy(MYSQL *dbCon, int userId, char *searchValue, const cha
 
     return NULL;
 }
+
+int deleteCredentialController(MYSQL *dbCon, int credentialId, int userId) {
+    if (credentialId == 0 || userId == 0) return EXIT_FAILURE;
+
+    int resStatus = deleteCredentialDb(dbCon, credentialId, userId);
+
+    return resStatus;
+}

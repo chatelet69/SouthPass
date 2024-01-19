@@ -82,14 +82,10 @@ CredsArray *getPasswordsListBy(MYSQL *dbCon, int userId, char *searchValue, cons
     credsArray->size = 0;
     credsArray->credentials = NULL;
     char *sqlQuery = (char *) malloc(sizeof(char) * 256);
-
-    printf("%s %s\n", searchValue, searchType);
     
     if (sqlQuery == NULL) return NULL;
     sprintf(sqlQuery, "SELECT psw.id AS id,userId,name,loginName,AES_DECRYPT(psw.password, UNHEX(u.pwdMaster)) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE psw.userId = %d AND %s LIKE ?", userId, searchType);
 
-    printf("%s\n", sqlQuery);
-    
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
     MYSQL_RES *metaData;
     if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
@@ -141,7 +137,6 @@ CredsArray *getPasswordsListBy(MYSQL *dbCon, int userId, char *searchValue, cons
                 
             int i = 0;
             while (mysql_stmt_fetch(stmt) == 0) {
-                printf("%d %s\n", actualId, actualName);
                 credsArray->credentials[i].id = actualId;
                 credsArray->credentials[i].userId = actualUserId;
                 credsArray->credentials[i].name = (actualName ? strdup(actualName) : strdup("Inconnu"));
@@ -153,7 +148,6 @@ CredsArray *getPasswordsListBy(MYSQL *dbCon, int userId, char *searchValue, cons
         }
         mysql_free_result(metaData);
     }
-    fprintf(stderr, "error sql : %s\n", mysql_stmt_error(stmt));
     mysql_stmt_close(stmt);
     free(sqlQuery);
 
@@ -688,4 +682,30 @@ LoginsList *getUniquesLoginsById(MYSQL *dbCon, const int userId) {
     mysql_stmt_close(stmt);
 
     return loginsList;
+}
+
+int deleteCredentialDb(MYSQL *dbCon, int credId, int userId) {
+    const char *sqlQuery = "DELETE FROM pswd_stock WHERE id = ? AND userId = ?";
+    unsigned int affectedRows = 0;
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[2];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_LONG;
+        params[0].buffer = (void *) &credId;
+        params[1].buffer_type = MYSQL_TYPE_LONG;
+        params[1].buffer = (void *) &userId;
+
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            return EXIT_FAILURE;
+        }
+
+        int status = mysql_stmt_execute(stmt);
+        if (status == EXIT_SUCCESS) affectedRows = mysql_stmt_affected_rows(stmt);
+    }
+    mysql_stmt_close(stmt);
+
+    return (affectedRows) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

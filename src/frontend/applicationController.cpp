@@ -12,6 +12,8 @@
 #include <QString>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QFuture>
+#include <QtConcurrent>
 #include <QtWidgets>
 #include <QVBoxLayout>
 #include <QApplication>
@@ -41,40 +43,23 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     QString styleSheet = this->getStyleSheet();
     app.setStyleSheet(styleSheet);
 
-    QMenuBar *menuBar = new QMenuBar(nullptr);
-    //menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    importMenu(menuBar);
-
     QWidget *headerWidget = new QWidget();
-    headerWidget->setObjectName("headerWidget");
-    QHBoxLayout *headerLayout = new QHBoxLayout(headerWidget);
+    this->importHeader(headerWidget);
 
-    QPushButton *themeButton = new QPushButton();
-    themeButton->setObjectName("themeButton");
-    connect(themeButton, &QPushButton::clicked, [=]() { this->changeTheme(themeButton); });
+    // Tâche synchrone
+    QTimer::singleShot(0, this, [=]() {
+        logPage = new LoginPage(stackedWidget, this, dbCon);
+        credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
+        pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
+        pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
+        dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
 
-    const char *themeIconPath = (isDark) ? lightModeIcon : darkModeIcon;
-    QIcon icon(themeIconPath);
-    themeButton->setIcon(icon);
-
-    headerLayout->addWidget(menuBar, 15, Qt::AlignLeft);
-    //headerLayout->addWidget(menuBar);
-    headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
-
-
-    logPage = new LoginPage(stackedWidget, this, dbCon);
-    credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
-    pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
-    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
-
-    qDebug() << "test9";
-    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
-
-    stackedWidget->addWidget(credsPage);
-    stackedWidget->addWidget(logPage);
-    stackedWidget->addWidget(pwdGen);
-    stackedWidget->addWidget(pwdQual);
-    stackedWidget->addWidget(dataLeaksPage);
+        stackedWidget->addWidget(credsPage);
+        stackedWidget->addWidget(logPage);
+        stackedWidget->addWidget(pwdGen);
+        stackedWidget->addWidget(pwdQual);
+        stackedWidget->addWidget(dataLeaksPage);
+    });
 
     mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);
@@ -84,8 +69,17 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
         ApplicationController::switchCredsPage();
     } else {
         ApplicationController::switchToLoginPage();
-        // connect(logPage, reinterpret_cast<const char *>(&loginPage::signInSuccess), this, SLOT(switchCredsPage()));
     }
+}
+
+void ApplicationController::loadAsyncPages() {
+    /*pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
+    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
+    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+
+    stackedWidget->addWidget(pwdGen);
+    stackedWidget->addWidget(pwdQual);
+    stackedWidget->addWidget(dataLeaksPage);*/
 }
 
 ApplicationController::~ApplicationController() {
@@ -98,6 +92,27 @@ ApplicationController::~ApplicationController() {
 int ApplicationController::run() {
     mainWindow.show();
     return app.exec();
+}
+
+void ApplicationController::importHeader(QWidget *headerWidget) {
+    QMenuBar *menuBar = new QMenuBar(nullptr);
+    //menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    importMenu(menuBar);
+
+    headerWidget->setObjectName("headerWidget");
+    QHBoxLayout *headerLayout = new QHBoxLayout(headerWidget);
+
+    QPushButton *themeButton = new QPushButton();
+    themeButton->setObjectName("themeButton");
+    connect(themeButton, &QPushButton::clicked, [=]() { this->changeTheme(themeButton); });
+
+    const char *themeIconPath = (isDark) ? lightModeIcon : darkModeIcon;
+    QIcon icon(themeIconPath);
+    themeButton->setIcon(icon);
+
+    headerLayout->addWidget(menuBar, 0, Qt::AlignLeft);
+    //headerLayout->addWidget(menuBar);
+    headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
 }
 
 void ApplicationController::changeTheme(QPushButton *themeButton) {
@@ -215,13 +230,20 @@ void ApplicationController::importPasswords() {
 
 void ApplicationController::exportPasswords() {
     QString exportFolder = QFileDialog::getExistingDirectory(NULL, "Dossier ou exporter", QDir::homePath());
-    QByteArray exportFolderBytes = exportFolder.toLocal8Bit();
-    char *exportFolderConverted = exportFolderBytes.data();
-    int status(exportPasswordsController(dbCon, userId, exportFolderConverted));
-    if (status == EXIT_SUCCESS) {
-        QMessageBox::warning(stackedWidget,"Succès" ,"Mots de passes exportés dans vos téléchargements !");
-    } else {
-        QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'exportation des mots de passes !");
+    if (exportFolder.size() > 0) {
+        QByteArray exportFolderBytes = exportFolder.toLocal8Bit();
+        char *exportFolderConverted = exportFolderBytes.data();
+        int status(exportPasswordsController(dbCon, userId, exportFolderConverted));
+        if (status == EXIT_SUCCESS) {
+            QMessageBox msgBox;
+            QString exportedFolder = QString("Chemin de l'export : %1").arg(exportFolder);
+            msgBox.setInformativeText(exportedFolder);
+            msgBox.setText("Mots de passes exportés!");
+            msgBox.setIcon(QMessageBox::Information);
+            msgBox.exec();
+        } else {
+            QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'exportation des mots de passes !");
+        }
     }
 }
 
@@ -249,6 +271,7 @@ void ApplicationController::refreshCredsPage() {
 void ApplicationController::deleteChildsOfLayout(QLayout *layout) {
     QLayoutItem *child;
     while ((child = layout->takeAt(0)) != nullptr) {
+        // On parcourt la liste d'enfants pour les supprimer
         delete child->widget();
         delete child;
     }

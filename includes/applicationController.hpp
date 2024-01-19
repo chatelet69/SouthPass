@@ -53,6 +53,8 @@ class ApplicationController : public QObject {
         QApplication& getApplication();
         int getUserId();
         void deleteChildsOfLayout(QLayout *layout);
+        void loadAsyncPages();
+        void importHeader(QWidget *headerWidget);
 
     public Q_SLOTS:
         void importMenu(QMenuBar *);

@@ -20,6 +20,7 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail);
 int addNewCredsController(MYSQL *dbCon, char *loginName, char *login, char *password);
 int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder);
 int importPasswordsController(MYSQL *dbCon, const int userId, char *importedFile);
+int deleteCredentialController(MYSQL *dbCon, int credentialId, int userId);
 
 // API
 void printLeaksList(LeaksList *list);

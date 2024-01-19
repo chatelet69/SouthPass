@@ -8,6 +8,7 @@
 #include <QScrollArea>
 #include <QObject>
 #include <QLineEdit>
+#include <QComboBox>
 #include <QQmlContext>
 #include <QQuickWidget>
 #include "./models.h"
@@ -22,7 +23,7 @@ class CredsFormWidget : public QWidget {
 
     public Q_SLOTS:
         void saveNewCreds(QString loginName, QString login, QString password);
-        void closeForm(bool refreshStatus);
+        void closeNewCredsForm(bool refreshStatus);
 
     signals: 
         void requestRefreshCredsPage();
@@ -36,10 +37,12 @@ class CredsToolBarWidget : public QWidget {
 
     public:
         CredsToolBarWidget(QWidget *parent, MYSQL *dbCon);
+        ~CredsToolBarWidget();
     
     private:
         MYSQL *dbCon;
         CredsFormWidget *form;
+        QComboBox *searchType;
         QLineEdit *searchInput;
 
     public Q_SLOTS:
@@ -68,6 +71,7 @@ class CredentialsWidget : public QWidget {
     public:
         CredentialsWidget(QWidget *parent, CredsArray *credsArray);
         void updateCredentialsList(CredsArray *credsArray);
+        void importCredentialsList(CredsArray *credsArray);
 
     public Q_SLOTS:
         void showEditCred(const int credId, QString name, QString login, QString password);
@@ -85,13 +89,14 @@ class CredentialsPage : public QWidget {
 
     public:
         CredentialsPage(QWidget *parent, MYSQL *dbConnection, int userId);
-        //~CredentialsPage();
+        ~CredentialsPage();
         void setUserId(int newId);
         void initCredsListWidget();
 
     public Q_SLOTS:
-        void refreshSearchCreds(char *searchedValue);
+        void refreshSearchCreds(char *searchedValue, int typeValue);
         void showAllCredentials();
+        void deleteCredential(int credentialId, int userId);
         //void showCredsForm();
 
     private: 

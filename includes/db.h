@@ -36,5 +36,6 @@ struct PwdList *getUniquePwd(MYSQL *dbCon, int userId);
 struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id);
 LoginsList *getUniquesLoginsById(MYSQL *dbCon, const int userId);
 CredsArray *getPasswordsListBy(MYSQL *dbCon, int userId, char *searchValue, const char *searchType);
+int deleteCredentialDb(MYSQL *dbCon, int credId, int userId);
 
 #endif
