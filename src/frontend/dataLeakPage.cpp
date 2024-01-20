@@ -14,8 +14,8 @@
 #include <QLineEdit>
 #include <QQmlContext>
 #include <QQuickWidget>
-#include "../../includes/dataLeak.h"
-#include "../../includes/applicationController.h"
+#include "../../includes/dataLeak.hpp"
+#include "../../includes/applicationController.hpp"
 #include "../../includes/backController.h"
 
 DataLeaksPage::DataLeaksPage(QWidget *parent, MYSQL *dbConnection, int userId) : QWidget(parent)

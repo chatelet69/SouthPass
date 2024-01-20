@@ -1,14 +1,15 @@
 //
 // Created by mathf on 09/01/2024.
 //
+
+#include <stdio.h>
+#include <stdlib.h>
 #include "../../includes/backPwdQuality.h"
 #include "../../includes/pincludes.h"
-#include <stdlib.h>
-#include <stdio.h>
 #include "../../includes/fileController.h"
 #include "../../includes/backLoginSignIn.h"
 
-char * testPwd(char * pwd){
+const char *testPwd(char * pwd){
     if(pwd == NULL)
         return NULL;
 
@@ -52,11 +53,10 @@ struct WeakPwdList * getAllWeaksPwd(struct WeakPwdList *start, MYSQL * dbCon){
         CredsArray *credsArray = getPasswordsList(dbCon, tokenInfos->id);
         for (int i = 0; i < credsArray->size; ++i) {
             if (strcmp(testPwd(credsArray->credentials[i].password), "Faible") == 0)
-                start = addWeakPwd(start, credsArray->credentials[i].name, credsArray->credentials[i].loginName,
-                                   credsArray->credentials[i].password);
+                start = addWeakPwd(start, credsArray->credentials[i].name, credsArray->credentials[i].loginName,credsArray->credentials[i].password);
         }
         freeCredsArray(credsArray);
-        printWeaksPwd(start);
+        // printWeaksPwd(start);
         return start;
     }else{
         return NULL;
@@ -76,7 +76,7 @@ struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * url, char * us
 void printWeaksPwd(struct WeakPwdList *start){
     struct WeakPwdList *inter = start;
     if(inter == NULL)
-        printf("\nListe vide.");
+       printf("\nListe vide.");
     else
         printf("\nListe de pwd faible :");
 

@@ -1,7 +1,7 @@
 /* Dark Mode Main Window */
 
 QMainWindow {
-    background-color: rgb(112, 112, 145);
+    background-color: #617073;
 }
 
 QApplication {
@@ -11,15 +11,43 @@ QApplication {
 /* Header */
 
 #headerWidget {
-    border: 2px solid red;
+    /*border: 2px solid red;*/
+    background-color: transparent;
 }
+
+#headerWidget QMenuBar {
+    background-color: rgb(103, 127, 189);
+    border: none;
+    font-weight: bold;
+    color: white;
+    padding: 6px;
+    spacing: 10px;
+    border-radius: 6px;
+}
+
+#headerWidget QMenuBar::item {
+    padding: 6px;
+    border-radius: 6px;
+}
+
+#headerWidget QMenu {
+    color: white;
+    font-weight: bold;
+    border-radius: 6px;
+    background-color: #6da1b1;
+}
+
+#headerWidget QMenu::selected {
+    background-color: rgba(255, 255, 255, 0.489);
+    color: gray;
+}
+
 
 #themeButton {
     background-color: rgb(238, 238, 238);
     border-radius: 4px;
-    height: auto;
-    width: auto;
-    max-width: 30px;
+    height: 15px;
+    width: 15px;
     border: 2px solid transparent;
 }
 
@@ -80,10 +108,14 @@ QApplication {
     padding: 5px;
 }
 
+/*#nameLabelsContainer > QLabel:firs {
+    width: 3ex;
+    color: red;
+}*/
+
 #editCredButton {
     background-color: rgb(55, 72, 85);
     border: 1px solid rgb(55, 72, 85);
-    border-radius: 8px;
     color: white;
     height: 25px;
     top: 20px;
@@ -95,9 +127,19 @@ QApplication {
     border-color: rgb(44, 44, 44);
 }
 
-#cancelButton {
-    background-color: red;
+#editCredButton, #deleteCredButton {
+    border-radius: 8px;
+    padding: 10px;
+}
+
+#deleteCredButton, #cancelButton {
+    background-color: rgba(210, 85, 85, 0.727);
+    border: none;
     color: white;
+}
+
+#deleteCredButton:hover, #cancelButton:hover {
+    background-color: rgb(230, 15, 15);
 }
 
 /* Creds Form Window */
@@ -143,4 +185,92 @@ QApplication {
     border: 1px solid rgb(167, 167, 167);
     border-radius: 8px;
     padding: 5px;
+}
+#displayNbWebsites{
+    color: white;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    font-size: 24px;
+}
+#backPwdQuality, #backParams, #loginBox{
+    background-color: #7A93AC;
+}
+
+#boxPwdQuality {
+    background-color: white;
+    border-radius: 4px;
+    padding: 20px 20px 20px 20px;
+}
+#boxPwd{
+    padding: 10px;
+}
+
+#solidityPwd{
+    background-color: white;
+    border-radius: 4px;
+    padding: 20px 20px 20px 20px;
+    font-size: 12px;
+}
+#verifTitle{
+    font-size: 24px;
+    color: white;
+    margin: 10px;
+}
+#pwdInput{
+    width: 70%;
+}
+QCheckBox:checked{
+    background-color: lightskyblue;
+    width: 40px;
+}
+#genPwdMain{
+    background-color: #7A93AC;
+    border: 2px solid white;
+}
+#genPwdTitle{
+    color: white;
+    font-size: 24px;
+}
+#emailBox QLabel{
+    color: white;
+    color: white;
+}
+#paramsBox{
+    color: white;
+    border-bottom: 2px solid white;
+}
+#bigTitle{
+    color: white;
+    font-size: 24px;
+}
+#subTitle{
+    color: white;
+    font-size: 16px;
+}
+radioBtnParams{
+    color: white;
+    font-size: 16px;
+    background-color: #eee;
+}
+radioBtnParams:hover{
+    color: white;
+    font-size: 16px;
+    background-color: #ccc;
+}
+#loginLabelTitle{
+    font-size: 24px;
+    text-align: center;
+    text-decoration: underline;
+    color: white;
+}
+#inputLogin{
+    border: none;
+    background-color: #7A93AC;
+    outline: none;
+    border-bottom: 2px solid white;
+}
+#loginLabels{
+    color: white;
+    font-size: 16px;
 }

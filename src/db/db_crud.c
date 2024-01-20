@@ -77,6 +77,83 @@ CredsArray *getPasswordsList(MYSQL *dbCon, int userId) {
     return credsArray;
 }
 
+CredsArray *getPasswordsListBy(MYSQL *dbCon, int userId, char *searchValue, const char *searchType) {
+    CredsArray *credsArray = (CredsArray *) malloc(sizeof(CredsArray));
+    credsArray->size = 0;
+    credsArray->credentials = NULL;
+    char *sqlQuery = (char *) malloc(sizeof(char) * 256);
+    
+    if (sqlQuery == NULL) return NULL;
+    sprintf(sqlQuery, "SELECT psw.id AS id,userId,name,loginName,AES_DECRYPT(psw.password, UNHEX(u.pwdMaster)) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE psw.userId = %d AND %s LIKE ?", userId, searchType);
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    MYSQL_RES *metaData;
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[1];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = searchValue;
+        params[0].buffer_length = strlen(searchValue);
+
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            return credsArray;
+        }
+
+        int status = mysql_stmt_execute(stmt);
+        metaData = mysql_stmt_result_metadata(stmt); 
+        mysql_stmt_store_result(stmt);
+        if (metaData == NULL) return credsArray;
+
+        if (status == EXIT_SUCCESS) {
+            char actualName[100], actualLoginName[100], actualPassword[45];
+            int actualId = 0, actualUserId = 0;
+            MYSQL_BIND results[5];
+            memset(results, 0, sizeof(results));
+            results[0].buffer_type = MYSQL_TYPE_LONG;
+            results[0].buffer = &actualId;
+            results[1].buffer_type = MYSQL_TYPE_LONG;
+            results[1].buffer = &actualUserId;
+
+            results[2].buffer_type = MYSQL_TYPE_STRING;
+            results[2].buffer = &actualName;
+            results[2].buffer_length = sizeof(actualName);
+
+            results[3].buffer_type = MYSQL_TYPE_STRING;
+            results[3].buffer = &actualLoginName;
+            results[3].buffer_length = sizeof(actualLoginName);
+
+            results[4].buffer_type = MYSQL_TYPE_STRING;
+            results[4].buffer = &actualPassword;
+            results[4].buffer_length = sizeof(actualPassword);
+            
+            if (mysql_stmt_bind_result(stmt, results) != EXIT_SUCCESS) {
+                mysql_stmt_close(stmt);
+                return credsArray;
+            }
+
+            unsigned int rowsCount = mysql_stmt_affected_rows(stmt);
+            credsArray->credentials = (Credentials *) malloc(sizeof(Credentials) * rowsCount);
+                
+            int i = 0;
+            while (mysql_stmt_fetch(stmt) == 0) {
+                credsArray->credentials[i].id = actualId;
+                credsArray->credentials[i].userId = actualUserId;
+                credsArray->credentials[i].name = (actualName ? strdup(actualName) : strdup("Inconnu"));
+                credsArray->credentials[i].loginName = (actualLoginName ? strdup(actualLoginName) : strdup("Inconnu"));
+                credsArray->credentials[i].password = (actualPassword ? strdup(actualPassword) : strdup("Inconnu"));
+                i++;
+            }
+            credsArray->size = i;
+        }
+        mysql_free_result(metaData);
+    }
+    mysql_stmt_close(stmt);
+    free(sqlQuery);
+
+    return credsArray;
+}
+
 int createNewCreds(MYSQL *dbCon, Credentials *creds) {
     int status = EXIT_FAILURE;
     if (creds->userId == 0) return status;
@@ -477,14 +554,20 @@ ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
 }
 
 struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
-    struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList));
     char *sqlQuery = (char *) malloc(sizeof(char) * 600);
-
     if (sqlQuery == NULL) return NULL;
+    struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList));
+    if(pwdList==NULL) return NULL;
+  
+    pwdList->size = 0;
+    pwdList->pwd = NULL;
+
     sprintf(sqlQuery, "SELECT AES_DECRYPT(psw.password, UNHEX(u.pwdMaster)) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE psw.userId = %d GROUP BY password", userId);
     if (mysql_query(dbCon, sqlQuery) != 0) {
-        fprintf(stderr, "Query Failure\n");
-        return pwdList;
+        //fprintf(stderr, "Query Failure\n");
+        free(pwdList);
+        free(sqlQuery);
+        return NULL;
     } else {
         MYSQL_RES *resData = mysql_store_result(dbCon);
         if (resData != NULL) {
@@ -500,51 +583,62 @@ struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
                         pwdList->pwd[nbPwd] = strdup(row[0]);
                         nbPwd++;
                     }
+                } else {
+                    free(pwdList);
+                    free(sqlQuery);
+                    return NULL;
                 }
             }
             mysql_free_result(resData);
         }
     }
     free(sqlQuery);
-    // OK
+    
     return pwdList;
 }
 
 struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id){
+    printf("OKK");
     struct WebsiteByPwd *websiteList = (struct WebsiteByPwd *) malloc(sizeof(struct WebsiteByPwd));
-    char *sqlQuery = (char *) malloc(sizeof(char) * 600);
+    if(websiteList != NULL) {
+        char *sqlQuery = (char *) malloc(sizeof(char) * 600);
 
-    if (sqlQuery == NULL) return NULL;
-    sprintf(sqlQuery, "SELECT name, loginName FROM pswd_stock WHERE password = AES_ENCRYPT(\"%s\",(SELECT UNHEX(pwdMaster) FROM users WHERE id = %d))", pwd, id);
+        if (sqlQuery == NULL) return NULL;
+        sprintf(sqlQuery,
+                "SELECT name, loginName FROM pswd_stock WHERE password = AES_ENCRYPT(\"%s\",(SELECT UNHEX(pwdMaster) FROM users WHERE id = %d))",
+                pwd, id);
 
-    if (mysql_query(dbCon, sqlQuery) != 0) {
-        fprintf(stderr, "Query Failure\n");
-        return websiteList;
-    } else {
-        MYSQL_RES *resData = mysql_store_result(dbCon);
-        if (resData != NULL) {
-            //unsigned int numFields = mysql_num_fields(resData);
-            unsigned int rowsCount = mysql_num_rows(resData);
-            MYSQL_ROW row;
-            if (rowsCount > 0) {
-                int nbWebsites = 0;
-                websiteList->website = (struct Website *) malloc(sizeof(struct Website) * rowsCount);
-                websiteList->website->website= (char *) malloc(sizeof(char) * 255);
-                websiteList->website->username = (char *) malloc(sizeof(char) * 255);
+        if (mysql_query(dbCon, sqlQuery) != 0) {
+            fprintf(stderr, "Query Failure\n");
+            return websiteList;
+        } else {
+            MYSQL_RES *resData = mysql_store_result(dbCon);
+            if (resData != NULL) {
+                //unsigned int numFields = mysql_num_fields(resData);
+                unsigned int rowsCount = mysql_num_rows(resData);
+                MYSQL_ROW row;
+                if (rowsCount > 0) {
+                    int nbWebsites = 0;
+                    websiteList->website = (struct Website *) malloc(sizeof(struct Website) * rowsCount);
+                    websiteList->website->website = (char *) malloc(sizeof(char) * 255);
+                    websiteList->website->username = (char *) malloc(sizeof(char) * 255);
 
-                websiteList->size = rowsCount;
-                if (websiteList->website != NULL) {
-                    while ((row = mysql_fetch_row(resData))) {
-                        websiteList->website[nbWebsites].website = row[0];
-                        websiteList->website[nbWebsites].username = row[1];
-                        nbWebsites++;
+                    websiteList->size = rowsCount;
+                    if (websiteList->website != NULL) {
+                        while ((row = mysql_fetch_row(resData))) {
+                            websiteList->website[nbWebsites].website = row[0];
+                            websiteList->website[nbWebsites].username = row[1];
+                            nbWebsites++;
+                        }
                     }
                 }
+                mysql_free_result(resData);
+            }else{
+                return NULL;
             }
-            mysql_free_result(resData);
         }
+        free(sqlQuery);
     }
-    free(sqlQuery);
     // OK
     return websiteList;
 }
@@ -605,4 +699,102 @@ LoginsList *getUniquesLoginsById(MYSQL *dbCon, const int userId) {
     mysql_stmt_close(stmt);
 
     return loginsList;
+}
+
+int deleteCredentialDb(MYSQL *dbCon, int credId, int userId) {
+    const char *sqlQuery = "DELETE FROM pswd_stock WHERE id = ? AND userId = ?";
+    unsigned int affectedRows = 0;
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[2];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_LONG;
+        params[0].buffer = (void *) &credId;
+        params[1].buffer_type = MYSQL_TYPE_LONG;
+        params[1].buffer = (void *) &userId;
+
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            return EXIT_FAILURE;
+        }
+
+        int status = mysql_stmt_execute(stmt);
+        if (status == EXIT_SUCCESS) affectedRows = mysql_stmt_affected_rows(stmt);
+    }
+    mysql_stmt_close(stmt);
+
+    return (affectedRows) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int saveEditedCredsDb(MYSQL *dbCon, Credentials *credentials) {
+    int status = EXIT_FAILURE;
+    if (credentials == NULL) return status;
+    if (credentials->userId == 0 || credentials->id == 0) return status;
+    const char *sqlQuery = "UPDATE pswd_stock SET name = ?, loginName = ?, password = AES_ENCRYPT(?,(SELECT UNHEX(pwdMaster) FROM users u WHERE u.id = ?)) WHERE id = ? AND userId = ?";
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[6];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = credentials->name;
+        params[0].buffer_length = strlen(credentials->name);
+
+        params[1].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[1].buffer = credentials->loginName;
+        params[1].buffer_length = strlen(credentials->loginName);
+
+        params[2].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[2].buffer = credentials->password;
+        params[2].buffer_length = strlen(credentials->password);
+
+        params[3].buffer_type = MYSQL_TYPE_LONG;
+        params[3].buffer = (void *) &credentials->userId;
+
+        params[4].buffer_type = MYSQL_TYPE_LONG;
+        params[4].buffer = (void *) &credentials->id;
+
+        params[5].buffer_type = MYSQL_TYPE_LONG;
+        params[5].buffer = (void *) &credentials->userId;
+
+        if (mysql_stmt_bind_param(stmt, params)) {
+            mysql_stmt_close(stmt);
+            return status;
+        }
+        status = mysql_stmt_execute(stmt);
+    }
+    mysql_stmt_close(stmt);
+
+    return status;
+}
+
+int updatePwd(MYSQL *dbCon, char * pwd, int id, char * type){
+    char sqlQuery[255];
+    if(strcmp(type, "Master") == 0){
+        strcpy(sqlQuery,"UPDATE users SET pwdMaster = ? WHERE id = ?");
+    }else{
+        strcpy(sqlQuery,"UPDATE users SET pwdAccount = ? WHERE id = ?");
+    }
+    unsigned int affectedRows = 0;
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[2];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_STRING;
+        params[0].buffer = pwd;
+        params[0].buffer_length = strlen(pwd);
+        params[1].buffer_type = MYSQL_TYPE_LONG;
+        params[1].buffer = (void *) &id;
+
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            return EXIT_FAILURE;
+        }
+        int status = mysql_stmt_execute(stmt);
+        if (status == EXIT_SUCCESS) affectedRows = mysql_stmt_affected_rows(stmt);
+    }
+    mysql_stmt_close(stmt);
+    return (affectedRows) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

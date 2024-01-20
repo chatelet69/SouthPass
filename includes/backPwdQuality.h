@@ -33,7 +33,7 @@ struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * site, char * u
 void printWeaksPwd(struct WeakPwdList *start);
 
 // PwdQuality
-char * testPwd(char * pwd);
+const char *testPwd(char * pwd);
 int checkRockYou(char * pwd);
 
 #endif //SOUTHPASS_BACKPWDQUALITY_H

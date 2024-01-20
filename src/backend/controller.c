@@ -19,16 +19,18 @@ void freeCredsArray(struct CredsArray *credsArray) {
             free(credsArray->credentials[i].loginName);
             free(credsArray->credentials[i].password);
         }
-        free(credsArray->credentials);
+        if (credsArray->credentials != NULL) free(credsArray->credentials);
         credsArray->size = 0;
     }
 }
 
 void freeCredentialsData(Credentials *creds) {
-    free(creds->name);
-    free(creds->loginName);
-    free(creds->password);
-    free(creds);
+    if (creds != NULL) {
+        if (creds->name != NULL) free(creds->name);
+        if (creds->loginName != NULL) free(creds->loginName);
+        if (creds->password != NULL) free(creds->password);
+        free(creds);
+    }
 }
 
 void printCreds(Credentials *creds, unsigned int size) {
@@ -43,11 +45,11 @@ void printCreds(Credentials *creds, unsigned int size) {
 
 int addNewCredsController(MYSQL *dbCon, char *name, char *loginName, char *password) {
     const int userId = getUserIdByCookieFile();
-    int loginNameSize = strlen(name);
+    int nameSize = strlen(name);
     int loginSize = strlen(loginName);
     int passwordSize = strlen(password);
 
-    if (loginNameSize == 0 || loginNameSize > LOGIN_NAME_MAX_SIZE)
+    if (nameSize == 0 || nameSize > CRED_NAME_MAX_SIZE)
         return EXIT_FAILURE;
 
     if (loginSize == 0 || loginSize > LOGIN_MAX_SIZE)
@@ -153,4 +155,57 @@ void freeExportList(ExportList *exportList) {
     free(exportList->lines);
     exportList->lines = NULL;
     exportList->count = 0;
+}
+
+CredsArray *searchCredsBy(MYSQL *dbCon, int userId, char *searchValue, const char *searchType) {
+    if (searchValue != NULL) {
+        if (strlen(searchValue) > 255 || strlen(searchValue) == 0) return NULL;
+        char *finalSearch = (char *) malloc(sizeof(char) * (strlen(searchValue) + 5));
+        sprintf(finalSearch, "%s%%", searchValue);
+
+        CredsArray *credsArray = getPasswordsListBy(dbCon, userId, finalSearch, searchType);
+        free(finalSearch);
+
+        return credsArray;
+    }
+
+    return NULL;
+}
+
+int deleteCredentialController(MYSQL *dbCon, int credentialId, int userId) {
+    if (credentialId == 0 || userId == 0) return EXIT_FAILURE;
+
+    int resStatus = deleteCredentialDb(dbCon, credentialId, userId);
+
+    return resStatus;
+}
+
+int checkCredentialsData(struct Credentials *credentials) {
+    if (credentials == NULL) return EXIT_FAILURE;
+    if (credentials->id == 0 || credentials->userId == 0) return EXIT_FAILURE;
+    
+    if (credentials->name == NULL || credentials->loginName == NULL || 
+        credentials->password == NULL) return EXIT_FAILURE;
+    if (strlen(credentials->name) == 0 || strlen(credentials->name) > CRED_NAME_MAX_SIZE) return EXIT_FAILURE;
+    if (strlen(credentials->loginName) == 0 || strlen(credentials->loginName) > LOGIN_MAX_SIZE) return EXIT_FAILURE;
+    if (strlen(credentials->password) == 0 || strlen(credentials->password) > PASSWORD_MAX_SIZE) return EXIT_FAILURE;
+
+    return EXIT_SUCCESS;
+}
+
+int saveEditedCredsController(MYSQL *dbCon, const int credId, const int userId, const char *name, const char *login, const char *password) {
+    Credentials *credentials = (Credentials *) malloc(sizeof(Credentials));
+    if (credentials == NULL) return EXIT_FAILURE;
+
+    credentials->id = credId;
+    credentials->userId = userId;
+    credentials->name = strdup(name);
+    credentials->loginName = strdup(login);
+    credentials->password = strdup(password);
+
+    int status = checkCredentialsData(credentials);
+    if (status == EXIT_SUCCESS) status = saveEditedCredsDb(dbCon, credentials);
+    freeCredentialsData(credentials);
+
+    return status;
 }

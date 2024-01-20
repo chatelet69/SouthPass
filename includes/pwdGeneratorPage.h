@@ -13,7 +13,7 @@
 #include <QVBoxLayout>
 #include <QScrollArea>
 #include <QFormLayout>
-#include "applicationController.h"
+#include "applicationController.hpp"
 class ApplicationController;
 
 class PwdGenerator : public QWidget {

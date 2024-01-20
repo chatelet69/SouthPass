@@ -26,8 +26,7 @@ int getThemePreference() {
         }
     }
     fclose(configFile);
-
-    return (strcmp(prop[1], "dark") == 0 ? 1 : 0);
+    return (strcmp(prop[1], "dark1") == 0 ? 1 : 0);
 }
 
 TokenInfos *getTokenFileInfos() {
@@ -90,14 +89,18 @@ void saveThemePreference(int theme) {
         char line[100];
         while (fgets(line, 100, configFile) != NULL) {
             pos = ftell(configFile) - strlen(line);
-            printf("%ld : %s", pos, line);
             if (strstr(line, "theme_preference") != NULL) {
-                printf("%ld : %ld\n", ftell(configFile), strlen(line));
                 break;
             }
         }
         fseek(configFile, pos-1, SEEK_SET);
-        if (IS_WINDOWS) fprintf(configFile, "theme_preference : %s\n", (theme) ? "dark" : "light");
+        if (IS_WINDOWS) {
+            if(theme==1){
+                fprintf(configFile, "theme_preference : dark1");
+            }else {
+                fprintf(configFile, "theme_preference : light");
+            }
+        }
         else if (IS_LINUX) fprintf(configFile, "theme_preference : %s\n", savedTheme);
         fclose(configFile);
     }
