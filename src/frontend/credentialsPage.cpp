@@ -41,7 +41,7 @@ void CredentialsPage::showAllCredentials() {
     CredsArray *credsArray = getPasswordsList(this->dbCon, this->userId);
 
     if (credsArray != NULL) {
-        if (credsArray->size > 0) this->credentialsWidget->updateCredentialsList(credsArray);
+        this->credentialsWidget->updateCredentialsList(credsArray);
         freeCredsArray(credsArray);
         free(credsArray);
     }

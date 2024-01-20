@@ -46,20 +46,26 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, CredsArray *credsArray) : 
 }
 
 void CredentialsWidget::importCredentialsList(CredsArray *credsArray) {
-    for (unsigned int i = 0; i < credsArray->size; i++){
-        QWidget *credContainer = new QWidget(this);
-        credContainer->setObjectName("credBox");
-        QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
+    if (credsArray->size > 0) {
+        for (unsigned int i = 0; i < credsArray->size; i++){
+            QWidget *credContainer = new QWidget(this);
+            credContainer->setObjectName("credBox");
+            QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
 
-        QWidget *labelsContainer = new QWidget(credContainer);
-        this->importCredDetailsBox(labelsContainer, &credsArray->credentials[i]);
+            QWidget *labelsContainer = new QWidget(credContainer);
+            this->importCredDetailsBox(labelsContainer, &credsArray->credentials[i]);
 
-        QWidget *buttonsContainer = new QWidget(this);
-        this->importCredButtons(buttonsContainer, labelsContainer, &credsArray->credentials[i]);
+            QWidget *buttonsContainer = new QWidget(this);
+            this->importCredButtons(buttonsContainer, labelsContainer, &credsArray->credentials[i]);
 
-        credContainerLayout->addWidget(labelsContainer);
-        credContainerLayout->addWidget(buttonsContainer);
-        credsLayout->addWidget(credContainer);
+            credContainerLayout->addWidget(labelsContainer);
+            credContainerLayout->addWidget(buttonsContainer);
+            credsLayout->addWidget(credContainer);
+        }
+    } else {
+        QLabel *noPasswordsLabel = new QLabel("Pas de mots de passes");
+        noPasswordsLabel->setObjectName("noPasswordsLabel");
+        credsLayout->addWidget(noPasswordsLabel);
     }
 }
 
