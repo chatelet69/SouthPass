@@ -9,59 +9,98 @@
 
 LoginPage::LoginPage(QWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
     //Création des onglets connexion et inscription
+    QVBoxLayout * fenetre = new QVBoxLayout(this);
     QTabWidget *onglets = new QTabWidget(this);
-    QWidget *login = new QWidget;
-    QWidget *signIn = new QWidget;
 
     // Page connexion
-    QLabel *loginLabel = new QLabel(this);
-    QFormLayout *layoutLogin = new QFormLayout;
-    loginLabel->setText("Connexion :");
+    QWidget *loginBox = new QWidget();
+    loginBox->setObjectName("loginBox");
+    QVBoxLayout * loginLayout = new QVBoxLayout(loginBox);
+    QLabel *loginLabelTitle = new QLabel("Connexion :");
+    loginLabelTitle->setAlignment(Qt::AlignCenter);
+
+    loginLabelTitle->setObjectName("loginLabelTitle");
+    QFormLayout *formLogin = new QFormLayout;
+    QLabel *emailLabel = new QLabel("Email :");
+    emailLabel->setObjectName("loginLabels");
     QLineEdit *loginEmail = new QLineEdit;
+    loginEmail->setObjectName("inputLogin");
+    QLabel *pwdLabel = new QLabel("Mot de passe :");
+    pwdLabel->setObjectName("loginLabels");
     QLineEdit *loginPassword = new QLineEdit;
+    loginPassword->setObjectName("inputLogin");
     loginPassword->setEchoMode(QLineEdit::Password);
+    QLabel *masterPwdLabel = new QLabel("Mot de passe maitre:");
+    masterPwdLabel->setObjectName("loginLabels");
     QLineEdit *loginMasterPassword = new QLineEdit;
+    loginMasterPassword->setObjectName("inputLogin");
     loginMasterPassword->setEchoMode(QLineEdit::Password);
     QPushButton *connectButton = new QPushButton("Se connecter");
-
     // le symbole « & » permet de définir des raccourcis clavier
-    layoutLogin->addRow(loginLabel);
-    layoutLogin->addRow("&Email :", loginEmail);
-    layoutLogin->addRow("&Mot de passe :", loginPassword);
-    layoutLogin->addRow("&Mot de passe maitre :", loginMasterPassword);
-    layoutLogin->addRow(connectButton);
-    login->setLayout(layoutLogin);
-
+    formLogin->addRow(loginLabelTitle);
+    formLogin->addRow(emailLabel);
+    formLogin->addRow(loginEmail);
+    formLogin->addRow(pwdLabel);
+    formLogin->addRow(loginPassword);
+    formLogin->addRow(masterPwdLabel);
+    formLogin->addRow(loginMasterPassword);
+    formLogin->addRow(connectButton);
+    loginLayout->addLayout(formLogin);
+    loginBox->setLayout(loginLayout);
 
     // Page inscription
-    QLabel *signInLabel = new QLabel(this);
+    QWidget *signInBox = new QWidget;
+    signInBox->setObjectName("loginBox");
+    QLabel *signInLabel = new QLabel("Inscription :");
+    signInLabel->setAlignment(Qt::AlignCenter);
+    signInLabel->setObjectName("loginLabelTitle");
     QFormLayout *layoutSignIn = new QFormLayout;
-    signInLabel->setText("Inscription :");
+    QLabel *emailTitle = new QLabel("Email :");
+    emailTitle->setObjectName("loginLabels");
+    QLabel *pwdTitle = new QLabel("Mot de passe :");
+    pwdTitle->setObjectName("loginLabels");
+    QLabel *confirmPwdTitle = new QLabel("Confirmation mot de passe :");
+    confirmPwdTitle->setObjectName("loginLabels");
+    QLabel *pwdMasterTitle = new QLabel("Mot de passe maitre :");
+    pwdMasterTitle->setObjectName("loginLabels");
+    QLabel *confirmPwdMasterTitle = new QLabel("Confirmation mot de passe :");
+    confirmPwdMasterTitle->setObjectName("loginLabels");
+
     QLineEdit *signEmail = new QLineEdit;
+    signEmail->setObjectName("inputLogin");
     QLineEdit *signPassword = new QLineEdit;
     signPassword->setEchoMode(QLineEdit::Password);
+    signPassword->setObjectName("inputLogin");
     QLineEdit *confirmPassword = new QLineEdit;
     confirmPassword->setEchoMode(QLineEdit::Password);
+    confirmPassword->setObjectName("inputLogin");
     QLineEdit *signMasterPwd = new QLineEdit;
     signMasterPwd->setEchoMode(QLineEdit::Password);
+    signMasterPwd->setObjectName("inputLogin");
     QLineEdit *confirmMasterPwd = new QLineEdit;
     confirmMasterPwd->setEchoMode(QLineEdit::Password);
+    confirmMasterPwd->setObjectName("inputLogin");
 
     layoutSignIn->addRow(signInLabel);
-    layoutSignIn->addRow("&Email :", signEmail);
-    layoutSignIn->addRow("&Mot de passe :", signPassword);
-    layoutSignIn->addRow("&Confirmation mot de passe :", confirmPassword);
-    layoutSignIn->addRow("Mot de &passe maitre :", signMasterPwd);
-    layoutSignIn->addRow("Confirmation mot &de passe :", confirmMasterPwd);
+    layoutSignIn->addRow(emailTitle);
+    layoutSignIn->addRow(signEmail);
+    layoutSignIn->addRow(pwdTitle);
+    layoutSignIn->addRow(signPassword);
+    layoutSignIn->addRow(confirmPwdTitle);
+    layoutSignIn->addRow(confirmPassword);
+    layoutSignIn->addRow(pwdMasterTitle);
+    layoutSignIn->addRow(signMasterPwd);
+    layoutSignIn->addRow(confirmPwdMasterTitle);
+    layoutSignIn->addRow(confirmMasterPwd);
     QPushButton *signInButton = new QPushButton("S'inscrire");
     layoutSignIn->addRow(signInButton);
-    signIn->setLayout(layoutSignIn);
+    signInBox->setLayout(layoutSignIn);
 
 
     // Ajout des onglets Connexion et Inscription
-    onglets->addTab(login, "Connexion");
-    onglets->addTab(signIn, "Inscription");
-
+    onglets->addTab(loginBox, "Connexion");
+    onglets->addTab(signInBox, "Inscription");
+    fenetre->addWidget(onglets);
 
     /* CSS : ( à mettre dans les fonctions )
     * login->setObjectName("loginTab");
