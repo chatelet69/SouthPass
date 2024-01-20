@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QMessageBox>
 #include <QMainWindow>
 #include "../../includes/applicationController.hpp"
 #include "../../includes/db.h"
@@ -61,8 +62,21 @@ void CredentialsPage::refreshSearchCreds(char *searchedValue, int typeValue) {
 }
 
 void CredentialsPage::deleteCredential(int credentialId, int userId) {
-    int status = deleteCredentialController(dbCon, credentialId, userId);
+    int status = deleteCredentialController(this->dbCon, credentialId, userId);
     if (status == EXIT_SUCCESS) {
         this->showAllCredentials();
+    }
+}
+
+void CredentialsPage::saveEditedCreds(int credId, int userId, const char *name, const char *login, const char *password) {
+    int status = saveEditedCredsController(this->dbCon, credId, userId, name, login, password);
+    if (status == EXIT_SUCCESS) {
+        QMessageBox msgBox;
+        msgBox.setText("Identifiant mit à jour !");
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.exec();
+        this->showAllCredentials();
+    } else {
+        QMessageBox::warning(this, "Erreur" ,"Erreur lors de la mise à jour de l'identifiant !");
     }
 }

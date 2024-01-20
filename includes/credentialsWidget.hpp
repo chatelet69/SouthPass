@@ -53,17 +53,32 @@ class CredsToolBarWidget : public QWidget {
 class CredentialEditWidget : public QWidget {
     Q_OBJECT
     public:
-        CredentialEditWidget(QWidget *parent, const int credId, QString loginName, QString login, QString password);
+        CredentialEditWidget(QWidget *widgetParent, const int credId, const int userId,
+         QString loginName, QString login, QString password);
+        ~CredentialEditWidget();
         void setCredId(const int newId);
+        void setUserId(const int newUserId);
         void setLogin(QString newLogin);
-        void setLoginName(QString newName);
+        void setName(QString newName);
         void setPassword(QString newPassword);
 
     private:
+        QWidget *credsWidgetParent;
+        QVBoxLayout *mainLayout;
+        QLineEdit *nameInput;
+        QLineEdit *loginInput;
+        QLineEdit *passwordInput;
+        QPushButton *cancelEditButton;
+        QPushButton *saveEditCredButton;
+
         int credId;
-        QString loginName;
+        int userId;
+        QString name;
         QString login;
         QString password;
+
+        void importEditCredsLabels(QWidget *labelsContainer, QVBoxLayout *labelsContainerLayout);
+        void importEditCredsButtons(QWidget *buttonsContainer, QHBoxLayout *buttonsLayout);
 };
 
 class CredentialsWidget : public QWidget {
@@ -74,7 +89,7 @@ class CredentialsWidget : public QWidget {
         void importCredentialsList(CredsArray *credsArray);
 
     public Q_SLOTS:
-        void showEditCred(const int credId, QString name, QString login, QString password);
+        void showEditCred(const int credId, const int userId, QString name, QString login, QString password);
 
     private:
         QVBoxLayout *contentLayout;
@@ -82,6 +97,9 @@ class CredentialsWidget : public QWidget {
         CredentialEditWidget *credentialEditWidget;
         QWidget *credsContainer;
         QVBoxLayout *credsLayout;
+
+        void importCredDetailsBox(QWidget *labelsContainer, Credentials *credentials);
+        void importCredButtons(QWidget *buttonsContainer, QWidget *labelsContainer, Credentials *credentials);
 };
 
 class CredentialsPage : public QWidget {
@@ -97,6 +115,7 @@ class CredentialsPage : public QWidget {
         void refreshSearchCreds(char *searchedValue, int typeValue);
         void showAllCredentials();
         void deleteCredential(int credentialId, int userId);
+        void saveEditedCreds(int credId, int userId, const char *name, const char *login, const char *password);
         //void showCredsForm();
 
     private: 

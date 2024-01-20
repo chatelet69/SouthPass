@@ -1,10 +1,11 @@
 //
 // Created by mathf on 09/01/2024.
 //
+
+#include <stdio.h>
+#include <stdlib.h>
 #include "../../includes/backPwdQuality.h"
 #include "../../includes/pincludes.h"
-#include <stdlib.h>
-#include <stdio.h>
 #include "../../includes/fileController.h"
 #include "../../includes/backLoginSignIn.h"
 

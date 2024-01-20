@@ -42,13 +42,13 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
 
     QString styleSheet = this->getStyleSheet();
     app.setStyleSheet(styleSheet);
+    //app.setStyle(QStyleFactory::create("Windows"));
 
     QWidget *headerWidget = new QWidget();
     this->importHeader(headerWidget);
     // Tâche synchroneQTimer::singleShot(0, this, [=]() {
     pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
     stackedWidget->addWidget(pwdGen);
-
     //});
 
     mainLayout->addWidget(headerWidget);
