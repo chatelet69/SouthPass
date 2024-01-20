@@ -42,25 +42,27 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
 
     QString styleSheet = this->getStyleSheet();
     app.setStyleSheet(styleSheet);
+    //app.setStyle(QStyleFactory::create("Windows"));
 
     QWidget *headerWidget = new QWidget();
     this->importHeader(headerWidget);
 
     logPage = new LoginPage(stackedWidget, this, dbCon);
-    stackedWidget->addWidget(logPage);
     credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
     stackedWidget->addWidget(credsPage);
+    stackedWidget->addWidget(logPage);
+    
+    // Tâche synchrone
+    //QTimer::singleShot(0, this, [=]() {
+    pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
+    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
+    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+    paramsPage = new ParametersPage(this, &app, dbCon);
 
-    // Tâche synchroneQTimer::singleShot(0, this, [=]() {
-        pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
-        pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
-        dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
-        paramsPage = new ParametersPage(this, &app, dbCon);
-
-        stackedWidget->addWidget(pwdGen);
-        stackedWidget->addWidget(pwdQual);
-        stackedWidget->addWidget(dataLeaksPage);
-        stackedWidget->addWidget(paramsPage);
+    stackedWidget->addWidget(pwdGen);
+    stackedWidget->addWidget(pwdQual);
+    stackedWidget->addWidget(dataLeaksPage);
+    stackedWidget->addWidget(paramsPage);
     //});
 
     mainLayout->addWidget(headerWidget);

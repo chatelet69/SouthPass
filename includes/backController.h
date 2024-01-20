@@ -1,7 +1,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#define LOGIN_NAME_MAX_SIZE 150
+#define CRED_NAME_MAX_SIZE 150
 #define LOGIN_MAX_SIZE 255
 #define PASSWORD_MAX_SIZE 40
 
@@ -14,6 +14,7 @@ void freeCredsArray(struct CredsArray *credsArray);
 void freeCredentialsData(Credentials *creds);
 void freeExportList(ExportList *exportList);
 int getUserIdByToken(MYSQL *dbCon);
+int checkCredentialsData(Credentials *credentials);
 
 char *getActualDate();
 int generateNewUserToken(MYSQL *dbCon, char *userEmail);
@@ -21,6 +22,7 @@ int addNewCredsController(MYSQL *dbCon, char *loginName, char *login, char *pass
 int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder);
 int importPasswordsController(MYSQL *dbCon, const int userId, char *importedFile);
 int deleteCredentialController(MYSQL *dbCon, int credentialId, int userId);
+int saveEditedCredsController(MYSQL *dbCon, const int credId, const int userId, const char *name, const char *login, const char *password);
 
 // API
 void printLeaksList(LeaksList *list);

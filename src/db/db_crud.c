@@ -710,6 +710,48 @@ int deleteCredentialDb(MYSQL *dbCon, int credId, int userId) {
     return (affectedRows) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+int saveEditedCredsDb(MYSQL *dbCon, Credentials *credentials) {
+    int status = EXIT_FAILURE;
+    if (credentials == NULL) return status;
+    if (credentials->userId == 0 || credentials->id == 0) return status;
+    const char *sqlQuery = "UPDATE pswd_stock SET name = ?, loginName = ?, password = AES_ENCRYPT(?,(SELECT UNHEX(pwdMaster) FROM users u WHERE u.id = ?)) WHERE id = ? AND userId = ?";
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[6];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = credentials->name;
+        params[0].buffer_length = strlen(credentials->name);
+
+        params[1].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[1].buffer = credentials->loginName;
+        params[1].buffer_length = strlen(credentials->loginName);
+
+        params[2].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[2].buffer = credentials->password;
+        params[2].buffer_length = strlen(credentials->password);
+
+        params[3].buffer_type = MYSQL_TYPE_LONG;
+        params[3].buffer = (void *) &credentials->userId;
+
+        params[4].buffer_type = MYSQL_TYPE_LONG;
+        params[4].buffer = (void *) &credentials->id;
+
+        params[5].buffer_type = MYSQL_TYPE_LONG;
+        params[5].buffer = (void *) &credentials->userId;
+
+        if (mysql_stmt_bind_param(stmt, params)) {
+            mysql_stmt_close(stmt);
+            return status;
+        }
+        status = mysql_stmt_execute(stmt);
+    }
+    mysql_stmt_close(stmt);
+
+    return status;
+}
+
 int updatePwd(MYSQL *dbCon, char * pwd, int id, char * type){
     char sqlQuery[255];
     if(strcmp(type, "Master") == 0){
