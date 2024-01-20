@@ -1,4 +1,3 @@
-document.body.style.border = "5px solid red";
 const baseUrl = "http://localhost:8081";
 let currentWebsite = window.location.href;
 let currentHostname = window.location.hostname;
