@@ -24,7 +24,7 @@ PwdQualityPage::PwdQualityPage(QWidget *parent, ApplicationController *appContro
     fenetre->setObjectName("fenetreQuality");
     verifWeakPwd(onglets);
     weakPwdList(onglets);
-    this->reUsedPwd(onglets);
+    reUsedPwd(onglets);
     fenetre->addWidget(onglets);
 }
 
@@ -194,5 +194,8 @@ void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
 
         scrollArea->setWidget(reUsedList);
     }
+    free(tokenInfos->token);
+    free(tokenInfos->email);
+    free(tokenInfos);
     onglets->addTab(scrollArea, "Mots de passes réutilisés");
 }

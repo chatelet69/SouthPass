@@ -19,7 +19,7 @@ void freeCredsArray(struct CredsArray *credsArray) {
             free(credsArray->credentials[i].loginName);
             free(credsArray->credentials[i].password);
         }
-        free(credsArray->credentials);
+        if (credsArray->credentials != NULL) free(credsArray->credentials);
         credsArray->size = 0;
     }
 }

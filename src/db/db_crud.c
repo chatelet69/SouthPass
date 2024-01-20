@@ -554,13 +554,15 @@ ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
 }
 
 struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
-    struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList));
     char *sqlQuery = (char *) malloc(sizeof(char) * 600);
-
     if (sqlQuery == NULL) return NULL;
+    struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList));
+    pwdList->size = 0;
+    pwdList->pwd = NULL;
+
     sprintf(sqlQuery, "SELECT AES_DECRYPT(psw.password, UNHEX(u.pwdMaster)) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE psw.userId = %d GROUP BY password", userId);
     if (mysql_query(dbCon, sqlQuery) != 0) {
-        fprintf(stderr, "Query Failure\n");
+        //fprintf(stderr, "Query Failure\n");
         return pwdList;
     } else {
         MYSQL_RES *resData = mysql_store_result(dbCon);
@@ -583,7 +585,7 @@ struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
         }
     }
     free(sqlQuery);
-    // OK
+    
     return pwdList;
 }
 
