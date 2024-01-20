@@ -64,7 +64,6 @@ class CredentialEditWidget : public QWidget {
 
     private:
         QWidget *credsWidgetParent;
-        QWidget *mainContainer;
         QVBoxLayout *mainLayout;
         QLineEdit *nameInput;
         QLineEdit *loginInput;

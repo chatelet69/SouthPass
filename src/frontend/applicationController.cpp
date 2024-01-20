@@ -46,20 +46,21 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     QWidget *headerWidget = new QWidget();
     this->importHeader(headerWidget);
 
+    logPage = new LoginPage(stackedWidget, this, dbCon);
+    credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
+    stackedWidget->addWidget(credsPage);
+    stackedWidget->addWidget(logPage);
+    
     // Tâche synchrone
-    QTimer::singleShot(0, this, [=]() {
-        logPage = new LoginPage(stackedWidget, this, dbCon);
-        credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
-        pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
-        pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
-        dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+    //QTimer::singleShot(0, this, [=]() {
+    pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
+    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
+    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
 
-        stackedWidget->addWidget(credsPage);
-        stackedWidget->addWidget(logPage);
-        stackedWidget->addWidget(pwdGen);
-        stackedWidget->addWidget(pwdQual);
-        stackedWidget->addWidget(dataLeaksPage);
-    });
+    stackedWidget->addWidget(pwdGen);
+    stackedWidget->addWidget(pwdQual);
+    stackedWidget->addWidget(dataLeaksPage);
+    //});
 
     mainLayout->addWidget(headerWidget);
     mainLayout->addWidget(stackedWidget);

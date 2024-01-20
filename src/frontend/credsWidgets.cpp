@@ -64,8 +64,8 @@ void CredentialsWidget::importCredentialsList(CredsArray *credsArray) {
 }
 
 void CredentialsWidget::showEditCred(const int credId, const int userId, QString name, QString login, QString password) {
-    this->credentialEditWidget = new CredentialEditWidget(this, credId, name, login, password);
-    this->credentialEditWidget->show();
+    CredentialEditWidget *newCredentialEditWidget = new CredentialEditWidget(this, credId, userId, name, login, password);
+    newCredentialEditWidget->show();
 }
 
 void CredentialsWidget::updateCredentialsList(CredsArray *credsArray) {
@@ -228,45 +228,105 @@ void CredsToolBarWidget::searchCreds() {
 
 // Cred Edit Window
 
-CredentialEditWidget::CredentialEditWidget(QWidget *parent, const int credId, QString loginName, QString login, QString password) {
+CredentialEditWidget::CredentialEditWidget(QWidget *widgetParent, const int credId, const int userId, QString name, QString login, QString password) {
+    this->credsWidgetParent = widgetParent;
     this->setWindowTitle("Editer l'identifiant");
     QScreen *primaryScreen = QGuiApplication::primaryScreen();
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, QSize(300, 300), primaryScreen->availableGeometry()));
+    mainLayout = new QVBoxLayout(this);
 
     QWidget *labelsContainer = new QWidget(this);
     QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
+    QWidget *buttonsContainer = new QWidget(this);
+    QHBoxLayout *buttonsLayout = new QHBoxLayout(buttonsContainer);
 
-    QWidget *nameEditContainer = new QWidget(this);
-    QVBoxLayout *nameEditLayout = new QVBoxLayout(nameEditContainer);
+    this->setName(name);
+    this->setLogin(login);
+    this->setPassword(password);
+    this->setCredId(credId);
+    this->setUserId(userId);
 
-    QLabel *labelName = new QLabel("Nom :");
-    QLineEdit *nameInput = new QLineEdit(nameEditContainer);
-    nameInput->insert(loginName.split(": ")[1]);
-    //nameInput->setParent(labelName);
-    nameEditLayout->addWidget(labelName);
-    nameEditLayout->addWidget(nameInput);
-
-    QLabel *labelLogin = new QLabel("Login :");
-    QLabel *labelPassword = new QLabel("Mot de passe :");
-
-    labelsContainer->setObjectName("credDetailsBox");
-    labelsContainerLayout->addWidget(nameEditContainer);
-    labelsContainerLayout->addWidget(labelLogin);
-    labelsContainerLayout->addWidget(labelPassword);
+    this->importEditCredsLabels(labelsContainer, labelsContainerLayout);
+    this->importEditCredsButtons(buttonsContainer, buttonsLayout);
 }
 
-void CredentialEditWidget::setCredId(const int newId) {
-    this->credId = newId;
+CredentialEditWidget::~CredentialEditWidget() {
+    delete mainLayout;
+    delete nameInput;
+    delete loginInput;
+    delete passwordInput;
+    delete cancelEditButton;
+    delete saveEditCredButton;
 }
 
-void CredentialEditWidget::setLoginName(QString newName) {
-    this->loginName = newName;
+void CredentialEditWidget::setCredId(const int newId) { this->credId = newId; }
+
+void CredentialEditWidget::setUserId(const int newUserId) { this->userId = newUserId; }
+
+void CredentialEditWidget::setName(QString newName) { this->name = newName; }
+
+void CredentialEditWidget::setLogin(QString newLogin) { this->login = newLogin; }
+
+void CredentialEditWidget::setPassword(QString newPassword) { this->password = newPassword; }
+
+void CredentialEditWidget::importEditCredsLabels(QWidget *labelsContainer, QVBoxLayout *labelsContainerLayout) {
+    if (labelsContainer != nullptr && labelsContainerLayout != nullptr) {
+        QLabel *nameLabel = new QLabel("Nom :");
+        this->nameInput = new QLineEdit(nameLabel);
+        nameInput->insert(this->name.split(": ")[1]); // Pour récupérer seulement le nom (Ex -> Nom : Youtube)
+
+        QLabel *loginLabel = new QLabel("Login :");
+        this->loginInput = new QLineEdit(loginLabel);
+        loginInput->insert(this->login.split(": ")[1]);
+
+        QLabel *passwordLabel = new QLabel("Mot de passe :");
+        this->passwordInput = new QLineEdit(passwordLabel);
+        passwordInput->insert(this->password.split(": ")[1]);
+
+        labelsContainer->setObjectName("credEditDetailsBox");
+        labelsContainerLayout->addWidget(nameLabel);
+        labelsContainerLayout->addWidget(nameInput);
+        labelsContainerLayout->addWidget(loginLabel);
+        labelsContainerLayout->addWidget(loginInput);
+        labelsContainerLayout->addWidget(passwordLabel);
+        labelsContainerLayout->addWidget(passwordInput);
+        mainLayout->addWidget(labelsContainer);
+    }
 }
 
-void CredentialEditWidget::setLogin(QString newLogin) {
-    this->login = newLogin;
-}
+void CredentialEditWidget::importEditCredsButtons(QWidget *buttonsContainer, QHBoxLayout *buttonsLayout) {
+    if (buttonsContainer != nullptr && buttonsLayout != nullptr) {        
+        this->cancelEditButton = new QPushButton("Annuler");
+        this->cancelEditButton->setObjectName("cancelEditButton");
+        connect(cancelEditButton, &QPushButton::clicked, [=](){
+            this->hide();
+            this->close();
+        });
 
-void CredentialEditWidget::setPassword(QString newPassword) {
-    this->password = newPassword;
+        saveEditCredButton = new QPushButton("Enregistrer", this);
+        saveEditCredButton->setObjectName("saveEditCredButton");
+        saveEditCredButton->setProperty("credentialId", credId);
+        this->saveEditCredButton->setProperty("credentialUserId", this->userId);
+        connect(saveEditCredButton, &QPushButton::clicked, [=]() {
+            int credId = saveEditCredButton->property("credentialId").toInt();
+            int userId = saveEditCredButton->property("credentialUserId").toInt();
+            QByteArray nameByte = this->nameInput->text().toLocal8Bit();
+            QByteArray loginByte = this->loginInput->text().toLocal8Bit();
+            QByteArray passByte = this->passwordInput->text().toLocal8Bit();
+            const char *convertnameByte = nameByte.constData();
+            const char *convertloginByte = loginByte.constData();
+            const char *convertpassByte = passByte.constData();
+            ((CredentialsPage*)(this->credsWidgetParent->parent()))->saveEditedCreds(credId, userId, 
+                                                                        convertnameByte, 
+                                                                        convertloginByte,
+                                                                        convertpassByte);
+            
+            this->hide();
+            this->close();
+        });
+
+        buttonsLayout->addWidget(cancelEditButton);
+        buttonsLayout->addWidget(saveEditCredButton);
+        mainLayout->addWidget(buttonsContainer);
+    }
 }
