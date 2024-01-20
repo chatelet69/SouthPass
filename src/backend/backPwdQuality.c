@@ -76,7 +76,7 @@ struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * url, char * us
 void printWeaksPwd(struct WeakPwdList *start){
     struct WeakPwdList *inter = start;
     if(inter == NULL)
-        printf("\nListe vide.");
+       printf("\nListe vide.");
     else
         printf("\nListe de pwd faible :");
 

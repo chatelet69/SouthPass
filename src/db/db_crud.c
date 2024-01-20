@@ -751,3 +751,33 @@ int saveEditedCredsDb(MYSQL *dbCon, Credentials *credentials) {
 
     return status;
 }
+
+int updatePwd(MYSQL *dbCon, char * pwd, int id, char * type){
+    char sqlQuery[255];
+    if(strcmp(type, "Master") == 0){
+        strcpy(sqlQuery,"UPDATE users SET pwdMaster = ? WHERE id = ?");
+    }else{
+        strcpy(sqlQuery,"UPDATE users SET pwdAccount = ? WHERE id = ?");
+    }
+    unsigned int affectedRows = 0;
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[2];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_STRING;
+        params[0].buffer = pwd;
+        params[0].buffer_length = strlen(pwd);
+        params[1].buffer_type = MYSQL_TYPE_LONG;
+        params[1].buffer = (void *) &id;
+
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            return EXIT_FAILURE;
+        }
+        int status = mysql_stmt_execute(stmt);
+        if (status == EXIT_SUCCESS) affectedRows = mysql_stmt_affected_rows(stmt);
+    }
+    mysql_stmt_close(stmt);
+    return (affectedRows) ? EXIT_SUCCESS : EXIT_FAILURE;
+}

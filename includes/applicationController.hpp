@@ -11,6 +11,7 @@
 #include "./loginPage.hpp"
 #include "./pwdGeneratorPage.h"
 #include "./pwdQuality.h"
+#include "./parametersPage.h"
 #include "./dataLeak.hpp"
 
 #define APPLICATION_NAME "SouthPass"
@@ -29,6 +30,7 @@
 class MainWindow;
 class ApplicationController;
 class LoginPage;
+class ParametersPage;
 
 class MainWindow : public QMainWindow {
     public:
@@ -49,7 +51,7 @@ class ApplicationController : public QObject {
         int run();
         void changeTheme(QPushButton *themeButton);
         QString getStyleSheet();
-
+        QString getOtherStyleSheet(int darkOrNot);
         QApplication& getApplication();
         int getUserId();
         void deleteChildsOfLayout(QLayout *layout);
@@ -67,6 +69,7 @@ class ApplicationController : public QObject {
         void exportPasswords();
         void importPasswords();
         void switchLeaksPage();
+        void switchParamsPage();
         //void refreshCredsPage();
 
     private:
@@ -82,5 +85,6 @@ class ApplicationController : public QObject {
         PwdGenerator *pwdGen;
         CredentialsPage *credsPage;
         DataLeaksPage *dataLeaksPage;
+        ParametersPage *paramsPage;
 };
 #endif

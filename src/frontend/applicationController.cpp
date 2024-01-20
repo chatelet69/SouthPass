@@ -26,6 +26,7 @@
 #include "../../includes/fileController.h"
 #include "../../includes/backLoginSignIn.h"
 #include "../../includes/pwdGeneratorPage.h"
+#include "../../includes/parametersPage.h"
 
 ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(nullptr),*/ app(argc, argv) {
     isDark = getThemePreference();
@@ -56,10 +57,12 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
     pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
     dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+    paramsPage = new ParametersPage(this, &app, dbCon);
 
     stackedWidget->addWidget(pwdGen);
     stackedWidget->addWidget(pwdQual);
     stackedWidget->addWidget(dataLeaksPage);
+    stackedWidget->addWidget(paramsPage);
     //});
 
     mainLayout->addWidget(headerWidget);
@@ -69,6 +72,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     if(isConnected() == 0 && userId != 0){
         ApplicationController::switchCredsPage();
     } else {
+        printf("\nswitchToLoginPage");
         ApplicationController::switchToLoginPage();
     }
 }
@@ -102,7 +106,7 @@ void ApplicationController::importHeader(QWidget *headerWidget) {
 
     headerWidget->setObjectName("headerWidget");
     QHBoxLayout *headerLayout = new QHBoxLayout(headerWidget);
-
+/*
     QPushButton *themeButton = new QPushButton();
     themeButton->setObjectName("themeButton");
     connect(themeButton, &QPushButton::clicked, [=]() { this->changeTheme(themeButton); });
@@ -110,10 +114,10 @@ void ApplicationController::importHeader(QWidget *headerWidget) {
     const char *themeIconPath = (isDark) ? lightModeIcon : darkModeIcon;
     QIcon icon(themeIconPath);
     themeButton->setIcon(icon);
-
+*/
     headerLayout->addWidget(menuBar, 0, Qt::AlignLeft);
     //headerLayout->addWidget(menuBar);
-    headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
+    //headerLayout->addWidget(themeButton, 0, Qt::AlignRight);
 }
 
 void ApplicationController::changeTheme(QPushButton *themeButton) {
@@ -136,6 +140,16 @@ void ApplicationController::changeTheme(QPushButton *themeButton) {
 
 QString ApplicationController::getStyleSheet() {
     const char *path = (isDark) ? darkModePath : lightModePath;
+    QFile file(path);
+    file.open(QFile::ReadOnly | QFile::Text);
+    QString styleSheet = QLatin1String(file.readAll());
+    styleSheet.remove('\n');
+    file.close();
+    return styleSheet;
+}
+
+QString ApplicationController::getOtherStyleSheet(int darkOrNot) {
+    const char *path = darkOrNot ? darkModePath : lightModePath;
     QFile file(path);
     file.open(QFile::ReadOnly | QFile::Text);
     QString styleSheet = QLatin1String(file.readAll());
@@ -170,7 +184,13 @@ void ApplicationController::switchToLoginPage() {
 }
 
 void ApplicationController::switchLeaksPage() {
-    stackedWidget->setCurrentWidget(dataLeaksPage);
+    if(isConnected() == 0)
+        stackedWidget->setCurrentWidget(dataLeaksPage);
+}
+
+void ApplicationController::switchParamsPage() {
+    if(isConnected() == 0)
+        stackedWidget->setCurrentWidget(paramsPage);
 }
 
 int ApplicationController::getUserId() {
@@ -202,6 +222,8 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
     connect(analysis, &QAction::triggered, this, &ApplicationController::switchLeaksPage);
 
     QMenu *menuSouthPass = menuBar->addMenu("SouthPass");
+    QAction *paramsBtn = new QAction("Paramètres", this);
+    menuSouthPass->addAction(paramsBtn);
     QAction *deco = new QAction("Se déconnecter", this);
     menuSouthPass->addAction(deco);
     QAction *quitWindow = new QAction("Quitter SouthPass", this);
@@ -209,6 +231,7 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
     connect(seePwd, SIGNAL(triggered()), this, SLOT(switchCredsPage()));
     connect(pwdGenerator, SIGNAL(triggered()), this, SLOT(switchGenPwdPage()));
     connect(pwdQuality, SIGNAL(triggered()), this, SLOT(switchPwdQuality()));
+    connect(paramsBtn, SIGNAL(triggered()), this, SLOT(switchParamsPage()));
     connect(deco, SIGNAL(triggered()), this, SLOT(disconnect()));
     connect(quitWindow, SIGNAL(triggered()), qApp, SLOT(quit()));
 }
