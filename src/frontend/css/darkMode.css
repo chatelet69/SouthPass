@@ -193,7 +193,7 @@ QApplication {
     margin-top: 10px;
     font-size: 24px;
 }
-#backPwdQuality{
+#backPwdQuality, #backParams, #loginBox{
     background-color: #7A93AC;
 }
 
@@ -231,4 +231,46 @@ QCheckBox:checked{
 #genPwdTitle{
     color: white;
     font-size: 24px;
+}
+#emailBox QLabel{
+    color: white;
+    color: white;
+}
+#paramsBox{
+    color: white;
+    border-bottom: 2px solid white;
+}
+#bigTitle{
+    color: white;
+    font-size: 24px;
+}
+#subTitle{
+    color: white;
+    font-size: 16px;
+}
+radioBtnParams{
+    color: white;
+    font-size: 16px;
+    background-color: #eee;
+}
+radioBtnParams:hover{
+    color: white;
+    font-size: 16px;
+    background-color: #ccc;
+}
+#loginLabelTitle{
+    font-size: 24px;
+    text-align: center;
+    text-decoration: underline;
+    color: white;
+}
+#inputLogin{
+    border: none;
+    background-color: #7A93AC;
+    outline: none;
+    border-bottom: 2px solid white;
+}
+#loginLabels{
+    color: white;
+    font-size: 16px;
 }

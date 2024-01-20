@@ -555,13 +555,15 @@ ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
 
 struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
     struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList));
+    if(pwdList==NULL)
+        return NULL;
     char *sqlQuery = (char *) malloc(sizeof(char) * 600);
 
     if (sqlQuery == NULL) return NULL;
     sprintf(sqlQuery, "SELECT AES_DECRYPT(psw.password, UNHEX(u.pwdMaster)) AS password FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE psw.userId = %d GROUP BY password", userId);
     if (mysql_query(dbCon, sqlQuery) != 0) {
         fprintf(stderr, "Query Failure\n");
-        return pwdList;
+        return NULL;
     } else {
         MYSQL_RES *resData = mysql_store_result(dbCon);
         if (resData != NULL) {
@@ -577,6 +579,8 @@ struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
                         pwdList->pwd[nbPwd] = strdup(row[0]);
                         nbPwd++;
                     }
+                }else{
+                    return NULL;
                 }
             }
             mysql_free_result(resData);
@@ -588,40 +592,47 @@ struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
 }
 
 struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id){
+    printf("OKK");
     struct WebsiteByPwd *websiteList = (struct WebsiteByPwd *) malloc(sizeof(struct WebsiteByPwd));
-    char *sqlQuery = (char *) malloc(sizeof(char) * 600);
+    if(websiteList != NULL) {
+        char *sqlQuery = (char *) malloc(sizeof(char) * 600);
 
-    if (sqlQuery == NULL) return NULL;
-    sprintf(sqlQuery, "SELECT name, loginName FROM pswd_stock WHERE password = AES_ENCRYPT(\"%s\",(SELECT UNHEX(pwdMaster) FROM users WHERE id = %d))", pwd, id);
+        if (sqlQuery == NULL) return NULL;
+        sprintf(sqlQuery,
+                "SELECT name, loginName FROM pswd_stock WHERE password = AES_ENCRYPT(\"%s\",(SELECT UNHEX(pwdMaster) FROM users WHERE id = %d))",
+                pwd, id);
 
-    if (mysql_query(dbCon, sqlQuery) != 0) {
-        fprintf(stderr, "Query Failure\n");
-        return websiteList;
-    } else {
-        MYSQL_RES *resData = mysql_store_result(dbCon);
-        if (resData != NULL) {
-            //unsigned int numFields = mysql_num_fields(resData);
-            unsigned int rowsCount = mysql_num_rows(resData);
-            MYSQL_ROW row;
-            if (rowsCount > 0) {
-                int nbWebsites = 0;
-                websiteList->website = (struct Website *) malloc(sizeof(struct Website) * rowsCount);
-                websiteList->website->website= (char *) malloc(sizeof(char) * 255);
-                websiteList->website->username = (char *) malloc(sizeof(char) * 255);
+        if (mysql_query(dbCon, sqlQuery) != 0) {
+            fprintf(stderr, "Query Failure\n");
+            return websiteList;
+        } else {
+            MYSQL_RES *resData = mysql_store_result(dbCon);
+            if (resData != NULL) {
+                //unsigned int numFields = mysql_num_fields(resData);
+                unsigned int rowsCount = mysql_num_rows(resData);
+                MYSQL_ROW row;
+                if (rowsCount > 0) {
+                    int nbWebsites = 0;
+                    websiteList->website = (struct Website *) malloc(sizeof(struct Website) * rowsCount);
+                    websiteList->website->website = (char *) malloc(sizeof(char) * 255);
+                    websiteList->website->username = (char *) malloc(sizeof(char) * 255);
 
-                websiteList->size = rowsCount;
-                if (websiteList->website != NULL) {
-                    while ((row = mysql_fetch_row(resData))) {
-                        websiteList->website[nbWebsites].website = row[0];
-                        websiteList->website[nbWebsites].username = row[1];
-                        nbWebsites++;
+                    websiteList->size = rowsCount;
+                    if (websiteList->website != NULL) {
+                        while ((row = mysql_fetch_row(resData))) {
+                            websiteList->website[nbWebsites].website = row[0];
+                            websiteList->website[nbWebsites].username = row[1];
+                            nbWebsites++;
+                        }
                     }
                 }
+                mysql_free_result(resData);
+            }else{
+                return NULL;
             }
-            mysql_free_result(resData);
         }
+        free(sqlQuery);
     }
-    free(sqlQuery);
     // OK
     return websiteList;
 }
