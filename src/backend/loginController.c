@@ -17,8 +17,9 @@
 
 
 int isConnected(){
-    if(getTokenFileInfos() == NULL)
-        return -1;
+    TokenInfos *tokenInfos = getTokenFileInfos();
+    if(tokenInfos == NULL)
+        return 1;
     return 0;
 }
 

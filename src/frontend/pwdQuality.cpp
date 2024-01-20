@@ -10,6 +10,7 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <cstdlib>
+#include <stdio.h>
 #include <QWidget>
 #include "../../includes/applicationController.hpp"
 #include "../../includes/pwdQuality.h"
@@ -115,7 +116,7 @@ void PwdQualityPage::weakPwdList(QTabWidget *onglets){
             weakPwdBox->setLayout(weakPwdHLayout);
         }
     }else{
-        printf("\nListe vide.");
+        // printf("\nListe vide.");
         QLabel *noWeakPwd = new QLabel("Vous n'avez aucun mot de passe faible !");
         mainLayout->addWidget(noWeakPwd);
     }
@@ -158,8 +159,8 @@ void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
 
                     char url[200];
                     sprintf(url, "url : %s", websites->website[j].website);
-                    QLabel *displayUrl = new QLabel();
-                    displayUrl->setText(url);
+                    QLabel *urlDisplay = new QLabel();
+                    urlDisplay->setText(url);
                     char login[200];
                     sprintf(login, "login : %s", websites->website[j].username);
                     QLabel *displayLogin = new QLabel();
@@ -169,7 +170,7 @@ void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
                     QLabel *displayPwd = new QLabel();
                     displayPwd->setText(pwd);
 
-                    webInfosLayout->addWidget(displayUrl);
+                    webInfosLayout->addWidget(urlDisplay);
                     webInfosLayout->addWidget(displayLogin);
                     webInfosLayout->addWidget(displayPwd);
 
