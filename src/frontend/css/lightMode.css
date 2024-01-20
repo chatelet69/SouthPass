@@ -81,3 +81,36 @@ QApplication {
 #pwdInput{
     width: 70%;
 }
+#emailBox QLabel{
+    color: white;
+}
+#paramsBox{
+    border-bottom: 2px solid #7A93AC;
+}
+#bigTitle{
+    font-size: 24px;
+}
+#subTitle{
+    font-size: 16px;
+}
+radioBtnParams{
+    font-size: 16px;
+    background-color: #eee;
+}
+radioBtnParams:hover{
+    font-size: 16px;
+    background-color: #ccc;
+}
+#loginLabelTitle{
+    font-size: 24px;
+    text-align: center;
+    text-decoration: underline;
+}
+#inputLogin{
+    outline: none;
+    border: none;
+    border-bottom: 2px solid black;
+}
+#loginLabels{
+    font-size: 16px;
+}

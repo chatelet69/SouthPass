@@ -46,23 +46,9 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
 
     QWidget *headerWidget = new QWidget();
     this->importHeader(headerWidget);
-
-    logPage = new LoginPage(stackedWidget, this, dbCon);
-    credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
-    stackedWidget->addWidget(credsPage);
-    stackedWidget->addWidget(logPage);
-    
-    // Tâche synchrone
-    //QTimer::singleShot(0, this, [=]() {
+    // Tâche synchroneQTimer::singleShot(0, this, [=]() {
     pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
-    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
-    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
-    paramsPage = new ParametersPage(this, &app, dbCon);
-
     stackedWidget->addWidget(pwdGen);
-    stackedWidget->addWidget(pwdQual);
-    stackedWidget->addWidget(dataLeaksPage);
-    stackedWidget->addWidget(paramsPage);
     //});
 
     mainLayout->addWidget(headerWidget);
@@ -159,6 +145,8 @@ QString ApplicationController::getOtherStyleSheet(int darkOrNot) {
 }
 
 void ApplicationController::switchCredsPage() {
+    credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
+    stackedWidget->addWidget(credsPage);
     if(isConnected() == 0 && this->credsPage != NULL) {
         this->credsPage->showAllCredentials();
         stackedWidget->setCurrentWidget(credsPage);
@@ -171,6 +159,8 @@ void ApplicationController::switchGenPwdPage() {
 }
 
 void ApplicationController::switchPwdQuality() {
+    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
+    stackedWidget->addWidget(pwdQual);
     if(isConnected() == 0)
         stackedWidget->setCurrentWidget(pwdQual);
 }
@@ -180,15 +170,21 @@ QApplication& ApplicationController::getApplication() {
 }
 
 void ApplicationController::switchToLoginPage() {
+    logPage = new LoginPage(stackedWidget, this, dbCon);
+    stackedWidget->addWidget(logPage);
     stackedWidget->setCurrentWidget(logPage);
 }
 
 void ApplicationController::switchLeaksPage() {
+    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+    stackedWidget->addWidget(dataLeaksPage);
     if(isConnected() == 0)
         stackedWidget->setCurrentWidget(dataLeaksPage);
 }
 
 void ApplicationController::switchParamsPage() {
+    paramsPage = new ParametersPage(this, &app, dbCon);
+    stackedWidget->addWidget(paramsPage);
     if(isConnected() == 0)
         stackedWidget->setCurrentWidget(paramsPage);
 }

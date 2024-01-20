@@ -76,7 +76,7 @@ void PwdQualityPage::weakPwdList(QTabWidget *onglets){
     scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
 
-    QWidget *weakList = new QWidget;
+    QWidget *weakList = new QWidget();
     QVBoxLayout * mainLayout = new QVBoxLayout(weakList);
     weakList->setObjectName("backPwdQuality");
 
@@ -134,65 +134,73 @@ void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
     reUsedList->setObjectName("backPwdQuality");
 
     TokenInfos *tokenInfos = getTokenFileInfos();
-    if(tokenInfos != NULL) {
+    if(tokenInfos != NULL || tokenInfos -> id != NULL) {
         struct PwdList *pwds = getUniquePwd(dbCon, tokenInfos->id);
-        for (unsigned int i = 0; i < pwds->size; ++i) {
-            struct WebsiteByPwd *websites = getWebsiteByPwd(dbCon, pwds->pwd[i], tokenInfos->id);
-            if(websites->size>=2){
-                QHBoxLayout * nbWebsiteByPwd = new QHBoxLayout();
-                char webByPwd[200];
-                sprintf(webByPwd, "%d comptes utilisent le même mot de passe : ", websites->size);
-                QLabel *displayNbWebsites = new QLabel();
-                displayNbWebsites->setAlignment(Qt::AlignCenter);
-                displayNbWebsites->setText(webByPwd);
-                displayNbWebsites->setObjectName("displayNbWebsites");
-                nbWebsiteByPwd->addWidget(displayNbWebsites);
-                reUsedLayout->addLayout(nbWebsiteByPwd);
+        if(pwds != NULL) {
+            if (pwds != NULL || dbCon != NULL) {
+                for (unsigned int i = 0; i < pwds->size; ++i) {
+                    if (pwds->pwd[i] != NULL) {
+                        struct WebsiteByPwd *websites = getWebsiteByPwd(dbCon, pwds->pwd[i], tokenInfos->id);
+                        if (websites != NULL && websites->website != NULL) {
+                            if (websites->size >= 2) {
+                                QHBoxLayout * nbWebsiteByPwd = new QHBoxLayout();
+                                char webByPwd[200];
+                                sprintf(webByPwd, "%d comptes utilisent le même mot de passe : ", websites->size);
+                                QLabel * displayNbWebsites = new QLabel();
+                                displayNbWebsites->setAlignment(Qt::AlignCenter);
+                                displayNbWebsites->setText(webByPwd);
+                                displayNbWebsites->setObjectName("displayNbWebsites");
+                                nbWebsiteByPwd->addWidget(displayNbWebsites);
+                                reUsedLayout->addLayout(nbWebsiteByPwd);
 
-                for (unsigned int j = 0; j < websites->size; ++j) {
-                    QWidget * boxPwd = new QWidget();
-                    QHBoxLayout * boxPwdLayout = new QHBoxLayout();
-                    boxPwd->setObjectName("boxPwdQuality");
+                                for (unsigned int j = 0; j < websites->size; ++j) {
+                                    QWidget * boxPwd = new QWidget();
+                                    QHBoxLayout * boxPwdLayout = new QHBoxLayout();
+                                    boxPwd->setObjectName("boxPwdQuality");
 
-                    QWidget * webInfos = new QWidget();
-                    QVBoxLayout * webInfosLayout = new QVBoxLayout();
+                                    QWidget * webInfos = new QWidget();
+                                    QVBoxLayout * webInfosLayout = new QVBoxLayout();
 
-                    char url[200];
-                    sprintf(url, "url : %s", websites->website[j].website);
-                    QLabel *urlDisplay = new QLabel();
-                    urlDisplay->setText(url);
-                    char login[200];
-                    sprintf(login, "login : %s", websites->website[j].username);
-                    QLabel *displayLogin = new QLabel();
-                    displayLogin->setText(login);
-                    char pwd[200];
-                    sprintf(pwd, "pwd : %s", pwds->pwd[i]);
-                    QLabel *displayPwd = new QLabel();
-                    displayPwd->setText(pwd);
+                                    char url[200];
+                                    sprintf(url, "url : %s", websites->website[j].website);
+                                    QLabel * urlDisplay = new QLabel();
+                                    urlDisplay->setText(url);
+                                    char login[200];
+                                    sprintf(login, "login : %s", websites->website[j].username);
+                                    QLabel * displayLogin = new QLabel();
+                                    displayLogin->setText(login);
+                                    char pwd[200];
+                                    sprintf(pwd, "pwd : %s", pwds->pwd[i]);
+                                    QLabel * displayPwd = new QLabel();
+                                    displayPwd->setText(pwd);
 
-                    webInfosLayout->addWidget(urlDisplay);
-                    webInfosLayout->addWidget(displayLogin);
-                    webInfosLayout->addWidget(displayPwd);
+                                    webInfosLayout->addWidget(urlDisplay);
+                                    webInfosLayout->addWidget(displayLogin);
+                                    webInfosLayout->addWidget(displayPwd);
 
-                    QPushButton *editPwd = new QPushButton("Edit");
-                    // QVBoxLayout * editInfos = new QVBoxLayout();
-                    // editInfos->addWidget(editPwd);
-                    boxPwdLayout->addLayout(webInfosLayout);
-                    boxPwdLayout->addWidget(editPwd);
-                    reUsedLayout->addWidget(boxPwd);
-                    boxPwd->setLayout(boxPwdLayout);
+                                    QPushButton * editPwd = new QPushButton("Edit");
+                                    // QVBoxLayout * editInfos = new QVBoxLayout();
+                                    // editInfos->addWidget(editPwd);
+                                    boxPwdLayout->addLayout(webInfosLayout);
+                                    boxPwdLayout->addWidget(editPwd);
+                                    reUsedLayout->addWidget(boxPwd);
+                                    boxPwd->setLayout(boxPwdLayout);
+                                }
+
+                                free(websites->website);
+                                free(websites);
+                            }
+                        }
+                    }
                 }
+                for (unsigned int j = 0; j < pwds->size; ++j) {
+                    free(pwds->pwd[j]);
+                }
+                free(pwds);
 
-                free(websites->website);
-                free(websites);
+                scrollArea->setWidget(reUsedList);
             }
         }
-        for (unsigned int j = 0; j < pwds->size; ++j) {
-            free(pwds->pwd[j]);
-        }
-        free(pwds);
-
-        scrollArea->setWidget(reUsedList);
     }
     free(tokenInfos->token);
     free(tokenInfos->email);
