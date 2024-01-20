@@ -20,7 +20,7 @@
 #include "backLoginSignIn.h"
 #include <string.h>
 #include "pwdGeneratorPage.h"
-#include "parametersPage.h"
+#include "parametersPage.hpp"
 #include "jsonController.h"
 
 #endif

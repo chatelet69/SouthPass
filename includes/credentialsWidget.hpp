@@ -85,6 +85,7 @@ class CredentialsWidget : public QWidget {
     Q_OBJECT
     public:
         CredentialsWidget(QWidget *parent, CredsArray *credsArray);
+        ~CredentialsWidget();
         void updateCredentialsList(CredsArray *credsArray);
         void importCredentialsList(CredsArray *credsArray);
 
@@ -94,7 +95,6 @@ class CredentialsWidget : public QWidget {
     private:
         QVBoxLayout *contentLayout;
         QScrollArea *scrollArea;
-        CredentialEditWidget *credentialEditWidget;
         QWidget *credsContainer;
         QVBoxLayout *credsLayout;
 

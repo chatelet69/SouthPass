@@ -4,8 +4,8 @@
 #include <QMessageBox>
 #include <QRadioButton>
 #include <QDesktopServices>
+#include "../../includes/parametersPage.hpp"
 #include "../../includes/applicationController.hpp"
-#include "../../includes/parametersPage.h"
 #include "../../includes/fileController.h"
 #include "../../includes/backParams.h"
 char * convertStringForC(QLineEdit * string);

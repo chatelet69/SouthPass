@@ -2,9 +2,9 @@
 // Created by mathf on 19/01/2024.
 //
 
-#ifndef SOUTHPASS_PARAMETERSPAGE_H
-#define SOUTHPASS_PARAMETERSPAGE_H
-#include "db.h"
+#ifndef SOUTHPASS_PARAMETERSPAGE_HPP
+#define SOUTHPASS_PARAMETERSPAGE_HPP
+
 #include <QWidget>
 #include <QLineEdit>
 #include <QLabel>
@@ -12,9 +12,11 @@
 #include <QVBoxLayout>
 #include <QScrollArea>
 #include <QFormLayout>
-#include "./applicationController.hpp"
+#include "applicationController.hpp"
+#include "db.h"
 
 class ApplicationController;
+
 void changeThemeMode(ApplicationController *appController, QApplication *app);
 
 class ParametersPage : public QWidget {
@@ -33,4 +35,4 @@ private:
     MYSQL *dbCon;
     QScrollArea *scrollArea;
 };
-#endif //SOUTHPASS_PARAMETERSPAGE_H
+#endif //SOUTHPASS_PARAMETERSPAGE_HPP

@@ -45,6 +45,13 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, CredsArray *credsArray) : 
     this->show();
 }
 
+CredentialsWidget::~CredentialsWidget() {
+    delete credsLayout;
+    delete credsContainer;
+    delete scrollArea;
+    delete contentLayout;
+}
+
 void CredentialsWidget::importCredentialsList(CredsArray *credsArray) {
     if (credsArray->size > 0) {
         for (unsigned int i = 0; i < credsArray->size; i++){
@@ -213,6 +220,7 @@ CredsToolBarWidget::CredsToolBarWidget(QWidget *parent, MYSQL *dbCon) : QWidget(
 }
 
 CredsToolBarWidget::~CredsToolBarWidget() {
+    delete form;
     delete searchType;
     delete searchInput;
 }

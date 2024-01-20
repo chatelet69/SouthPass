@@ -26,7 +26,7 @@
 #include "../../includes/fileController.h"
 #include "../../includes/backLoginSignIn.h"
 #include "../../includes/pwdGeneratorPage.h"
-#include "../../includes/parametersPage.h"
+#include "../../includes/parametersPage.hpp"
 
 ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(nullptr),*/ app(argc, argv) {
     isDark = getThemePreference();
@@ -78,6 +78,10 @@ ApplicationController::~ApplicationController() {
     closeDb(dbCon);
 
     if (oldTheme != isDark) saveThemePreference(isDark);
+
+    delete credsPage;
+    delete pwdQual;
+    delete logPage;
 }
 
 int ApplicationController::run() {
@@ -145,10 +149,20 @@ QString ApplicationController::getOtherStyleSheet(int darkOrNot) {
 }
 
 void ApplicationController::switchCredsPage() {
+    qDebug() << "Stacked : " << stackedWidget->children();
+    if (credsPage) {
+        stackedWidget->removeWidget(credsPage);
+        qDebug() << "before delete";
+        qDebug() << credsPage;
+        delete credsPage;
+        qDebug() << "after : " << credsPage;
+        //this->credsPage = nullptr;
+    }
+    qDebug() << credsPage;
     credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
     stackedWidget->addWidget(credsPage);
-    if(isConnected() == 0 && this->credsPage != NULL) {
-        this->credsPage->showAllCredentials();
+    if(isConnected() == 0 && credsPage != NULL) {
+        credsPage->showAllCredentials();
         stackedWidget->setCurrentWidget(credsPage);
     }
 }
