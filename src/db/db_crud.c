@@ -798,3 +798,30 @@ int updatePwd(MYSQL *dbCon, char * pwd, int id, char * type){
     mysql_stmt_close(stmt);
     return (affectedRows) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+
+int saveNewEmail(MYSQL *dbCon, int userId, char *newEmail) {
+    int status = EXIT_FAILURE;
+    if (newEmail == NULL || userId == 0) return status;
+    const char *sqlQuery = "UPDATE users SET email = ? WHERE id = ?";
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[2];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = newEmail;
+        params[0].buffer_length = strlen(newEmail);
+
+        params[1].buffer_type = MYSQL_TYPE_LONG;
+        params[1].buffer = (void *) &userId;
+
+        if (mysql_stmt_bind_param(stmt, params)) {
+            mysql_stmt_close(stmt);
+            return status;
+        }
+        status = mysql_stmt_execute(stmt);
+    }
+    mysql_stmt_close(stmt);
+
+    return status;
+}

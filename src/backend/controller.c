@@ -33,6 +33,14 @@ void freeCredentialsData(Credentials *creds) {
     }
 }
 
+void freeToken(TokenInfos *token) {
+    if (token != NULL) {
+        if (token->email) free(token->email);
+        if (token->token) free(token->token);
+        free(token);
+    }
+}
+
 void printCreds(Credentials *creds, unsigned int size) {
     if (creds != NULL) {
         for (unsigned int i = 0; i < size; i++) {
@@ -206,6 +214,23 @@ int saveEditedCredsController(MYSQL *dbCon, const int credId, const int userId, 
     int status = checkCredentialsData(credentials);
     if (status == EXIT_SUCCESS) status = saveEditedCredsDb(dbCon, credentials);
     freeCredentialsData(credentials);
+
+    return status;
+}
+
+int saveEditedEmail(MYSQL *dbCon, int userId, char *newEmail, char *actualEmail) {
+    if (strcmp(newEmail, actualEmail) == 0 || userId == 0 || strlen(newEmail) > 255) {
+        free(actualEmail);
+        free(newEmail);
+        return EXIT_FAILURE;
+    }
+
+    printf("before db\n");
+
+    int status = saveNewEmail(dbCon, userId, newEmail);
+    printf("status db : %d\n", status);
+    free(actualEmail);
+    free(newEmail);
 
     return status;
 }
