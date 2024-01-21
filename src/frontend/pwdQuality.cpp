@@ -103,17 +103,21 @@ void PwdQualityPage::weakPwdList(QTabWidget *onglets){
             sprintf(weakPwd, "pwd : %s", start->pwd);
             QLabel *WeakPwdLabel = new QLabel();
             WeakPwdLabel->setText(weakPwd);
+            QPushButton *editWeakPwd = new QPushButton("Edit");
+            editWeakPwd->setProperty("idEdit", start->id);
+            editWeakPwd->setObjectName("editWeakPwd");
+
             start = start->next;
 
             weakInfosLayout->addWidget(urlOfWeakPwd);
             weakInfosLayout->addWidget(loginOfWeakPwd);
             weakInfosLayout->addWidget(WeakPwdLabel);
 
-            QPushButton *editWeakPwd = new QPushButton("Edit");
             weakPwdHLayout->addLayout(weakInfosLayout);
             weakPwdHLayout->addWidget(editWeakPwd);
             mainLayout->addWidget(weakPwdBox);
             weakPwdBox->setLayout(weakPwdHLayout);
+
         }
     }else{
         // printf("\nListe vide.");
@@ -123,6 +127,13 @@ void PwdQualityPage::weakPwdList(QTabWidget *onglets){
     scrollArea->setWidget(weakList);
     onglets->addTab(scrollArea, "Liste mots de passes faibles");
     free(start);
+}
+
+void editPwdWeak(QWidget *parent, ApplicationController *appController, MYSQL * dbCon, int id,  char * pwd, char *username, char *site, QPushButton *editWeakPwd){
+ /*   connect(editWeakPwd, &QPushButton::clicked, this, [=](){
+        printf("\nok");
+    });
+    */
 }
 
 void PwdQualityPage::reUsedPwd(QTabWidget *onglets){

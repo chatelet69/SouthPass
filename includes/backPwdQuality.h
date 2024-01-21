@@ -8,6 +8,7 @@
 #include <mysql.h>
 
 struct WeakPwdList{
+    int id;
     char * site;
     char * username;
     char * pwd;
@@ -29,7 +30,7 @@ struct WebsiteByPwd{
 };
 // WeakPwdList
 struct WeakPwdList * getAllWeaksPwd(struct WeakPwdList *start, MYSQL * dbCon);
-struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * site, char * username, char * pwd);
+struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * site, char * username, char * pwd, int id);
 void printWeaksPwd(struct WeakPwdList *start);
 
 // PwdQuality

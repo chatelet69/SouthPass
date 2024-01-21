@@ -15,6 +15,7 @@
 #include "applicationController.hpp"
 class ApplicationController;
 
+void editPwdWeak(QWidget *parent, ApplicationController *appController, MYSQL * dbCon, int id,  char * pwd, char *username, char *site, QPushButton *editWeakPwd);
 class PwdQualityPage : public QWidget {
 Q_OBJECT
 public:

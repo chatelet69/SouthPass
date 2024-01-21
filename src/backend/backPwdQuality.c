@@ -53,7 +53,7 @@ struct WeakPwdList * getAllWeaksPwd(struct WeakPwdList *start, MYSQL * dbCon){
         CredsArray *credsArray = getPasswordsList(dbCon, tokenInfos->id);
         for (int i = 0; i < credsArray->size; ++i) {
             if (strcmp(testPwd(credsArray->credentials[i].password), "Faible") == 0)
-                start = addWeakPwd(start, credsArray->credentials[i].name, credsArray->credentials[i].loginName,credsArray->credentials[i].password);
+                start = addWeakPwd(start, credsArray->credentials[i].name, credsArray->credentials[i].loginName,credsArray->credentials[i].password, credsArray->credentials[i].id);
         }
         freeCredsArray(credsArray);
         // printWeaksPwd(start);
@@ -63,8 +63,9 @@ struct WeakPwdList * getAllWeaksPwd(struct WeakPwdList *start, MYSQL * dbCon){
     }
 }
 
-struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * url, char * username, char * pwd){
+struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * url, char * username, char * pwd, int id){
     struct WeakPwdList *inter = (struct WeakPwdList*)malloc(sizeof(struct WeakPwdList));
+    inter->id = id;
     inter->site = strdup(url);
     inter->username = strdup(username);
     inter->pwd = strdup(pwd);
