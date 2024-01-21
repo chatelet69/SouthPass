@@ -1,6 +1,8 @@
-//
-// Created by mathf on 19/01/2024.
-//
+/*
+    Filename : parametersPage.cpp
+    Description : Parameters Page of Application
+*/
+
 #include <QMessageBox>
 #include <QRadioButton>
 #include <QDesktopServices>
@@ -8,6 +10,7 @@
 #include "../../includes/applicationController.hpp"
 #include "../../includes/fileController.h"
 #include "../../includes/backParams.h"
+#include "../../includes/backController.h"
 char * convertStringForC(QLineEdit * string);
 
 ParametersPage::ParametersPage(ApplicationController *appController, QApplication *app, MYSQL *dbCon){
@@ -18,50 +21,18 @@ ParametersPage::ParametersPage(ApplicationController *appController, QApplicatio
     QWidget *mainWidget = new QWidget();
     mainWidget->setObjectName("backParams");
     QVBoxLayout * mainLayout = new QVBoxLayout(mainWidget);
-//email part
-    QLabel * accountTitle = new QLabel("Compte :");
+
+    QLabel *accountTitle = new QLabel("Compte :");
     accountTitle->setObjectName("bigTitle");
-    QWidget * emailBox = new QWidget();
+    QWidget *emailBox = new QWidget();
     emailBox->setObjectName("paramsBox");
-    QHBoxLayout * emailLayout = new QHBoxLayout(emailBox);
-    TokenInfos *tokenInfos = getTokenFileInfos();
-    QVBoxLayout * emailDisplay = new QVBoxLayout();
-    QLabel * emailTitle = new QLabel("Email :");
-    emailTitle->setObjectName("subTitle");
-    QLabel * email = new QLabel();
-    if(tokenInfos == NULL || tokenInfos->email == NULL)
-        email->setText("Erreur");
-    else
-        email->setText(tokenInfos->email);
-    emailDisplay->addWidget(emailTitle);
-    emailDisplay->addWidget(email);
-    QPushButton * editEmail = new QPushButton("Modifier");
-    emailLayout->addLayout(emailDisplay);
-    emailLayout->addWidget(editEmail);
+    this->importEmailParameter(emailBox);
 
-
-    QLabel * secuTitle = new QLabel("Sécurité :");
+    QLabel *secuTitle = new QLabel("Sécurité :");
     secuTitle->setObjectName("bigTitle");
-    QWidget * secuBox = new QWidget();
+    QWidget *secuBox = new QWidget();
     secuBox->setObjectName("paramsBox");
-    QVBoxLayout * secuLayout = new QVBoxLayout(secuBox);
-    QWidget * pwdBox = new QWidget();
-    QHBoxLayout * pwdLayout = new QHBoxLayout(pwdBox);
-
-    QLabel * editPwdTitle = new QLabel("Modifier votre mot de passe :");
-    editPwdTitle->setObjectName("subTitle");
-    QPushButton * editPwdBtn = new QPushButton("Modifier");
-    pwdLayout->addWidget(editPwdTitle);
-    pwdLayout->addWidget(editPwdBtn);
-    secuLayout->addWidget(pwdBox);
-    QWidget * pwdBox2 = new QWidget();
-    QHBoxLayout * pwdLayout2 = new QHBoxLayout(pwdBox2);
-    QLabel * editMasterPwdTitle = new QLabel("Modifier votre mot de passe maitre :");
-    editMasterPwdTitle->setObjectName("subTitle");
-    QPushButton * editMasterPwdBtn = new QPushButton("Modifier");
-    pwdLayout2->addWidget(editMasterPwdTitle);
-    pwdLayout2->addWidget(editMasterPwdBtn);
-    secuLayout->addWidget(pwdBox2);
+    this->importSecurityParameter(secuBox);
 
     QLabel * lookTitle = new QLabel("Apparence :");
     lookTitle->setObjectName("bigTitle");
@@ -121,6 +92,107 @@ char * ParametersPage::convertStringForC(QLineEdit * string){
         stringConverted[strlen(stringConverted)-1] = '\0';
 
     return strdup(stringConverted);
+}
+
+void ParametersPage::importEmailParameter(QWidget *emailBox) {
+    QHBoxLayout *emailLayout = new QHBoxLayout(emailBox);
+    TokenInfos *tokenInfos = getTokenFileInfos();
+    QVBoxLayout *emailDisplay = new QVBoxLayout();
+
+    QLabel *emailTitle = new QLabel("Email :");
+    emailTitle->setObjectName("subTitle");
+
+    QLabel *email = new QLabel();
+    if(tokenInfos == NULL || tokenInfos->email == NULL) email->setText("Erreur");
+    else email->setText(tokenInfos->email);
+    this->userEmail = QString(tokenInfos->email);
+    this->userId = tokenInfos->id;
+
+    freeToken(tokenInfos);
+
+    emailDisplay->addWidget(emailTitle);
+    emailDisplay->addWidget(email);
+    QPushButton *editEmailButton = new QPushButton("Modifier");
+    connect(editEmailButton, QPushButton::clicked, this, [this]() { this->showEditEmailBox(this); });
+    emailLayout->addLayout(emailDisplay);
+    emailLayout->addWidget(editEmailButton);
+}
+
+void ParametersPage::importSecurityParameter(QWidget *secuBox) {
+    QVBoxLayout * secuLayout = new QVBoxLayout(secuBox);
+    QWidget * pwdBox = new QWidget();
+    QHBoxLayout * pwdLayout = new QHBoxLayout(pwdBox);
+
+    QLabel * editPwdTitle = new QLabel("Modifier votre mot de passe :");
+    editPwdTitle->setObjectName("subTitle");
+    QPushButton * editPwdBtn = new QPushButton("Modifier");
+    pwdLayout->addWidget(editPwdTitle);
+    pwdLayout->addWidget(editPwdBtn);
+    secuLayout->addWidget(pwdBox);
+    QWidget * pwdBox2 = new QWidget();
+    QHBoxLayout * pwdLayout2 = new QHBoxLayout(pwdBox2);
+    QLabel * editMasterPwdTitle = new QLabel("Modifier votre mot de passe maitre :");
+    editMasterPwdTitle->setObjectName("subTitle");
+    QPushButton * editMasterPwdBtn = new QPushButton("Modifier");
+    pwdLayout2->addWidget(editMasterPwdTitle);
+    pwdLayout2->addWidget(editMasterPwdBtn);
+    secuLayout->addWidget(pwdBox2);
+}
+
+void ParametersPage::showEditEmailBox(QWidget *parametersParent) {
+    QScreen *primaryScreen = QGuiApplication::primaryScreen();
+    QWidget *editEmailWindow = new QWidget(NULL);
+    QVBoxLayout *editEmailWindowLayout = new QVBoxLayout(editEmailWindow);
+    editEmailWindow->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, QSize(300, 300), primaryScreen->availableGeometry()));
+    editEmailWindow->setObjectName("editEmailWindow");
+
+    QLabel *emailLabel = new QLabel(editEmailWindow);
+    emailLabel->setText("Email à modifier : ");
+    QLineEdit *editEmailInput = new QLineEdit(editEmailWindow);
+    editEmailInput->setText(this->userEmail);
+
+    QWidget *buttonsContainer = new QWidget(editEmailWindow);
+    QHBoxLayout *buttonsLayout = new QHBoxLayout(buttonsContainer);
+    QPushButton *cancelButton = new QPushButton(editEmailWindow);
+    cancelButton->setText("Annuler");
+    cancelButton->setObjectName("cancelButton");
+    QPushButton *editEmailSaveButton = new QPushButton(editEmailWindow);
+    editEmailSaveButton->setText("Enregistrer");
+    editEmailSaveButton->setObjectName("saveButton");
+
+    buttonsLayout->addWidget(cancelButton);
+    buttonsLayout->addWidget(editEmailSaveButton);
+
+    connect(cancelButton, &QPushButton::clicked, [=]() {
+        editEmailWindow->hide();
+        editEmailWindow->close();
+    });
+    connect(editEmailSaveButton, &QPushButton::clicked, [=]() {
+        this->saveNewEmail(editEmailInput->text());
+        editEmailWindow->close();
+    });
+
+    editEmailWindowLayout->addWidget(emailLabel);
+    editEmailWindowLayout->addWidget(editEmailInput);
+    editEmailWindowLayout->addWidget(buttonsContainer);
+
+    editEmailWindow->show();
+}
+
+void ParametersPage::saveNewEmail(QString emailValue) {
+    QByteArray emailBytes = emailValue.toLocal8Bit();
+    char *emailConverted = emailBytes.data();
+    char *actualEmailConverted = (this->userEmail.toLocal8Bit()).data();
+    qDebug() << emailConverted << actualEmailConverted;
+    int status = saveEditedEmail(dbCon, this->userId, emailConverted, actualEmailConverted);
+    if (status == EXIT_SUCCESS) {
+        QMessageBox msgBox;
+        QString newMailMessage = QString("Nouveau mail : ").arg(emailValue);
+        msgBox.setText("Email mit à jour !");
+        msgBox.setInformativeText(newMailMessage);
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.exec();
+    }
 }
 
 void changeThemeMode(ApplicationController *appController, QApplication *app){
