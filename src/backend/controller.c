@@ -227,7 +227,7 @@ int saveEditedEmail(MYSQL *dbCon, int userId, char *newEmail, char *actualEmail)
 
     printf("before db\n");
 
-    int status = saveNewEmail(dbCon, userId, newEmail);
+    int status = saveNewEmailDb(dbCon, userId, newEmail);
     printf("status db : %d\n", status);
     free(actualEmail);
     free(newEmail);

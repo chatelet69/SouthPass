@@ -799,8 +799,9 @@ int updatePwd(MYSQL *dbCon, char * pwd, int id, char * type){
     return (affectedRows) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int saveNewEmail(MYSQL *dbCon, int userId, char *newEmail) {
+int saveNewEmailDb(MYSQL *dbCon, int userId, char *newEmail) {
     int status = EXIT_FAILURE;
+    printf("%s %d\n", newEmail, userId);
     if (newEmail == NULL || userId == 0) return status;
     const char *sqlQuery = "UPDATE users SET email = ? WHERE id = ?";
 
