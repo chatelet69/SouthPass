@@ -8,6 +8,7 @@
 #include "../../includes/backController.h"
 #include "../../includes/webService.h"
 #include "../../includes/pincludes.h"
+#include "../../includes/backLoginSignIn.h"
 #include "../../includes/fileController.h"
 #include "../../includes/cryptoModule.h"
 
@@ -98,20 +99,20 @@ char *getActualDate() {
     return actualDateStr;
 }
 
-int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
+int generateNewUserToken(MYSQL *dbCon, char *userEmail, char *hashPassword, int userId) {
     char emailOption[6];
     strcpy(emailOption, "email");
-    int userId = getUserIdBy(dbCon, userEmail, emailOption);
-    printf("USER ID : %d\n", userId);
+    int freshUserId = userId;
+    if (userId == 0) freshUserId = getUserIdBy(dbCon, userEmail, emailOption);
 
-    if (userId != 0) {
+    if (freshUserId != 0) {
         char *actualDateStr = getActualDate();
-        char *baseToken = (char *) malloc(sizeof(char) * 65);
+        char *baseToken = (char *) malloc(sizeof(char) * 130);
         srand(time(NULL));
         int randomVal = rand() % (2000) + 1000;
-        sprintf(baseToken, "%s_%d_%s_%d", userEmail, userId, actualDateStr, randomVal);
+        sprintf(baseToken, "%s_%d_%s_%d_%s", userEmail, freshUserId, actualDateStr, randomVal, hashPassword);
         char tokenHash[65];
-        
+
         char *hashString = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
         strcpy(tokenHash, shaPwd(baseToken, hashString, actualDateStr));
         
@@ -119,8 +120,8 @@ int generateNewUserToken(MYSQL *dbCon, char *userEmail) {
         free(baseToken);
         free(actualDateStr);
 
-        saveNewUserTokenDb(dbCon, userId, tokenHash);
-        saveNewTokenFile(tokenHash, userEmail, userId);
+        saveNewUserTokenDb(dbCon, freshUserId, tokenHash);
+        saveNewTokenFile(tokenHash, userEmail, freshUserId);
 
         return EXIT_SUCCESS;
     } else {
@@ -225,12 +226,41 @@ int saveEditedEmail(MYSQL *dbCon, int userId, char *newEmail, char *actualEmail)
         return EXIT_FAILURE;
     }
 
-    printf("before db\n");
-
     int status = saveNewEmailDb(dbCon, userId, newEmail);
-    printf("status db : %d\n", status);
-    free(actualEmail);
-    free(newEmail);
+    if (status == EXIT_SUCCESS) {
+        TokenInfos *tokenInfos = getTokenFileInfos();
+        saveNewTokenFile(tokenInfos->token, newEmail, tokenInfos->id);
+        freeToken(tokenInfos);
+    }
+
+    return status;
+}
+
+int saveEditedPwdAccount(MYSQL *dbCon, int userId, char *newPassword, char *actualPass, char *passwordType) {
+    // Vérification du mot de passe (taille, format, ce qu'il contient)
+    if (strcmp(newPassword, actualPass) == 0 || userId == 0) return EXIT_FAILURE;
+    if (!hasDigit(newPassword)) return EXIT_FAILURE;
+    if (!hasSpecialChar(newPassword)) return EXIT_FAILURE;
+    if (strlen(newPassword) < 10 || strlen(newPassword) > 60) return EXIT_FAILURE;
+
+    char *email = getEmailByUserId(dbCon, userId);
+    if (email == NULL) return EXIT_FAILURE;
+    char salt[6];
+    strcpy(salt, getSaltByEmail(dbCon, email));
+
+    char hashPassword[65];
+    char* hashString = (char*) malloc(2*SHA256_DIGEST_LENGTH+1);
+    strcpy(hashPassword, shaPwd(newPassword, hashString, salt));
+    free(hashString);
+
+    // Appel DB avec le type de mot de passe à update
+    int status = saveNewAccountPasswordDb(dbCon, userId, hashPassword, passwordType);
+    if (status == EXIT_SUCCESS) {
+        // Récupération de l'email et réecriture du token
+        generateNewUserToken(dbCon, email, hashPassword, userId);
+        free(email);
+    }
+
 
     return status;
 }
