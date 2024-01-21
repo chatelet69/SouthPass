@@ -30,7 +30,7 @@
 #include "../../includes/pwdGeneratorPage.h"
 #include "../../includes/parametersPage.hpp"
 
-ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(nullptr),*/ app(argc, argv) {
+ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
     isDark = getThemePreference();
     oldTheme = isDark;
     dbCon = dbConnect();

@@ -4,6 +4,7 @@
     Last Edit : 21_01_2024
 */
 
+#include <string.h>
 #include <QMessageBox>
 #include <QRadioButton>
 #include <QDesktopServices>
@@ -226,14 +227,14 @@ void ParametersPage::showEditAccountPassword(QString passwordType, QString passw
     QWidget *buttonsContainer = new QWidget(editPasswordAccountWindow);
     QHBoxLayout *buttonsLayout = new QHBoxLayout(buttonsContainer);
     QPushButton *cancelButton = importCancelButton(buttonsContainer, buttonsLayout);
-    QPushButton *editEmailSaveButton = importSaveButton(buttonsContainer, buttonsLayout);
+    QPushButton *editPasswordButton = importSaveButton(buttonsContainer, buttonsLayout);
 
     connect(cancelButton, &QPushButton::clicked, [=]() {
         editPasswordAccountWindow->hide();
         editPasswordAccountWindow->close();
     });
-    connect(editEmailSaveButton, &QPushButton::clicked, [=]() {
-        this->saveNewPwd(newPassInput->text(), newPassConfirmationInput->text(), checkPassInput->text());
+    connect(editPasswordButton, &QPushButton::clicked, [=]() {
+        this->saveNewPwd(passwordType, newPassInput->text(), newPassConfirmationInput->text(), checkPassInput->text());
         editPasswordAccountWindow->close();
     });
 
@@ -248,17 +249,17 @@ void ParametersPage::showEditAccountPassword(QString passwordType, QString passw
     editPasswordAccountWindow->show();
 }
 
-void ParametersPage::saveNewPwd(QString passValue, QString confirmationPass, QString actualPass) {
+void ParametersPage::saveNewPwd(QString type, QString passValue, QString confirmationPass, QString actualPass) {
     QByteArray passBytes = passValue.toLocal8Bit();
     char *passwordConverted = passBytes.data();
     char *actualPassConverted = (actualPass.toLocal8Bit()).data();
-    char *passType = strdup("pwdAccount");
+    char *passType = (type.toLocal8Bit()).data();
     int status = saveEditedPwdAccount(this->dbCon, this->userId, passwordConverted, actualPassConverted, passType);
     if (status == EXIT_SUCCESS) {
-        this->showMessageBoxSuccess("Mot de passe mit à jour !");
-        //this->appController->switchParamsPage();
+        if (strcmp(passType, "pwdMaster") == 0) this->showMessageBoxSuccess("Mot de passe maître modifié !");
+        else this->showMessageBoxSuccess("Mot de passe mit à jour !");
     } else {
-        QMessageBox::warning(this,"Erreur" ,"Erreur lors de la mise à jour du mot de passe !");
+        this->showMessageBoxError("Impossible de mettre à jour le mot de passe !", status);
     }
 }
 
@@ -284,6 +285,29 @@ void ParametersPage::showMessageBoxSuccess(QString text) {
     msgBox.setText(text);
     //msgBox.setInformativeText(newMailMessage);
     msgBox.setIcon(QMessageBox::Information);
+    msgBox.exec();
+}
+
+void ParametersPage::showMessageBoxError(QString text, int errorType) {
+    QMessageBox msgBox;
+    QString causeMessage;
+    switch (errorType) {
+    case -1:
+        causeMessage = QString("Cause : Non respect des conditions !");
+        break;
+    case -2:
+        causeMessage = QString("Cause : Mot de passe actuel incorrect !");
+        break;
+    case -3:
+        causeMessage = QString("Cause : Impossible de mettre le même mot de passe que le précédent !");
+        break;
+    default:
+        causeMessage = QString("Erreur indéterminée, Veuillez réessayer plus tard !");
+        break;
+    }
+    msgBox.setText(text);
+    msgBox.setInformativeText(causeMessage);
+    msgBox.setIcon(QMessageBox::Warning);
     msgBox.exec();
 }
 

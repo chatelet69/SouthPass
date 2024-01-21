@@ -30,7 +30,7 @@ class ParametersPage : public QWidget {
         void showEditEmailBox(QWidget *parametersParent);
         void saveNewEmail(QString emailValue);
         void showEditAccountPassword(QString passwordType, QString passwordLabelText);
-        void saveNewPwd(QString passValue, QString confirmationPass, QString actualPass);
+        void saveNewPwd(QString type, QString passValue, QString confirmationPass, QString actualPass);
 
     private:
         MYSQL *dbCon;
@@ -43,6 +43,7 @@ class ParametersPage : public QWidget {
         QPushButton *importCancelButton(QWidget *buttonsContainer, QHBoxLayout *buttonsLayout);
         QPushButton *importSaveButton(QWidget *buttonsContainer, QHBoxLayout *buttonsLayout);
         void showMessageBoxSuccess(QString text);
+        void showMessageBoxError(QString text, int errorType);
 };
 
 #endif //SOUTHPASS_PARAMETERSPAGE_HPP

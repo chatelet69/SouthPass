@@ -244,11 +244,12 @@ int saveEditedEmail(MYSQL *dbCon, int userId, char *newEmail, char *actualEmail)
 }
 
 int saveEditedPwdAccount(MYSQL *dbCon, int userId, char *newPassword, char *actualPass, char *passwordType) {
+    int status = EXIT_FAILURE;
     // Vérification du mot de passe (taille, format, ce qu'il contient)
-    if (strcmp(newPassword, actualPass) == 0 || userId == 0) return EXIT_FAILURE;
-    if (!hasDigit(newPassword)) return EXIT_FAILURE;
-    if (!hasSpecialChar(newPassword)) return EXIT_FAILURE;
-    if (strlen(newPassword) < 10 || strlen(newPassword) > 60) return EXIT_FAILURE;
+    if (strcmp(newPassword, actualPass) == 0 || userId == 0) return -3;
+    if (!hasDigit(newPassword)) return -1;
+    if (!hasSpecialChar(newPassword)) return -1;
+    if (strlen(newPassword) < 10 || strlen(newPassword) > 60) return -1;
 
     // Récupération du mail (dernier en date en db) et salt de l'utilisateur
     char *email = getEmailByUserId(dbCon, userId);
@@ -256,18 +257,28 @@ int saveEditedPwdAccount(MYSQL *dbCon, int userId, char *newPassword, char *actu
     char salt[6];
     strcpy(salt, getSaltByEmail(dbCon, email));
 
+    char actualHash[65];
+    char* actualHashString = (char*) malloc(2*SHA256_DIGEST_LENGTH+1);
+    strcpy(actualHash, shaPwd(actualPass, actualHashString, salt));
+    free(actualHashString);
+
     char hashPassword[65];
     char* hashString = (char*) malloc(2*SHA256_DIGEST_LENGTH+1);
     strcpy(hashPassword, shaPwd(newPassword, hashString, salt));
     free(hashString);
 
-    // Appel DB avec le type de mot de passe à update
-    int status = saveNewAccountPasswordDb(dbCon, userId, hashPassword, passwordType);
-    if (status == EXIT_SUCCESS) {
-        // Récupération de l'email et réecriture du token
-        generateNewUserToken(dbCon, email, hashPassword, userId);
-        free(email);
+    int checkPwdId = checkPwdBy(dbCon, userId, passwordType, actualHash);
+    if (checkPwdId == userId) {
+        // Appel DB avec le type de mot de passe à update
+        status = saveNewAccountPasswordDb(dbCon, userId, hashPassword, passwordType);
+        if (status == EXIT_SUCCESS && strcmp(passwordType, "pwdAccount") == 0) {
+            // Récupération de l'email et réecriture du token
+            generateNewUserToken(dbCon, email, hashPassword, userId);
+        }
+    } else {
+        status = -2;
     }
+    free(email);
 
     return status;
 }

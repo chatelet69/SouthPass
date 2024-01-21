@@ -498,6 +498,7 @@ int getUserIdBy(MYSQL *dbCon, char *search, char *searchOption) {
         }
     }
     mysql_stmt_close(stmt);
+    free(sqlQuery);
 
     return userId;
 }
@@ -856,7 +857,6 @@ int saveNewAccountPasswordDb(MYSQL *dbCon, int userId, char *newPassword, char *
         status = mysql_stmt_execute(stmt);
     }
     mysql_stmt_close(stmt);
-    free(passwordType);
 
     return status;
 }
@@ -899,4 +899,49 @@ char *getEmailByUserId(MYSQL *dbCon, int userId) {
     mysql_stmt_close(stmt);
 
     return email;
+}
+
+int checkPwdBy(MYSQL *dbCon, int userId, char *type, char *password) {
+    if (userId == 0 || dbCon == NULL) return 0;
+    int checkUserId = 0;
+    char *sqlQuery = (char *) malloc(sizeof(char) * strlen("SELECT id FROM users WHERE somethingmaybelong = ? AND id = ?"));
+    sprintf(sqlQuery, "SELECT id FROM users WHERE %s = ? AND id = ?", type);
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[1];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = password;
+        params[0].buffer_length = strlen(password);
+        params[1].buffer_type = MYSQL_TYPE_LONG;
+        params[1].buffer = (void *) &userId;
+
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            return checkUserId;
+        }
+        int status = mysql_stmt_execute(stmt);
+
+        if (status == EXIT_SUCCESS) {
+            int tmpId = 0;
+            MYSQL_BIND results[1];
+            memset(results, 0, sizeof(results));
+            results[0].buffer_type = MYSQL_TYPE_LONG;
+            results[0].buffer = &tmpId;
+            
+            if (mysql_stmt_bind_result(stmt, results) != EXIT_SUCCESS) {
+                mysql_stmt_close(stmt);
+                return checkUserId;
+            }
+
+            if (mysql_stmt_fetch(stmt) == 0) {
+                checkUserId = (tmpId > 0 && tmpId == userId) ? tmpId : 0;
+            }
+        }
+    }
+    mysql_stmt_close(stmt);
+    free(sqlQuery);
+
+    return checkUserId;
 }
