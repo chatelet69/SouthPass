@@ -1,6 +1,7 @@
 /*
-    Filename : creds_widget.cpp
-    Description : Methods and widget for the creds Main Page
+    Filename : dataLeakPage.cpp
+    Description : Page that displays possible data leaks linked to emails
+    Last Edit : 20_01_2024
 */
 
 #include <QWidget>

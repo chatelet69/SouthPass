@@ -1,3 +1,9 @@
+/*
+    Filename : credentialsPage.cpp
+    Description : Main page, containing the list of credentials
+    Last Edit : 21_01_2024
+*/
+
 #include <QDebug>
 #include <QString>
 #include <QVBoxLayout>

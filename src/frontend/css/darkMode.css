@@ -27,7 +27,12 @@ QApplication {
 
 #headerWidget QMenuBar::item {
     padding: 6px;
+    background: transparent;
     border-radius: 6px;
+}
+
+#headerWidget QMenuBar::item:selected {
+    background: #a8a8a8;
 }
 
 #headerWidget QMenu {
@@ -41,6 +46,16 @@ QApplication {
     background-color: rgba(255, 255, 255, 0.489);
     color: gray;
 }
+
+/*
+QMenuBar {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 lightgray, stop:1 darkgray);
+    spacing: 3px;
+}
+
+QMenuBar::item:pressed {
+    background: #888888;
+}*/
 
 
 #themeButton {
@@ -138,6 +153,14 @@ QApplication {
     color: white;
 }
 
+#cancelButton {
+    padding: 2px;
+    border: none;
+    border-radius: 6px;
+    height: auto;
+    color: white;
+}
+
 #deleteCredButton:hover, #cancelButton:hover {
     background-color: rgb(230, 15, 15);
 }
@@ -148,18 +171,19 @@ QApplication {
     background-color: #4c637a;
 }
 
-#newCredsButton {
+#newCredsButton, #saveButton {
     background-color: rgb(164, 216, 164);
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 2px;
     height: auto;
     color: white;
 }
 
-#newCredsButton:hover {
+#newCredsButton:hover, #saveButton:hover {
     background-color: #78d860;
 }
+
 #fenetreQuality{
     background-color: #78d860;
     width: 100px;
@@ -273,4 +297,25 @@ radioBtnParams:hover{
 #loginLabels{
     color: white;
     font-size: 16px;
+}
+
+/* Edit Email Window */
+
+#editEmailWindow, #editPasswordAccountWindow {
+    border: none;
+    color: white;
+    background-color: #4c637a;
+}
+
+#editPasswordAccountWindow QLabel, #editEmailWindow QLabel {
+    font-weight: bold;
+    color: white;
+}
+
+#editPasswordAccountWindow QLineEdit, #editEmailWindow QLineEdit {
+    background-color: rgb(228, 228, 228);
+    border: 1px solid gray;
+    color: black;
+    border-radius: 8px;
+    padding: 4px;
 }

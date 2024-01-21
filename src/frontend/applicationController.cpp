@@ -1,6 +1,8 @@
 /*
     Filename : applicationController.cpp
-    Description: Qt / SouthPass Application Controller
+    Description: Qt / SouthPass Application Controller. 
+    Manages the different pages and the main window
+    Last Edit : 21_01_2024
 */
 
 #include <QFile>
@@ -28,7 +30,7 @@
 #include "../../includes/pwdGeneratorPage.h"
 #include "../../includes/parametersPage.hpp"
 
-ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(nullptr),*/ app(argc, argv) {
+ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
     isDark = getThemePreference();
     oldTheme = isDark;
     dbCon = dbConnect();
@@ -209,26 +211,26 @@ int ApplicationController::getUserId() {
 
 void ApplicationController::importMenu(QMenuBar *menuBar){
 // MENU
-    QMenu *menuFichier = menuBar->addMenu("Fichiers");
-    menuFichier->setObjectName("fileMenu");
+    QMenu *fileMenu = menuBar->addMenu("Fichiers");
+    fileMenu->setObjectName("fileMenu");
     QAction *importPwd = new QAction("Importer des mots de passes", this);
-    menuFichier->addAction(importPwd);
+    fileMenu->addAction(importPwd);
     QAction *exportPwd = new QAction("Exporter des mots de passes", this);
-    menuFichier->addAction(exportPwd);
+    fileMenu->addAction(exportPwd);
     
     connect(importPwd, &QAction::triggered, this, &ApplicationController::importPasswords);
     connect(exportPwd, &QAction::triggered, this, &ApplicationController::exportPasswords);
 
-    QMenu *menuOutils = menuBar->addMenu("Outils");
-    menuOutils->setObjectName("toolsMenu");
+    QMenu *toolsMenu = menuBar->addMenu("Outils");
+    toolsMenu->setObjectName("toolsMenu");
     QAction *seePwd = new QAction("Voir mes mots de passes", this);
-    menuOutils->addAction(seePwd);
+    toolsMenu->addAction(seePwd);
     QAction *pwdGenerator = new QAction("Générateur de mot passes", this);
-    menuOutils->addAction(pwdGenerator);
+    toolsMenu->addAction(pwdGenerator);
     QAction *pwdQuality = new QAction("Qualité des mots de passes", this);
-    menuOutils->addAction(pwdQuality);
+    toolsMenu->addAction(pwdQuality);
     QAction *analysis = new QAction("Analyse des fuites de données", this);
-    menuOutils->addAction(analysis);
+    toolsMenu->addAction(analysis);
     connect(analysis, &QAction::triggered, this, &ApplicationController::switchLeaksPage);
 
     QMenu *menuSouthPass = menuBar->addMenu("SouthPass");
@@ -253,13 +255,15 @@ void ApplicationController::disconnect() {
 
 void ApplicationController::importPasswords() {
     QString importedFile = QFileDialog::getOpenFileName(NULL, "Fichier CSV à importer", QDir::homePath(), tr("Csv files (*.csv)"));
-    QByteArray importedFileBytes = importedFile.toLocal8Bit();
-    char *importedPasswordsFile = importedFileBytes.data();
-    int status(importPasswordsController(dbCon, userId, importedPasswordsFile));
-    if (status == EXIT_SUCCESS) {
-        QMessageBox::warning(stackedWidget,"Succès" ,"Mots de passes importés avec succès !");
-    } else {
-        QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'importation des mots de passes !");
+    if (importedFile.size() > 0) {
+        QByteArray importedFileBytes = importedFile.toLocal8Bit();
+        char *importedPasswordsFile = importedFileBytes.data();
+        int status(importPasswordsController(dbCon, userId, importedPasswordsFile));
+        if (status == EXIT_SUCCESS) {
+            QMessageBox::warning(stackedWidget,"Succès" ,"Mots de passes importés avec succès !");
+        } else {
+            QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'importation des mots de passes !");
+        }
     }
 }
 

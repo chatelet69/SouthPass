@@ -1,5 +1,5 @@
 /*
-    Filename : creds_widget.cpp
+    Filename : credsWidgets.cpp
     Description : Methods and widget for the creds Main Page
 */
 
@@ -311,14 +311,14 @@ void CredentialEditWidget::importEditCredsLabels(QWidget *labelsContainer, QVBox
 void CredentialEditWidget::importEditCredsButtons(QWidget *buttonsContainer, QHBoxLayout *buttonsLayout) {
     if (buttonsContainer != nullptr && buttonsLayout != nullptr) {        
         this->cancelEditButton = new QPushButton("Annuler");
-        this->cancelEditButton->setObjectName("cancelEditButton");
+        this->cancelEditButton->setObjectName("cancelButton");
         connect(cancelEditButton, &QPushButton::clicked, [=](){
             this->hide();
             this->close();
         });
 
         saveEditCredButton = new QPushButton("Enregistrer", this);
-        saveEditCredButton->setObjectName("saveEditCredButton");
+        saveEditCredButton->setObjectName("saveButton");
         saveEditCredButton->setProperty("credentialId", credId);
         this->saveEditCredButton->setProperty("credentialUserId", this->userId);
         connect(saveEditCredButton, &QPushButton::clicked, [=]() {

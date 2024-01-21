@@ -1,6 +1,8 @@
-//
-// Created by mathf on 19/01/2024.
-//
+/*
+    Filename : backParams.c
+    Description : Backend of the Parameters Page
+    Last Edit : 21_01_2024
+*/
 
 #include "../../includes/backParams.h"
 #include <openssl/sha.h>

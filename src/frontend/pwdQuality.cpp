@@ -1,6 +1,9 @@
-//
-// Created by mathf on 08/01/2024.
-//
+/*
+    Filename : pwdQuality.cpp
+    Description : Password quality page
+    Last Edit : 21_01_2024
+*/
+
 #include <QLineEdit>
 #include <QFormLayout>
 #include <QApplication>
