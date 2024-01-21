@@ -40,5 +40,7 @@ int deleteCredentialDb(MYSQL *dbCon, int credId, int userId);
 int saveEditedCredsDb(MYSQL *dbCon, Credentials *credentials);
 int updatePwd(MYSQL *dbCon, char * pwd, int id, char * type);
 int saveNewEmailDb(MYSQL *dbCon, int userId, char *newEmail);
+int saveNewAccountPasswordDb(MYSQL *dbCon, int userId, char *newPassword, char *passwordType);
+char *getEmailByUserId(MYSQL *dbCon, int userId);
 
 #endif

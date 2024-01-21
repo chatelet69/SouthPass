@@ -19,7 +19,7 @@ void changeThemeMode(ApplicationController *appController, QApplication *app);
 class ParametersPage : public QWidget {
     Q_OBJECT
     public:
-        ParametersPage(ApplicationController *appController, QApplication *app, MYSQL *dbCon);
+        ParametersPage(ApplicationController *appController, QApplication *app, MYSQL *dbConnection);
         static char * convertStringForC(QLineEdit * string);
         void importSecurityParameter(QWidget *secuBox);
         void importEmailParameter(QWidget *emailBox);
@@ -29,13 +29,20 @@ class ParametersPage : public QWidget {
     public Q_SLOTS:
         void showEditEmailBox(QWidget *parametersParent);
         void saveNewEmail(QString emailValue);
+        void showEditAccountPassword(QString passwordType, QString passwordLabelText);
+        void saveNewPwd(QString passValue, QString confirmationPass, QString actualPass);
 
     private:
         MYSQL *dbCon;
+        ApplicationController *appController;
         QScrollArea *scrollArea;
 
         QString userEmail;
         int userId;
+
+        QPushButton *importCancelButton(QWidget *buttonsContainer, QHBoxLayout *buttonsLayout);
+        QPushButton *importSaveButton(QWidget *buttonsContainer, QHBoxLayout *buttonsLayout);
+        void showMessageBoxSuccess(QString text);
 };
 
 #endif //SOUTHPASS_PARAMETERSPAGE_HPP
