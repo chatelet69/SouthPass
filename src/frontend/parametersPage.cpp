@@ -13,7 +13,9 @@
 #include "../../includes/backController.h"
 char * convertStringForC(QLineEdit * string);
 
-ParametersPage::ParametersPage(ApplicationController *appController, QApplication *app, MYSQL *dbCon){
+ParametersPage::ParametersPage(ApplicationController *appController, QApplication *app, MYSQL *dbConnection){
+    this->dbCon = dbConnection;
+    this->appController = appController;
     QVBoxLayout * fenetre = new QVBoxLayout(this);
 
     scrollArea = new QScrollArea();
@@ -119,21 +121,31 @@ void ParametersPage::importEmailParameter(QWidget *emailBox) {
 }
 
 void ParametersPage::importSecurityParameter(QWidget *secuBox) {
-    QVBoxLayout * secuLayout = new QVBoxLayout(secuBox);
-    QWidget * pwdBox = new QWidget();
-    QHBoxLayout * pwdLayout = new QHBoxLayout(pwdBox);
+    QVBoxLayout *secuLayout = new QVBoxLayout(secuBox);
+    QWidget *pwdBox = new QWidget();
+    QHBoxLayout *pwdLayout = new QHBoxLayout(pwdBox);
 
-    QLabel * editPwdTitle = new QLabel("Modifier votre mot de passe :");
+    QLabel *editPwdTitle = new QLabel("Modifier votre mot de passe :");
     editPwdTitle->setObjectName("subTitle");
-    QPushButton * editPwdBtn = new QPushButton("Modifier");
+    QPushButton *editPwdBtn = new QPushButton("Modifier");
     pwdLayout->addWidget(editPwdTitle);
     pwdLayout->addWidget(editPwdBtn);
     secuLayout->addWidget(pwdBox);
-    QWidget * pwdBox2 = new QWidget();
-    QHBoxLayout * pwdLayout2 = new QHBoxLayout(pwdBox2);
-    QLabel * editMasterPwdTitle = new QLabel("Modifier votre mot de passe maitre :");
+
+    connect(editPwdBtn, &QPushButton::clicked, this, [this]() {
+        this->showEditAccountPassword(QString("pwdAccount"), QString("Mot de passe actuel : "));
+    });
+
+    QWidget *pwdBox2 = new QWidget();
+    QHBoxLayout *pwdLayout2 = new QHBoxLayout(pwdBox2);
+    QLabel *editMasterPwdTitle = new QLabel("Modifier votre mot de passe maitre :");
     editMasterPwdTitle->setObjectName("subTitle");
-    QPushButton * editMasterPwdBtn = new QPushButton("Modifier");
+    QPushButton *editMasterPwdBtn = new QPushButton("Modifier");
+
+    connect(editMasterPwdBtn, &QPushButton::clicked, this, [this]() {
+        this->showEditAccountPassword(QString("pwdMaster"), QString("Mot de passe maître actuel : "));
+    });
+
     pwdLayout2->addWidget(editMasterPwdTitle);
     pwdLayout2->addWidget(editMasterPwdBtn);
     secuLayout->addWidget(pwdBox2);
@@ -183,16 +195,95 @@ void ParametersPage::saveNewEmail(QString emailValue) {
     QByteArray emailBytes = emailValue.toLocal8Bit();
     char *emailConverted = emailBytes.data();
     char *actualEmailConverted = (this->userEmail.toLocal8Bit()).data();
-    qDebug() << emailConverted << actualEmailConverted;
-    int status = saveEditedEmail(dbCon, this->userId, emailConverted, actualEmailConverted);
+    int status = saveEditedEmail(this->dbCon, this->userId, emailConverted, actualEmailConverted);
     if (status == EXIT_SUCCESS) {
-        QMessageBox msgBox;
-        QString newMailMessage = QString("Nouveau mail : ").arg(emailValue);
-        msgBox.setText("Email mit à jour !");
-        msgBox.setInformativeText(newMailMessage);
-        msgBox.setIcon(QMessageBox::Information);
-        msgBox.exec();
+        this->showMessageBoxSuccess("Email mit à jour !");
+        this->appController->switchParamsPage();
+    } else {
+        QMessageBox::warning(this,"Erreur" ,"Erreur lors de la mise à jour du mail !");
     }
+}
+
+void ParametersPage::showEditAccountPassword(QString passwordType, QString passwordLabelText) {
+    QScreen *primaryScreen = QGuiApplication::primaryScreen();
+    QWidget *editPasswordAccountWindow = new QWidget(NULL);
+    QVBoxLayout *editPasswordAccountWindowLayout = new QVBoxLayout(editPasswordAccountWindow);
+    editPasswordAccountWindow->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, QSize(300, 300), primaryScreen->availableGeometry()));
+    editPasswordAccountWindow->setObjectName("editPasswordAccountWindow");
+
+    QLabel *passwordLabel = new QLabel(editPasswordAccountWindow);
+    passwordLabel->setText(passwordLabelText);
+    QLineEdit *checkPassInput = new QLineEdit(editPasswordAccountWindow);
+
+    QLabel *newPasswordLabel = new QLabel(editPasswordAccountWindow);
+    newPasswordLabel->setText("Nouveau mot de passe : ");
+    QLineEdit *newPassInput = new QLineEdit(editPasswordAccountWindow);
+    QLabel *newPassConfirmationLabel = new QLabel(editPasswordAccountWindow);
+    newPassConfirmationLabel->setText("Confirmation mot de passe : ");
+    QLineEdit *newPassConfirmationInput = new QLineEdit(editPasswordAccountWindow);
+
+    QWidget *buttonsContainer = new QWidget(editPasswordAccountWindow);
+    QHBoxLayout *buttonsLayout = new QHBoxLayout(buttonsContainer);
+    QPushButton *cancelButton = importCancelButton(buttonsContainer, buttonsLayout);
+    QPushButton *editEmailSaveButton = importSaveButton(buttonsContainer, buttonsLayout);
+
+    connect(cancelButton, &QPushButton::clicked, [=]() {
+        editPasswordAccountWindow->hide();
+        editPasswordAccountWindow->close();
+    });
+    connect(editEmailSaveButton, &QPushButton::clicked, [=]() {
+        this->saveNewPwd(newPassInput->text(), newPassConfirmationInput->text(), checkPassInput->text());
+        editPasswordAccountWindow->close();
+    });
+
+    editPasswordAccountWindowLayout->addWidget(passwordLabel);
+    editPasswordAccountWindowLayout->addWidget(checkPassInput);
+    editPasswordAccountWindowLayout->addWidget(newPasswordLabel);
+    editPasswordAccountWindowLayout->addWidget(newPassInput);
+    editPasswordAccountWindowLayout->addWidget(newPassConfirmationLabel);
+    editPasswordAccountWindowLayout->addWidget(newPassConfirmationInput);
+    editPasswordAccountWindowLayout->addWidget(buttonsContainer);
+
+    editPasswordAccountWindow->show();
+}
+
+void ParametersPage::saveNewPwd(QString passValue, QString confirmationPass, QString actualPass) {
+    QByteArray passBytes = passValue.toLocal8Bit();
+    char *passwordConverted = passBytes.data();
+    char *actualPassConverted = (actualPass.toLocal8Bit()).data();
+    char *passType = strdup("pwdAccount");
+    int status = saveEditedPwdAccount(this->dbCon, this->userId, passwordConverted, actualPassConverted, passType);
+    if (status == EXIT_SUCCESS) {
+        this->showMessageBoxSuccess("Mot de passe mit à jour !");
+        //this->appController->switchParamsPage();
+    } else {
+        QMessageBox::warning(this,"Erreur" ,"Erreur lors de la mise à jour du mot de passe !");
+    }
+}
+
+QPushButton *ParametersPage::importCancelButton(QWidget *buttonsContainer, QHBoxLayout *buttonsLayout) {
+    QPushButton *cancelButton = new QPushButton(buttonsContainer);
+    cancelButton->setText("Annuler");
+    cancelButton->setObjectName("cancelButton");
+    buttonsLayout->addWidget(cancelButton);
+    return cancelButton;
+}
+
+QPushButton *ParametersPage::importSaveButton(QWidget *buttonsContainer, QHBoxLayout *buttonsLayout) {
+    QPushButton *editEmailSaveButton = new QPushButton(buttonsContainer);
+    editEmailSaveButton->setText("Enregistrer");
+    editEmailSaveButton->setObjectName("saveButton");
+    buttonsLayout->addWidget(editEmailSaveButton);
+    return editEmailSaveButton;
+}
+
+void ParametersPage::showMessageBoxSuccess(QString text) {
+    QMessageBox msgBox;
+    //QString newMailMessage = QString("Nouveau mail : %1").arg(emailValue);
+    msgBox.setText(text);
+    //msgBox.setInformativeText(newMailMessage);
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.exec();
 }
 
 void changeThemeMode(ApplicationController *appController, QApplication *app){

@@ -153,6 +153,14 @@ QMenuBar::item:pressed {
     color: white;
 }
 
+#cancelButton {
+    padding: 2px;
+    border: none;
+    border-radius: 6px;
+    height: auto;
+    color: white;
+}
+
 #deleteCredButton:hover, #cancelButton:hover {
     background-color: rgb(230, 15, 15);
 }
@@ -166,15 +174,16 @@ QMenuBar::item:pressed {
 #newCredsButton, #saveButton {
     background-color: rgb(164, 216, 164);
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 2px;
     height: auto;
     color: white;
 }
 
-#newCredsButton:hover {
+#newCredsButton:hover, #saveButton:hover {
     background-color: #78d860;
 }
+
 #fenetreQuality{
     background-color: #78d860;
     width: 100px;
@@ -292,7 +301,21 @@ radioBtnParams:hover{
 
 /* Edit Email Window */
 
-#editEmailWindow {
+#editEmailWindow, #editPasswordAccountWindow {
     border: none;
+    color: white;
     background-color: #4c637a;
+}
+
+#editPasswordAccountWindow QLabel, #editEmailWindow QLabel {
+    font-weight: bold;
+    color: white;
+}
+
+#editPasswordAccountWindow QLineEdit, #editEmailWindow QLineEdit {
+    background-color: rgb(228, 228, 228);
+    border: 1px solid gray;
+    color: black;
+    border-radius: 8px;
+    padding: 4px;
 }
