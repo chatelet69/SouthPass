@@ -1,6 +1,7 @@
 /*
     Filename : parametersPage.cpp
-    Description : Parameters Page of Application
+    Description : Parameters Page of Application (Change email, password, appearance...)
+    Last Edit : 21_01_2024
 */
 
 #include <QMessageBox>

@@ -1,9 +1,7 @@
 /*
     Filename:   db.c
     Creation:   10/11
-    Description:    Définit les fonctions d'utilisation de la base de données
-                    avec la bibliothèque libmysql
-    Authors;    
+    Description: Define database usage functions with the libmysql library
 */
 
 #include <stdio.h>

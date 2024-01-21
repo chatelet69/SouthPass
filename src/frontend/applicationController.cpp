@@ -1,6 +1,8 @@
 /*
     Filename : applicationController.cpp
-    Description: Qt / SouthPass Application Controller
+    Description: Qt / SouthPass Application Controller. 
+    Manages the different pages and the main window
+    Last Edit : 21_01_2024
 */
 
 #include <QFile>

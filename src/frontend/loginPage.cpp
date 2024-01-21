@@ -1,3 +1,9 @@
+/*
+    Filename : loginPage.cpp
+    Description : App login and registration page
+    Last Edit : 20_01_2024
+*/
+
 #include <QLineEdit>
 #include <QFormLayout>
 #include <QApplication>

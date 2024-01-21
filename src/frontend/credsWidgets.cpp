@@ -1,5 +1,5 @@
 /*
-    Filename : creds_widget.cpp
+    Filename : credsWidgets.cpp
     Description : Methods and widget for the creds Main Page
 */
 

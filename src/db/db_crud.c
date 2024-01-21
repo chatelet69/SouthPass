@@ -1,3 +1,9 @@
+/*
+    Filename : db_crud.c
+    Description : Repository, contains all SQL requests
+    last Edit : 21_01_2024
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

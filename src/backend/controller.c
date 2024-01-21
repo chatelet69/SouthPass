@@ -1,3 +1,9 @@
+/*
+    Filename : controller.c
+    Description : Main Backend controller (interact with Front and Database)
+    Last Edit : 21_01_2024
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -228,6 +234,7 @@ int saveEditedEmail(MYSQL *dbCon, int userId, char *newEmail, char *actualEmail)
 
     int status = saveNewEmailDb(dbCon, userId, newEmail);
     if (status == EXIT_SUCCESS) {
+        // On met à jour le fichier de token en inscrivant le nouveau mail
         TokenInfos *tokenInfos = getTokenFileInfos();
         saveNewTokenFile(tokenInfos->token, newEmail, tokenInfos->id);
         freeToken(tokenInfos);
@@ -243,6 +250,7 @@ int saveEditedPwdAccount(MYSQL *dbCon, int userId, char *newPassword, char *actu
     if (!hasSpecialChar(newPassword)) return EXIT_FAILURE;
     if (strlen(newPassword) < 10 || strlen(newPassword) > 60) return EXIT_FAILURE;
 
+    // Récupération du mail (dernier en date en db) et salt de l'utilisateur
     char *email = getEmailByUserId(dbCon, userId);
     if (email == NULL) return EXIT_FAILURE;
     char salt[6];
@@ -260,7 +268,6 @@ int saveEditedPwdAccount(MYSQL *dbCon, int userId, char *newPassword, char *actu
         generateNewUserToken(dbCon, email, hashPassword, userId);
         free(email);
     }
-
 
     return status;
 }
