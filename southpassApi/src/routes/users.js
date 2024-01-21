@@ -7,9 +7,7 @@ const userController            = new UserController();
 
 // Get method
 
-router.get("/me", [authMiddleware, authorizationMiddleware], (req, res) => {
-    userController.myUser(req, res);
-});
+router.get("/me", [authMiddleware, authorizationMiddleware], (req, res) => { userController.myUser(req, res); });
 
 router.get("/getCredential", [authMiddleware, authorizationMiddleware], userController.getCredential);
 

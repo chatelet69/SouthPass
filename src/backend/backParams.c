@@ -15,13 +15,15 @@ int verifPwd(MYSQL *dbCon, char * pwd, char * verifPwd, char * email){
     if(strcmp(pwd, verifPwd) != 0)
         return 2;
 
-    int id = getUserIdBy(dbCon, email, "email");
+    char *emailOption = strdup("email");
+    int id = getUserIdBy(dbCon, email, emailOption);
     char salt[6];
     strcpy(salt, getSaltByEmail(dbCon, email));
     char* hashPwd = (char*)malloc(2*SHA256_DIGEST_LENGTH+1);
     char hashedPwd[65];
     strcpy(hashedPwd, shaPwd(pwd, hashPwd, salt));
     free(hashPwd);
+    free(emailOption);
     if(updatePwd(dbCon, hashedPwd, id, "Account"))
         return 3;
 

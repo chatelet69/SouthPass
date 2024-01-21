@@ -55,7 +55,6 @@ class ApplicationController : public QObject {
         QApplication& getApplication();
         int getUserId();
         void deleteChildsOfLayout(QLayout *layout);
-        void loadAsyncPages();
         void importHeader(QWidget *headerWidget);
 
     public Q_SLOTS:
@@ -85,5 +84,8 @@ class ApplicationController : public QObject {
         CredentialsPage *credsPage;
         DataLeaksPage *dataLeaksPage;
         ParametersPage *paramsPage;
+
+        void initNullMembers();
+        void loadOncePages();
 };
 #endif

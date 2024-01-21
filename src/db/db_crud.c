@@ -303,7 +303,7 @@ int createUser(MYSQL *dbCon, char * email, char * pwd, char *masterPwd){
 }
 
 char * checkLoginDb(MYSQL *dbCon, char *email, char *hashedPwd, char *hashedMasterPwd) {
-    char * ko = "ko";
+    char *ko = strdup("ko");
     MYSQL_STMT    *stmt;
     MYSQL_BIND    bind[1];
     MYSQL_RES     *prepare_meta_result;

@@ -31,6 +31,7 @@
 #include "../../includes/parametersPage.hpp"
 
 ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
+    this->initNullMembers();
     isDark = getThemePreference();
     oldTheme = isDark;
     dbCon = dbConnect();
@@ -49,8 +50,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     QWidget *headerWidget = new QWidget();
     this->importHeader(headerWidget);
     // Tâche synchroneQTimer::singleShot(0, this, [=]() {
-    pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
-    stackedWidget->addWidget(pwdGen);
+    this->loadOncePages();
     //});
 
     mainLayout->addWidget(headerWidget);
@@ -65,14 +65,14 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     }
 }
 
-void ApplicationController::loadAsyncPages() {
-    /*pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
-    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
-    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+void ApplicationController::initNullMembers() {
+    dataLeaksPage = nullptr;
+    pwdGen = nullptr;
+}
 
+void ApplicationController::loadOncePages() {
+    pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
     stackedWidget->addWidget(pwdGen);
-    stackedWidget->addWidget(pwdQual);
-    stackedWidget->addWidget(dataLeaksPage);*/
 }
 
 ApplicationController::~ApplicationController() {
@@ -152,19 +152,19 @@ QString ApplicationController::getOtherStyleSheet(int darkOrNot) {
 
 void ApplicationController::switchCredsPage() {
     qDebug() << "Stacked : " << stackedWidget->children();
-    if (credsPage) {
+    /*if (credsPage) {
         stackedWidget->removeWidget(credsPage);
         qDebug() << "before delete";
         qDebug() << credsPage;
         delete credsPage;
         qDebug() << "after : " << credsPage;
         //this->credsPage = nullptr;
-    }
+    }*/
     qDebug() << credsPage;
     credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
     stackedWidget->addWidget(credsPage);
     if(isConnected() == 0 && credsPage != NULL) {
-        credsPage->showAllCredentials();
+        //credsPage->showAllCredentials();
         stackedWidget->setCurrentWidget(credsPage);
     }
 }
@@ -192,9 +192,11 @@ void ApplicationController::switchToLoginPage() {
 }
 
 void ApplicationController::switchLeaksPage() {
-    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
-    stackedWidget->addWidget(dataLeaksPage);
-    if(isConnected() == 0)
+    if (!dataLeaksPage) {
+        dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+        stackedWidget->addWidget(dataLeaksPage);
+    }
+    if(isConnected() == 0 && dataLeaksPage)
         stackedWidget->setCurrentWidget(dataLeaksPage);
 }
 

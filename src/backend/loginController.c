@@ -76,7 +76,9 @@ int verifLogin(MYSQL *dbCon, char *email, char *password, char *masterPwd) {
     free(hashMasterString);
 
     char verifEmail[255];
-    strcpy(verifEmail, checkLoginDb(dbCon, email, hashedPwd, hashedMasterPwd));
+    char *emailGetByDb = checkLoginDb(dbCon, email, hashedPwd, hashedMasterPwd);
+    strcpy(verifEmail, emailGetByDb);
+    free(emailGetByDb);
     if (strcmp(verifEmail, email) == 0){
         generateNewUserToken(dbCon, email, hashedPwd, 0);
         return 0;
