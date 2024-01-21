@@ -39,5 +39,6 @@ CredsArray *getPasswordsListBy(MYSQL *dbCon, int userId, char *searchValue, cons
 int deleteCredentialDb(MYSQL *dbCon, int credId, int userId);
 int saveEditedCredsDb(MYSQL *dbCon, Credentials *credentials);
 int updatePwd(MYSQL *dbCon, char * pwd, int id, char * type);
+int saveNewEmail(MYSQL *dbCon, int userId, char *newEmail);
 
 #endif

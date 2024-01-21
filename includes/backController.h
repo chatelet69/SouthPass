@@ -13,6 +13,7 @@ void printCreds(Credentials *creds, unsigned int size);
 void freeCredsArray(struct CredsArray *credsArray);
 void freeCredentialsData(Credentials *creds);
 void freeExportList(ExportList *exportList);
+void freeToken(TokenInfos *token);
 int getUserIdByToken(MYSQL *dbCon);
 int checkCredentialsData(Credentials *credentials);
 
@@ -23,6 +24,7 @@ int exportPasswordsController(MYSQL *dbCon, const int userId, char *exportFolder
 int importPasswordsController(MYSQL *dbCon, const int userId, char *importedFile);
 int deleteCredentialController(MYSQL *dbCon, int credentialId, int userId);
 int saveEditedCredsController(MYSQL *dbCon, const int credId, const int userId, const char *name, const char *login, const char *password);
+int saveEditedEmail(MYSQL *dbCon, int userId, char *newEmail, char *actualEmail);
 
 // API
 void printLeaksList(LeaksList *list);
