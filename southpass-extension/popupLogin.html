@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login SouthPass Extension</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <h3>SouthPass Extension</h3>
+    </header>
+    <main class="container">
+        <div id="loginContainer">
+            <form>
+                <input type="text" name="email" id="emailInput" placeholder="Email">
+                <input type="password" name="password" id="passInput" placeholder="Mot de passe">
+                <input type="password" name="masterPassword" id="masterPassInput" placeholder="Mot de passe maître">
+                <button onclick="getInfos()">Se connecter</button>
+            </form>
+        </div>
+        <div id="profileContainer" style="display: none;">
+            <h5>Vous êtes connecté !</h5>
+        </div>
+    </main>
+    <script src="./popup.js"></script>
+    <script>
+        async function makeFetchRequest() {
+            try {
+                const response = await fetch('http://larche.ovh/');
+                const data = await response.json();
+                document.getElementById("emailInput").value = "j : " + data;
+                console.log('Réponse de la requête Fetch :', data);
+            } catch (error) {
+                console.error('Erreur lors de la requête Fetch :', error);
+            }
+        }
+        makeFetchRequest();
+    </script>
+</body>
+
+</html>

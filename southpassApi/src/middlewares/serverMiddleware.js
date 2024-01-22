@@ -1,20 +1,21 @@
 const jwt       = require("jsonwebtoken");
 const config    = require("../../config.json");
 const secret    = config.secretJwt;
+const servKey   = config.servKey;
 
-const authMiddleware = (req, res, next) => {
+const serverAuthKeyMiddleware = (req, res, next) => {
     const authToken = req.headers.authorization;
     if (authToken) {
         try {
-            const infos = jwt.verify(authToken, secret);
-            req.user = infos;
+            req.specialApiKey = authToken;
+            if (authToken !== servKey) return res.status(403).json({error: "Vous n'êtes pas autorisé à appeler l'API."});
             next();
         } catch (error) {
-            res.status(500).json({error: "expired_token"});
+            res.status(500).json({error: "bad_token"});
         }
     } else {
         return res.status(403).json({error: "Unauthorized"});
     }
 };
 
-module.exports = authMiddleware;
+module.exports = serverAuthKeyMiddleware;

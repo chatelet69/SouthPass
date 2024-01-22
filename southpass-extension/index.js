@@ -9,25 +9,11 @@ process(currentWebsite);
 async function getJwt(email, password, masterPass) {
     try {
         let jwt = localStorage.getItem("southpassJwt");
-        console.log(typeof jwt, jwt);
+        console.log("ee : ", jwt);
         if (jwt !== null && jwt !== undefined && jwt !== "null") {
             return jwt;
         } else {
-            const finalUrl = `${baseUrl}/login`;
-            const res = await fetch(finalUrl, {
-                method: "POST",
-                //mode: "cors",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: `email=${email}&password=${password}&masterPassword=${masterPass}`
-            });
-            const data = await res.json();
-            console.log(data);
-            if (data && data.jwt) {
-                localStorage.setItem("southpassJwt", data.jwt);
-                return data.jwt;
-            }
+            return null;
         }
         return null;
     } catch (error) {
@@ -37,7 +23,7 @@ async function getJwt(email, password, masterPass) {
 
 async function process(website) {
     try {
-        let jwt = await getJwt(infos.email, infos.password, infos.masterPassword);
+        let jwt = await getJwt();
         if (jwt != false && jwt != null) {
             let credentials = await getCredentialsOfWebsite(jwt, currentHost);
             if (credentials && credentials.id) {

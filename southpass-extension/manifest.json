@@ -15,6 +15,11 @@
         "strict_min_version": "42.0"
       }
     },
+
+    "browser_action": {
+      "default_title": "SouthPass",
+      "default_popup": "popupLogin.html"
+    },
   
     "content_scripts": [
       {
@@ -22,10 +27,15 @@
         "js": ["index.js"]
       }
     ],
-
+    
     "permissions": [
       "webRequest",
-      "*://localhost/*"
+      "*://localhost/*",
+      "https://larche.ovh/*",
+      "activeTab",
+      "cookies",
+      "storage",
+      "tabs"
     ]
   }
   
