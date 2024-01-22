@@ -21,6 +21,7 @@
 
 DataLeaksPage::DataLeaksPage(QWidget *parent, MYSQL *dbConnection, int userId) : QWidget(parent)
 {
+    this->setObjectName("dataLeaksPage");
     contentLayout = new QVBoxLayout(this);
     scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
@@ -30,7 +31,7 @@ DataLeaksPage::DataLeaksPage(QWidget *parent, MYSQL *dbConnection, int userId) :
     LeaksList *leaksList = getDataLeaksFromLeakCheck(dbConnection, userId);
 
     QWidget *credsContainer = new QWidget(this);
-    credsContainer->setObjectName("credsContainer");
+    credsContainer->setObjectName("leaksContainer");
     QVBoxLayout *credsLayout = new QVBoxLayout(credsContainer);
     this->importLeaksList(leaksList, credsLayout);
 
@@ -52,19 +53,22 @@ void DataLeaksPage::importLeaksList(LeaksList *leaksList, QVBoxLayout *credsLayo
                 credContainer->setObjectName("credLeakBox");
                 QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
 
-                QWidget *labelsContainer = new QWidget(credContainer);
-                QVBoxLayout *labelsContainerLayout = new QVBoxLayout(labelsContainer);
+                QWidget *informationContainer = new QWidget(credContainer);
+                QVBoxLayout *informationContainerLayout = new QVBoxLayout(informationContainer);
 
-                QLabel *labelWesite = new QLabel(QString("Site : %1").arg(leaksList->credentialLeaks[i].website));
+                QString websiteName = QString(leaksList->credentialLeaks[i].website).remove("\"");
+                QString leakDateFormatted = QString(leaksList->credentialLeaks[i].leakDate).remove("\"");
+                QLabel *labelWesite = new QLabel(QString("Site source : %1").arg(websiteName));
                 QLabel *labelLogin = new QLabel(QString("Mail : %1").arg(leaksList->credentialLeaks[i].login));
-                QLabel *labelLeakDate = new QLabel(QString("Date : %1").arg(leaksList->credentialLeaks[i].leakDate));
+                labelLogin->setObjectName("loginLeakedLabel");
+                QLabel *labelLeakDate = new QLabel(QString("Date : %1").arg(leakDateFormatted));
 
-                labelsContainer->setObjectName("credLeakDetailBox");
-                labelsContainerLayout->addWidget(labelWesite);
-                labelsContainerLayout->addWidget(labelLogin);
-                labelsContainerLayout->addWidget(labelLeakDate);
+                informationContainer->setObjectName("informativeLeakBox");
+                informationContainerLayout->addWidget(labelWesite);
+                informationContainerLayout->addWidget(labelLeakDate);
 
-                credContainerLayout->addWidget(labelsContainer);
+                credContainerLayout->addWidget(informationContainer);
+                credContainerLayout->addWidget(labelLogin);
                 credsLayout->addWidget(credContainer);
             }
         }

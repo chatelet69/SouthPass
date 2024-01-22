@@ -19,7 +19,7 @@
 CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbConnection, int userId) : QWidget(parent), dbCon(dbCon) {
     this->dbCon = dbConnection;
     this->userId = userId;
-    QVBoxLayout *layout = new QVBoxLayout();
+    pageLayout = new QVBoxLayout();
 
     toolBarWidget = new CredsToolBarWidget(this, this->dbCon);
 
@@ -29,14 +29,15 @@ CredentialsPage::CredentialsPage(QWidget *parent, MYSQL *dbConnection, int userI
     freeCredsArray(credsArray);
     free(credsArray);
 
-    layout->addWidget((QWidget *)toolBarWidget);
-    layout->addWidget(credentialsWidget);
-    setLayout(layout);
+    pageLayout->addWidget(toolBarWidget);
+    pageLayout->addWidget(credentialsWidget);
+    setLayout(pageLayout);
 }
 
 CredentialsPage::~CredentialsPage() {
     delete toolBarWidget;
     delete credentialsWidget;
+    delete pageLayout;
 }
 
 void CredentialsPage::setUserId(int newId) {
@@ -68,9 +69,19 @@ void CredentialsPage::refreshSearchCreds(char *searchedValue, int typeValue) {
 }
 
 void CredentialsPage::deleteCredential(int credentialId, int userId) {
-    int status = deleteCredentialController(this->dbCon, credentialId, userId);
-    if (status == EXIT_SUCCESS) {
-        this->showAllCredentials();
+    QMessageBox msgBox;
+    msgBox.setText("Cela va supprimer l'identifiant");
+    msgBox.setInformativeText("Etes-vous sûr ?");
+    msgBox.setIcon(QMessageBox::Question);
+    QPushButton *confirmButton = msgBox.addButton(tr("Confirmer"), QMessageBox::ActionRole);
+    QPushButton *abortButton = msgBox.addButton(QMessageBox::Abort);
+    abortButton->setText("Annuler");
+    int ret = msgBox.exec();
+    if (msgBox.clickedButton() == confirmButton) {
+        int status = deleteCredentialController(this->dbCon, credentialId, userId);
+        if (status == EXIT_SUCCESS) {
+            this->showAllCredentials();
+        }
     }
 }
 

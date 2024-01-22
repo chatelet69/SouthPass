@@ -24,7 +24,7 @@
 PwdQualityPage::PwdQualityPage(QWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
     QVBoxLayout * fenetre = new QVBoxLayout(this);
     QTabWidget *onglets = new QTabWidget(this);
-    fenetre->setObjectName("fenetreQuality");
+    fenetre->setObjectName("qualityWindow");
     verifWeakPwd(onglets);
     weakPwdList(onglets);
     reUsedPwd(onglets);

@@ -26,7 +26,6 @@ class CredsFormWidget : public QWidget {
         void closeNewCredsForm(bool refreshStatus);
 
     signals: 
-        void requestRefreshCredsPage();
 
     private:
         MYSQL *dbCon;
@@ -65,6 +64,7 @@ class CredentialEditWidget : public QWidget {
     private:
         QWidget *credsWidgetParent;
         QVBoxLayout *mainLayout;
+        QWidget *labelsContainer;
         QLineEdit *nameInput;
         QLineEdit *loginInput;
         QLineEdit *passwordInput;
@@ -121,7 +121,7 @@ class CredentialsPage : public QWidget {
     private: 
         MYSQL *dbCon;
         int userId;
-        QPushButton newCredsButton;
+        QVBoxLayout *pageLayout;
         CredsToolBarWidget *toolBarWidget;
         CredentialsWidget *credentialsWidget;
 };
