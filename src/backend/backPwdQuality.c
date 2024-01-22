@@ -76,6 +76,17 @@ struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * url, char * us
     return inter;
 }
 
+struct reUsedPwd * addWebsiteByPwd(struct reUsedPwd *start, struct Website *website){
+    struct reUsedPwd *inter;
+    inter = (struct reUsedPwd *)malloc(sizeof(struct reUsedPwd));
+    inter->id = website->id;
+    inter->userId = website->userId;
+    inter->site = strdup(website->website);
+    inter->username = strdup(website->username);
+    inter->next = start;
+    return inter;
+}
+
 void printWeaksPwd(struct WeakPwdList *start){
     struct WeakPwdList *inter = start;
     if(inter == NULL)

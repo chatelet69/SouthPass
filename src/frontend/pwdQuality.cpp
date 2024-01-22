@@ -162,19 +162,25 @@ void PwdQualityPage::reUsedPwd(QStackedWidget * parent, QTabWidget *onglets){
                                 displayNbWebsites->setObjectName("displayNbWebsites");
                                 nbWebsiteByPwd->addWidget(displayNbWebsites);
                                 reUsedLayout->addLayout(nbWebsiteByPwd);
+                                struct reUsedPwd * start = NULL;
+                                for (int j = 0; j < websites->size; ++j) {
+                                    start = addWebsiteByPwd(start, &websites->website[j]);
+                                }
 
-                                for (unsigned int j = 0; j < websites->size; ++j) {
+                                while(start!=NULL) {
+                                    printf("\n1111111");
+                                    // printf("\nnext url : %s", start->next->site);
                                     QWidget * boxPwd = new QWidget();
                                     QHBoxLayout * boxPwdLayout = new QHBoxLayout();
                                     boxPwd->setObjectName("boxPwdQuality");
 
                                     QVBoxLayout * webInfosLayout = new QVBoxLayout();
                                     char url[200];
-                                    sprintf(url, "url : %s", websites->website[j].website);
+                                    sprintf(url, "url : %s", start->site);
                                     QLabel * urlDisplay = new QLabel();
                                     urlDisplay->setText(url);
                                     char login[200];
-                                    sprintf(login, "login : %s", websites->website[j].username);
+                                    sprintf(login, "login : %s", start->username);
                                     QLabel * displayLogin = new QLabel();
                                     displayLogin->setText(login);
                                     char pwd[200];
@@ -195,20 +201,17 @@ void PwdQualityPage::reUsedPwd(QStackedWidget * parent, QTabWidget *onglets){
                                     reUsedLayout->addWidget(boxPwd);
                                     boxPwd->setLayout(boxPwdLayout);
                                     connect(editPwd, &QPushButton::clicked, this, [=](){
-                                        printf("\n website : %s", websites->website[j].website);
-                                        printf("\n username : %s", websites->website[j].username);
-                                        printf("\n pwd : %s", pwds->pwd[i]);
-                                        printf("\n id : %d", tokenInfos->id);
-                                            int lineId = getLineId(dbCon, websites->website[j].website, websites->website[j].username, pwds->pwd[i], tokenInfos->id);
+                                            int lineId = getLineId(dbCon, start->site, start->username, pwds->pwd[i], tokenInfos->id);
                                             if(lineId != -1){
-                                                EditPwd *editPassword = new EditPwd(dbCon, parent, websites->website[j].website, websites->website[j].username, pwds->pwd[i], lineId, tokenInfos->id);
+                                                EditPwd *editPassword = new EditPwd(dbCon, parent, start->site, start->username, NULL, lineId, tokenInfos->id);
                                                 editPassword->show();
                                             }else{
                                                 QMessageBox::warning(this,"Erreur" ,"Une erreur est survenue. Veuillez contacter un administrateur");
                                             }
                                     });
+                                    start = start->next;
                                 }
-
+                                free(start);
                                 free(websites->website);
                                 free(websites);
                             }
