@@ -108,10 +108,8 @@ void PwdQualityPage::weakPwdList(QStackedWidget * parent, QTabWidget *onglets){
             editWeakPwd->setObjectName("editWeakPwd");
 
             connect(editWeakPwd, &QPushButton::clicked, this, [=](){
-                if(start->site == NULL || start->username == NULL || start->pwd == NULL || start->id==0 || start->userId==NULL){
                     EditPwd *editPassword = new EditPwd(dbCon, parent, start->site, start->username, start->pwd, start->id, start->userId);
                     editPassword->show();
-                }
             });
 
             start = start->next;
@@ -197,8 +195,10 @@ void PwdQualityPage::reUsedPwd(QStackedWidget * parent, QTabWidget *onglets){
                                     reUsedLayout->addWidget(boxPwd);
                                     boxPwd->setLayout(boxPwdLayout);
                                     connect(editPwd, &QPushButton::clicked, this, [=](){
-                                        printf("\ntest");
-                                        if(websites->website[j].website == NULL || websites->website[j].username == NULL || pwds->pwd[i] == NULL || tokenInfos->id == 0){
+                                        printf("\n website : %s", websites->website[j].website);
+                                        printf("\n username : %s", websites->website[j].username);
+                                        printf("\n pwd : %s", pwds->pwd[i]);
+                                        printf("\n id : %d", tokenInfos->id);
                                             int lineId = getLineId(dbCon, websites->website[j].website, websites->website[j].username, pwds->pwd[i], tokenInfos->id);
                                             if(lineId != -1){
                                                 EditPwd *editPassword = new EditPwd(dbCon, parent, websites->website[j].website, websites->website[j].username, pwds->pwd[i], lineId, tokenInfos->id);
@@ -206,9 +206,6 @@ void PwdQualityPage::reUsedPwd(QStackedWidget * parent, QTabWidget *onglets){
                                             }else{
                                                 QMessageBox::warning(this,"Erreur" ,"Une erreur est survenue. Veuillez contacter un administrateur");
                                             }
-                                        }else{
-                                            QMessageBox::warning(this,"Erreur" ,"Une erreur est survenue. Veuillez contacter un administrateur");
-                                        }
                                     });
                                 }
 

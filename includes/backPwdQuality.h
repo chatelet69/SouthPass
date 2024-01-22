@@ -16,6 +16,15 @@ struct WeakPwdList{
     struct WeakPwdList *next;
 };
 
+struct reUsedPwd{
+    int * id;
+    int * userId;
+    char ** site;
+    char ** username;
+    char ** pwd;
+    struct reUsedPwd *next;
+};
+
 struct PwdList{
     char ** pwd;
     unsigned int size;

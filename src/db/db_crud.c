@@ -618,16 +618,12 @@ struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id){
                 if (rowsCount > 0) {
                     int nbWebsites = 0;
                     websiteList->website = (struct Website *) malloc(sizeof(struct Website) * rowsCount);
-                    websiteList->website->website = NULL;
-                    websiteList->website->username = NULL;
-                    websiteList->website->website = (char *) malloc(sizeof(char) * 255);
-                    websiteList->website->username = (char *) malloc(sizeof(char) * 255);
 
                     websiteList->size = rowsCount;
                     if (websiteList->website != NULL) {
                         while ((row = mysql_fetch_row(resData))) {
-                            websiteList->website[nbWebsites].website = row[0];
-                            websiteList->website[nbWebsites].username = row[1];
+                            websiteList->website[nbWebsites].website = strdup(row[0]);
+                            websiteList->website[nbWebsites].username = strdup(row[1]);
                             nbWebsites++;
                         }
                     }
@@ -827,6 +823,8 @@ int updateWebsitePwd(MYSQL *dbCon, char * pwd, int id, int userId){
 }
 
 int getLineId(MYSQL * dbCon, char * url, char * username, char * pwd, int userId){
+    printf("\ntest");
+    printf("\nurl : %s, username : %s, pwd : %s, userId : %d", url, username, pwd, userId);
     int lineId = -1;
     char *sqlQuery = "SELECT id FROM pswd_stock WHERE name = ? AND loginName = ? AND password = AES_ENCRYPT(?,(SELECT UNHEX(pwdMaster) FROM users WHERE id = ?)) AND userId = ?";
 
