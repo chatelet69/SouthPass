@@ -808,6 +808,7 @@ int updateWebsitePwd(MYSQL *dbCon, char * pwd, int id, int userId){
 }
 
 int getLineId(MYSQL * dbCon, char * url, char * username, char * pwd, int userId){
+    printf("TEST ULTIME");
     int lineId = -1;
     const char *sqlQuery = "SELECT id FROM pswd_stock WHERE name = ? AND loginName = ? AND userId = ?";
 

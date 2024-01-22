@@ -49,6 +49,7 @@ public:
 private:
     void initQDialog(MYSQL * dbCon, QStackedWidget *parent, char * url, char * login, char * pwd, int id, int userId){
         QLabel *label = new QLabel("Changer de mot de passe :");
+        label->setAlignment(Qt::AlignCenter);
         QFormLayout * form = new QFormLayout();
         QLabel *newPwdLabel = new QLabel("Nouveau mot de passe :");
         QLineEdit *newPwd = new QLineEdit();
@@ -59,11 +60,15 @@ private:
         QPushButton *closeBtn = new QPushButton("Annuler", this);
         closeBtn->setObjectName("cancelButton");
         QPushButton *changeBtn = new QPushButton("Valider", this);
-        closeBtn->setObjectName("cancelButton");
+        changeBtn->setObjectName("saveButton");
         connect(closeBtn, &QPushButton::clicked, this, &QDialog::reject); // Utilise reject() pour fermer la QDialog
         connect(changeBtn, &QPushButton::clicked, this, [=](){
             if(newPwd->text().toUtf8().constData() == NULL || confirmPwd->text().toUtf8().constData() == NULL){
                 QMessageBox::warning(this, "Erreur", "Veuillez renseigner les mots de passe");
+                return 1;
+            }
+            if(strlen(newPwd->text().toUtf8().constData()) > 40 || strlen(confirmPwd->text().toUtf8().constData()) > 40){
+                QMessageBox::warning(this, "Erreur", "Mots de passe trop long");
                 return 1;
             }
             const char *newPwdC = newPwd->text().toUtf8().constData();
@@ -90,6 +95,7 @@ private:
 
         QVBoxLayout *layoutPrincipal = new QVBoxLayout(this);
         QWidget * mainWidget = new QWidget();
+        mainWidget->setObjectName("credEditDetailsBox");
         QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
         QHBoxLayout *layoutBtns = new QHBoxLayout();
 
@@ -107,6 +113,7 @@ private:
         layoutPrincipal->addWidget(mainWidget);
 
         setLayout(layoutPrincipal);
+        this->setObjectName("editCredentialWindow");
 
         setWindowTitle("Modifier votre mot de passe");
         setFixedSize(300, 250);
