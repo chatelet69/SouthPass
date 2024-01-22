@@ -27,6 +27,6 @@ private Q_SLOTS:
 
 private:
     MYSQL *dbCon;
-    QWidget fenetre;
+    QWidget window;
 };
 #endif //SOUTHPASS_PWDGENERATORPAGE_H

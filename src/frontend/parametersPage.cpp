@@ -18,7 +18,7 @@ char * convertStringForC(QLineEdit * string);
 ParametersPage::ParametersPage(ApplicationController *appController, QApplication *app, MYSQL *dbConnection){
     this->dbCon = dbConnection;
     this->appController = appController;
-    QVBoxLayout * fenetre = new QVBoxLayout(this);
+    QVBoxLayout *paramWindow = new QVBoxLayout(this);
 
     scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
@@ -79,8 +79,8 @@ ParametersPage::ParametersPage(ApplicationController *appController, QApplicatio
     mainLayout->addWidget(extensionUrlBox);
 
     scrollArea->setWidget(mainWidget);
-    fenetre->addWidget(scrollArea);
-    setLayout(fenetre);
+    paramWindow->addWidget(scrollArea);
+    setLayout(paramWindow);
 
     connect(extUrlBtn, &QPushButton::clicked, [=](){QDesktopServices::openUrl(QUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ"));});
     connect(darkMode, &QRadioButton::clicked, [=](){changeThemeMode(appController, app);});

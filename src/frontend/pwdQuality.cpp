@@ -22,13 +22,13 @@
 #include "../../includes/pincludes.h"
 
 PwdQualityPage::PwdQualityPage(QStackedWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
-    QVBoxLayout * fenetre = new QVBoxLayout(this);
+    QVBoxLayout * qualityWindow = new QVBoxLayout(this);
     QTabWidget *onglets = new QTabWidget(this);
-    fenetre->setObjectName("qualityWindow");
+    qualityWindow->setObjectName("qualityWindow");
     verifWeakPwd(onglets);
     weakPwdList(parent, onglets);
     this->reUsedPwd(parent, onglets);
-    fenetre->addWidget(onglets);
+    qualityWindow->addWidget(onglets);
 }
 
 void PwdQualityPage::verifWeakPwd(QTabWidget *onglets){

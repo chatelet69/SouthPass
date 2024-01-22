@@ -210,7 +210,7 @@ void ApplicationController::switchLeaksPage() {
         dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
         stackedWidget->addWidget(dataLeaksPage);
     }
-    if(isConnected() == 0 && dataLeaksPage)
+    if(isConnected() == 0 && dataLeaksPage) {
         stackedWidget->setCurrentWidget(dataLeaksPage);
     }
 }

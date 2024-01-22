@@ -15,7 +15,7 @@
 
 LoginPage::LoginPage(QWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
     //Création des onglets connexion et inscription
-    QVBoxLayout * fenetre = new QVBoxLayout(this);
+    QVBoxLayout * logWindow = new QVBoxLayout(this);
     QTabWidget *onglets = new QTabWidget(this);
 
     // Page connexion
@@ -106,7 +106,7 @@ LoginPage::LoginPage(QWidget *parent, ApplicationController *appController, MYSQ
     // Ajout des onglets Connexion et Inscription
     onglets->addTab(loginBox, "Connexion");
     onglets->addTab(signInBox, "Inscription");
-    fenetre->addWidget(onglets);
+    logWindow->addWidget(onglets);
 
     /* CSS : ( à mettre dans les fonctions )
     * login->setObjectName("loginTab");
