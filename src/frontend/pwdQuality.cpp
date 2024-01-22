@@ -1,6 +1,9 @@
-//
-// Created by mathf on 08/01/2024.
-//
+/*
+    Filename : pwdQuality.cpp
+    Description : Password quality page
+    Last Edit : 21_01_2024
+*/
+
 #include <QLineEdit>
 #include <QFormLayout>
 #include <QApplication>
@@ -143,7 +146,7 @@ void PwdQualityPage::reUsedPwd(QStackedWidget * parent, QTabWidget *onglets){
     reUsedList->setObjectName("backPwdQuality");
 
     TokenInfos *tokenInfos = getTokenFileInfos();
-    if(tokenInfos != NULL || tokenInfos -> id != NULL) {
+    if(tokenInfos != NULL && tokenInfos->id != 0) {
         struct PwdList *pwds = getUniquePwd(dbCon, tokenInfos->id);
 
         if(pwds != NULL) {

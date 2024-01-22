@@ -1,6 +1,8 @@
-//
-// Created by mathf on 09/01/2024.
-//
+/*
+    Filename : backPwdQuality.c
+    Description : File containing the functions managing the backend of the Password Quality page
+    Last Edit : 21_01_2024
+*/
 
 #include <stdio.h>
 #include <stdlib.h>

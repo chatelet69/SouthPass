@@ -1,6 +1,8 @@
 /*
     Filename : applicationController.cpp
-    Description: Qt / SouthPass Application Controller
+    Description: Qt / SouthPass Application Controller. 
+    Manages the different pages and the main window
+    Last Edit : 21_01_2024
 */
 
 #include <QFile>
@@ -26,9 +28,10 @@
 #include "../../includes/fileController.h"
 #include "../../includes/backLoginSignIn.h"
 #include "../../includes/pwdGeneratorPage.h"
-#include "../../includes/parametersPage.h"
+#include "../../includes/parametersPage.hpp"
 
-ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(nullptr),*/ app(argc, argv) {
+ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
+    this->initNullMembers();
     isDark = getThemePreference();
     oldTheme = isDark;
     dbCon = dbConnect();
@@ -47,8 +50,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     QWidget *headerWidget = new QWidget();
     this->importHeader(headerWidget);
     // Tâche synchroneQTimer::singleShot(0, this, [=]() {
-    pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
-    stackedWidget->addWidget(pwdGen);
+    this->loadOncePages();
     //});
 
     mainLayout->addWidget(headerWidget);
@@ -63,14 +65,14 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     }
 }
 
-void ApplicationController::loadAsyncPages() {
-    /*pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
-    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
-    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+void ApplicationController::initNullMembers() {
+    dataLeaksPage = nullptr;
+    pwdGen = nullptr;
+}
 
+void ApplicationController::loadOncePages() {
+    pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
     stackedWidget->addWidget(pwdGen);
-    stackedWidget->addWidget(pwdQual);
-    stackedWidget->addWidget(dataLeaksPage);*/
 }
 
 ApplicationController::~ApplicationController() {
@@ -78,6 +80,10 @@ ApplicationController::~ApplicationController() {
     closeDb(dbCon);
 
     if (oldTheme != isDark) saveThemePreference(isDark);
+
+    delete credsPage;
+    delete pwdQual;
+    delete logPage;
 }
 
 int ApplicationController::run() {
@@ -145,11 +151,20 @@ QString ApplicationController::getOtherStyleSheet(int darkOrNot) {
 }
 
 void ApplicationController::switchCredsPage() {
-    if(isConnected() == 0) {
-        userId = getUserIdByToken(dbCon);
-        credsPage = new CredentialsPage(stackedWidget, dbCon, userId);
-        stackedWidget->addWidget(credsPage);
-        this->credsPage->showAllCredentials();
+    qDebug() << "Stacked : " << stackedWidget->children();
+    /*if (credsPage) {
+        stackedWidget->removeWidget(credsPage);
+        qDebug() << "before delete";
+        qDebug() << credsPage;
+        delete credsPage;
+        qDebug() << "after : " << credsPage;
+        //this->credsPage = nullptr;
+    }*/
+    qDebug() << credsPage;
+    credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
+    stackedWidget->addWidget(credsPage);
+    if(isConnected() == 0 && credsPage != NULL) {
+        //credsPage->showAllCredentials();
         stackedWidget->setCurrentWidget(credsPage);
     }
 }
@@ -178,9 +193,11 @@ void ApplicationController::switchToLoginPage() {
 }
 
 void ApplicationController::switchLeaksPage() {
-    if(isConnected() == 0) {
+    if (!dataLeaksPage) {
         dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
         stackedWidget->addWidget(dataLeaksPage);
+    }
+    if(isConnected() == 0 && dataLeaksPage)
         stackedWidget->setCurrentWidget(dataLeaksPage);
     }
 }
@@ -199,26 +216,26 @@ int ApplicationController::getUserId() {
 
 void ApplicationController::importMenu(QMenuBar *menuBar){
 // MENU
-    QMenu *menuFichier = menuBar->addMenu("Fichiers");
-    menuFichier->setObjectName("fileMenu");
-    QAction *importPwd = new QAction("Importer des mots de passe", this);
-    menuFichier->addAction(importPwd);
-    QAction *exportPwd = new QAction("Exporter des mots de passe", this);
-    menuFichier->addAction(exportPwd);
+    QMenu *fileMenu = menuBar->addMenu("Fichiers");
+    fileMenu->setObjectName("fileMenu");
+    QAction *importPwd = new QAction("Importer des mots de passes", this);
+    fileMenu->addAction(importPwd);
+    QAction *exportPwd = new QAction("Exporter des mots de passes", this);
+    fileMenu->addAction(exportPwd);
     
     connect(importPwd, &QAction::triggered, this, &ApplicationController::importPasswords);
     connect(exportPwd, &QAction::triggered, this, &ApplicationController::exportPasswords);
 
-    QMenu *menuOutils = menuBar->addMenu("Outils");
-    menuOutils->setObjectName("toolsMenu");
-    QAction *seePwd = new QAction("Voir mes mots de passe", this);
-    menuOutils->addAction(seePwd);
-    QAction *pwdGenerator = new QAction("Générateur de mot de passe", this);
-    menuOutils->addAction(pwdGenerator);
-    QAction *pwdQuality = new QAction("Qualité des mots de passe", this);
-    menuOutils->addAction(pwdQuality);
+    QMenu *toolsMenu = menuBar->addMenu("Outils");
+    toolsMenu->setObjectName("toolsMenu");
+    QAction *seePwd = new QAction("Voir mes mots de passes", this);
+    toolsMenu->addAction(seePwd);
+    QAction *pwdGenerator = new QAction("Générateur de mot passes", this);
+    toolsMenu->addAction(pwdGenerator);
+    QAction *pwdQuality = new QAction("Qualité des mots de passes", this);
+    toolsMenu->addAction(pwdQuality);
     QAction *analysis = new QAction("Analyse des fuites de données", this);
-    menuOutils->addAction(analysis);
+    toolsMenu->addAction(analysis);
     connect(analysis, &QAction::triggered, this, &ApplicationController::switchLeaksPage);
 
     QMenu *menuSouthPass = menuBar->addMenu("SouthPass");
@@ -243,13 +260,15 @@ void ApplicationController::disconnect() {
 
 void ApplicationController::importPasswords() {
     QString importedFile = QFileDialog::getOpenFileName(NULL, "Fichier CSV à importer", QDir::homePath(), tr("Csv files (*.csv)"));
-    QByteArray importedFileBytes = importedFile.toLocal8Bit();
-    char *importedPasswordsFile = importedFileBytes.data();
-    int status(importPasswordsController(dbCon, userId, importedPasswordsFile));
-    if (status == EXIT_SUCCESS) {
-        QMessageBox::warning(stackedWidget,"Succès" ,"Mots de passes importés avec succès !");
-    } else {
-        QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'importation des mots de passes !");
+    if (importedFile.size() > 0) {
+        QByteArray importedFileBytes = importedFile.toLocal8Bit();
+        char *importedPasswordsFile = importedFileBytes.data();
+        int status(importPasswordsController(dbCon, userId, importedPasswordsFile));
+        if (status == EXIT_SUCCESS) {
+            QMessageBox::warning(stackedWidget,"Succès" ,"Mots de passes importés avec succès !");
+        } else {
+            QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'importation des mots de passes !");
+        }
     }
 }
 

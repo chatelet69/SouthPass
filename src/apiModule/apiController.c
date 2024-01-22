@@ -37,56 +37,30 @@ void freeLeaksList(struct LeaksList *list) {
     }
 }
 
-LeaksList *getDataLeaks(MYSQL *dbCon, const int userId) {
-    if (userId == 0) return NULL;
-
-    //LoginsList = getUniquesLoginsById(dbCon, userId);
-    char *url = strdup("https://2.intelx.io/intelligent/search");
-    cJSON *resData = getJsonFromRequest(url);
-    free(url);
-    printf("RES DATA : %s\n", cJSON_Print(resData));
-
-    return NULL;
-}
-
-int getRemainingCreditsIntelx() {
-    char *url = strdup("https://2.intelx.io/authenticate/info");
-    char *intelxKey = strdup("replace by the function get intelx key");
-    cJSON *resData = getJsonFromGetRequest(url, intelxKey);
-    free(url);
-    free(intelxKey);
-
-    if (resData != NULL) {
-        printf("%s", resData);
-    }
-
-    return 0;
-}
-
 LeaksList *getDataLeaksFromLeakCheck(MYSQL *dbCon, const int userId) {
     if (userId == 0) return NULL;
     char *key = getLeakCheckKey();  // Récupération de la clé dans le fichier de config
+    if (key == NULL) key = strdup(LEAKCHECK_DEFAULT_KEY);   // Si pas de clé utilisation de celle par défaut
     LeaksList *leaksList = (LeaksList *) malloc(sizeof(LeaksList));
     leaksList->count = 0;
     leaksList->credentialLeaks = NULL;
 
-    LoginsList *uniquesLogins = getUniquesLoginsById(dbCon, userId);
+    LoginsList *uniquesLogins = getUniquesLoginsById(dbCon, userId);    // Récupération des emails uniques
     if (uniquesLogins != NULL && key != NULL) {
-        char *actualLogin = NULL;
         for (int i = 0; i < uniquesLogins->count; i++) {
-            actualLogin = strdup(uniquesLogins->logins[i]);
+            char *actualLogin = strdup(uniquesLogins->logins[i]);
             char *url = (char *) malloc(sizeof(char) * (strlen(LEAKCHECK_BASE_URL) + strlen(actualLogin) + strlen(key) + 15));
             sprintf(url, "%s?key=%s&check=%s", LEAKCHECK_BASE_URL, key, actualLogin);
+            // Ecriture de l'URL finale pour la requête d'API
             
             cJSON *resData = getJsonFromGetRequest(url, strdup(key));
-            free(url);
             leaksList->credentialLeaks = parseJsonToLeaksList(leaksList, resData, actualLogin);
+            free(url);
+            free(actualLogin);
         }
-        if (actualLogin != NULL) free(actualLogin);
     }
     
     // Clean
-    //printLeaksList(leaksList);
     free(uniquesLogins);
     if (key != NULL) free(key);
 

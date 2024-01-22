@@ -11,8 +11,8 @@
 #include "./loginPage.hpp"
 #include "./pwdGeneratorPage.h"
 #include "./pwdQuality.h"
-#include "./parametersPage.h"
 #include "./dataLeak.hpp"
+#include "./parametersPage.hpp"
 
 #define APPLICATION_NAME "SouthPass"
 
@@ -28,9 +28,9 @@
 #define darkModeIcon "./assets/darkThemeIcon.png"
 
 class MainWindow;
+class ParametersPage;
 class ApplicationController;
 class LoginPage;
-class ParametersPage;
 
 class MainWindow : public QMainWindow {
     public:
@@ -55,7 +55,6 @@ class ApplicationController : public QObject {
         QApplication& getApplication();
         int getUserId();
         void deleteChildsOfLayout(QLayout *layout);
-        void loadAsyncPages();
         void importHeader(QWidget *headerWidget);
 
     public Q_SLOTS:
@@ -70,7 +69,6 @@ class ApplicationController : public QObject {
         void importPasswords();
         void switchLeaksPage();
         void switchParamsPage();
-        //void refreshCredsPage();
 
     private:
         int userId;
@@ -86,5 +84,8 @@ class ApplicationController : public QObject {
         CredentialsPage *credsPage;
         DataLeaksPage *dataLeaksPage;
         ParametersPage *paramsPage;
+
+        void initNullMembers();
+        void loadOncePages();
 };
 #endif

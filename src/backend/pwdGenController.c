@@ -1,6 +1,8 @@
-//
-// Created by mathf on 08/01/2024.
-//
+/*
+    Filename : pwdGenController.c
+    Description : File containing functions related to the password generator
+    Last Edit : 21_01_2024
+*/
 
 #include "../../includes/pwdGenController.h"
 

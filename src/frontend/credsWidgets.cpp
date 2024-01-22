@@ -1,5 +1,5 @@
 /*
-    Filename : creds_widget.cpp
+    Filename : credsWidgets.cpp
     Description : Methods and widget for the creds Main Page
 */
 
@@ -45,21 +45,34 @@ CredentialsWidget::CredentialsWidget(QWidget *parent, CredsArray *credsArray) : 
     this->show();
 }
 
+CredentialsWidget::~CredentialsWidget() {
+    delete credsLayout;
+    delete credsContainer;
+    delete scrollArea;
+    delete contentLayout;
+}
+
 void CredentialsWidget::importCredentialsList(CredsArray *credsArray) {
-    for (unsigned int i = 0; i < credsArray->size; i++){
-        QWidget *credContainer = new QWidget(this);
-        credContainer->setObjectName("credBox");
-        QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
+    if (credsArray->size > 0) {
+        for (unsigned int i = 0; i < credsArray->size; i++){
+            QWidget *credContainer = new QWidget(this);
+            credContainer->setObjectName("credBox");
+            QHBoxLayout *credContainerLayout = new QHBoxLayout(credContainer);
 
-        QWidget *labelsContainer = new QWidget(credContainer);
-        this->importCredDetailsBox(labelsContainer, &credsArray->credentials[i]);
+            QWidget *labelsContainer = new QWidget(credContainer);
+            this->importCredDetailsBox(labelsContainer, &credsArray->credentials[i]);
 
-        QWidget *buttonsContainer = new QWidget(this);
-        this->importCredButtons(buttonsContainer, labelsContainer, &credsArray->credentials[i]);
+            QWidget *buttonsContainer = new QWidget(this);
+            this->importCredButtons(buttonsContainer, labelsContainer, &credsArray->credentials[i]);
 
-        credContainerLayout->addWidget(labelsContainer);
-        credContainerLayout->addWidget(buttonsContainer);
-        credsLayout->addWidget(credContainer);
+            credContainerLayout->addWidget(labelsContainer);
+            credContainerLayout->addWidget(buttonsContainer);
+            credsLayout->addWidget(credContainer);
+        }
+    } else {
+        QLabel *noPasswordsLabel = new QLabel("Pas de mots de passes");
+        noPasswordsLabel->setObjectName("noPasswordsLabel");
+        credsLayout->addWidget(noPasswordsLabel);
     }
 }
 
@@ -207,6 +220,7 @@ CredsToolBarWidget::CredsToolBarWidget(QWidget *parent, MYSQL *dbCon) : QWidget(
 }
 
 CredsToolBarWidget::~CredsToolBarWidget() {
+    delete form;
     delete searchType;
     delete searchInput;
 }
@@ -297,14 +311,14 @@ void CredentialEditWidget::importEditCredsLabels(QWidget *labelsContainer, QVBox
 void CredentialEditWidget::importEditCredsButtons(QWidget *buttonsContainer, QHBoxLayout *buttonsLayout) {
     if (buttonsContainer != nullptr && buttonsLayout != nullptr) {        
         this->cancelEditButton = new QPushButton("Annuler");
-        this->cancelEditButton->setObjectName("cancelEditButton");
+        this->cancelEditButton->setObjectName("cancelButton");
         connect(cancelEditButton, &QPushButton::clicked, [=](){
             this->hide();
             this->close();
         });
 
         saveEditCredButton = new QPushButton("Enregistrer", this);
-        saveEditCredButton->setObjectName("saveEditCredButton");
+        saveEditCredButton->setObjectName("saveButton");
         saveEditCredButton->setProperty("credentialId", credId);
         this->saveEditCredButton->setProperty("credentialUserId", this->userId);
         connect(saveEditCredButton, &QPushButton::clicked, [=]() {

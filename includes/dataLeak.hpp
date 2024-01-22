@@ -38,14 +38,9 @@ class DataLeaksPage : public QWidget {
 
     public:
         DataLeaksPage(QWidget *parent, MYSQL *dbConnection, int userId);
-        //~CredentialsPage();
-        void setUserId(int newId);
-        void initCredsListWidget();
+        //~DataLeaksPage();
 
     public Q_SLOTS:
-        //void showCredsForm();
-
-    private Q_SLOTS:
         //void showCredsForm();
 
     private: 
@@ -54,6 +49,8 @@ class DataLeaksPage : public QWidget {
         CredentialsLeaksWidget *credentialsWidget;
         QVBoxLayout *contentLayout;
         QScrollArea *scrollArea;
+
+        void importLeaksList(LeaksList *leaksList, QVBoxLayout *credsLayout);
 };
 
 #endif

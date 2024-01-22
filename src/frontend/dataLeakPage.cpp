@@ -1,6 +1,7 @@
 /*
-    Filename : creds_widget.cpp
-    Description : Methods and widget for the creds Main Page
+    Filename : dataLeakPage.cpp
+    Description : Page that displays possible data leaks linked to emails
+    Last Edit : 20_01_2024
 */
 
 #include <QWidget>
@@ -26,13 +27,24 @@ DataLeaksPage::DataLeaksPage(QWidget *parent, MYSQL *dbConnection, int userId) :
     scrollArea->setMinimumHeight(300);  
     scrollArea->setMaximumHeight(600);
 
-    //getDataLeaks(dbCon, userId);
-    //getRemainingCreditsIntelx();
     LeaksList *leaksList = getDataLeaksFromLeakCheck(dbConnection, userId);
 
     QWidget *credsContainer = new QWidget(this);
     credsContainer->setObjectName("credsContainer");
     QVBoxLayout *credsLayout = new QVBoxLayout(credsContainer);
+    this->importLeaksList(leaksList, credsLayout);
+
+    if (leaksList != NULL) {
+        freeLeaksList(leaksList);
+        free(leaksList);
+    }
+
+    scrollArea->setWidget(credsContainer);
+    contentLayout->addWidget(scrollArea);
+    setLayout(contentLayout);
+}
+
+void DataLeaksPage::importLeaksList(LeaksList *leaksList, QVBoxLayout *credsLayout) {
     if (leaksList != NULL) {
         if (leaksList->count > 0) {
             for (unsigned int i = 0; i < leaksList->count; i++){
@@ -61,13 +73,4 @@ DataLeaksPage::DataLeaksPage(QWidget *parent, MYSQL *dbConnection, int userId) :
         noPasswordsLabel->setObjectName("noDataLeaks");
         credsLayout->addWidget(noPasswordsLabel);
     }
-
-    if (leaksList != NULL) {
-        freeLeaksList(leaksList);
-        free(leaksList);
-    }
-
-    scrollArea->setWidget(credsContainer);
-    contentLayout->addWidget(scrollArea);
-    setLayout(contentLayout);
 }
