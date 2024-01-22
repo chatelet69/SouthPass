@@ -60,7 +60,6 @@ char *getHttpRequest(char *url) {
     
     if(curl && url) {
         if (strstr(url, "http://") == NULL && strstr(url, "https://") == NULL) {
-            printf("URL incorrecte!\n");
             return NULL;
         } else {
             curl_off_t downloadSize;
@@ -78,9 +77,6 @@ char *getHttpRequest(char *url) {
                 fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
             } else {
                 res = curl_easy_getinfo(curl, CURLINFO_SIZE_DOWNLOAD_T, &downloadSize);
-                printf("dl size : %" CURL_FORMAT_CURL_OFF_T "\n", downloadSize);
-                printf("llll :: %s\n", chunkBody.memory);
-                printf("%lu bytes retrieved\n", (unsigned long)chunkBody.size);
                 return chunkBody.memory;
             }
             

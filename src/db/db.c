@@ -51,13 +51,11 @@ int dbGet(MYSQL *dbCon, char *sqlQuery) {
             MYSQL_FIELD *fields = mysql_fetch_fields(resData);
         
             for (int col = 0; col < numFields; col++) printf("%s\t", fields[col].name);
-            printf("\n\n");
 
             while ((row = mysql_fetch_row(resData))) {
                 for (int col = 0; col < numFields; col++) printf("%s\t", row[col] ? row[col] : "NULL");
                 printf("\n");
             }
-            printf("______________\n");
         }
         mysql_free_result(resData);
     }

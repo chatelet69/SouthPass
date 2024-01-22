@@ -128,7 +128,6 @@ void PwdQualityPage::weakPwdList(QStackedWidget * parent, QTabWidget *onglets){
 
         }
     }else{
-        // printf("\nListe vide.");
         QLabel *noWeakPwd = new QLabel("Vous n'avez aucun mot de passe faible !");
         mainLayout->addWidget(noWeakPwd);
     }
@@ -171,8 +170,6 @@ void PwdQualityPage::reUsedPwd(QStackedWidget * parent, QTabWidget *onglets){
                                 }
 
                                 while(start!=NULL) {
-                                    printf("\n1111111");
-                                    // printf("\nnext url : %s", start->next->site);
                                     QWidget * boxPwd = new QWidget();
                                     QHBoxLayout * boxPwdLayout = new QHBoxLayout();
                                     boxPwd->setObjectName("boxPwdQuality");
@@ -235,10 +232,8 @@ void PwdQualityPage::reUsedPwd(QStackedWidget * parent, QTabWidget *onglets){
 
 int verifEditPwd(const char * pwd, const char * verifPwd){
     if(strcmp(pwd, verifPwd) == 0){
-        printf("\n Verif good");
         return 0;
     }else{
-        printf("\n Verif not good");
         return 1;
     }
 }

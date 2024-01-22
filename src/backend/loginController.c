@@ -61,7 +61,6 @@ int verifLogin(MYSQL *dbCon, char *email, char *password, char *masterPwd) {
     char salt[7];
     strcpy(salt, getSaltByEmail(dbCon, email));
     if(strcmp(salt, "ko") == 0){
-        printf("KO");
         return 1;
     }
     

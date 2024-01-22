@@ -16,32 +16,6 @@
 #include "../../includes/backPwdQuality.h"
 #include <openssl/sha.h>
 
-// Fonction de récupération
-int getData(MYSQL *dbCon, char *sqlQuery) {      
-    if (mysql_query(dbCon, sqlQuery) != 0) {
-        fprintf(stderr, "Query Failure\n");
-        return EXIT_FAILURE;
-    } else {
-        MYSQL_RES *resData = mysql_store_result(dbCon);
-        if (resData == NULL) {
-            fprintf(stderr, "Aucune data\n");
-        } else {
-            int num_fields = mysql_num_fields(resData);
-            MYSQL_ROW row;
-        
-            printf(" ID     Nom\n");
-            while ((row = mysql_fetch_row(resData))) {
-                for(int i = 0; i < num_fields; i++) printf("| %s |", row[i] ? row[i] : "NULL");
-                printf("\n");
-            }
-            printf("______________\n");
-        }
-        mysql_free_result(resData);
-    }
-    
-    return EXIT_SUCCESS;
-}
-
 CredsArray *getPasswordsList(MYSQL *dbCon, int userId) {
     CredsArray *credsArray = (CredsArray *) malloc(sizeof(CredsArray) * 1);
     credsArray->size = 0;
@@ -841,7 +815,7 @@ int updateWebsitePwd(MYSQL *dbCon, char * pwd, int id, int userId){
 
 int getLineId(MYSQL * dbCon, char * url, char * username, char * pwd, int userId){
     int lineId = -1;
-    char *sqlQuery = "SELECT id FROM pswd_stock WHERE name = ? AND loginName = ? AND userId = ?";
+    const char *sqlQuery = "SELECT id FROM pswd_stock WHERE name = ? AND loginName = ? AND userId = ?";
 
     MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
     if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
