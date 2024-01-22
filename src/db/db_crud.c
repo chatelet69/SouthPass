@@ -535,12 +535,6 @@ ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
 }
 
 struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
-    struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList));
-    pwdList->pwd=NULL;
-    pwdList->size=0;
-
-    if(pwdList==NULL)
-        return NULL;
     char *sqlQuery = (char *) malloc(sizeof(char) * 600);
     if (sqlQuery == NULL) return NULL;
     struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList));
