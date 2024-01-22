@@ -48,11 +48,32 @@ class UserRepository {
     }
 
     async getCredentialByUserId(userId, name) {
-        let sqlQuery = "SELECT psw.id AS id, psw.name AS name, psw.loginName AS login, (AES_DECRYPT(psw.password, UNHEX(u.pwdMaster))) AS password" +
+        let sqlQuery = "SELECT psw.id AS id, psw.name AS name, psw.loginName AS login, AES_DECRYPT(psw.password, UNHEX(u.pwdMaster)) AS password" +
          " FROM pswd_stock psw INNER JOIN users u ON u.id = psw.userId WHERE psw.userId = ? AND (name LIKE ? OR ? LIKE (CONCAT('%', CONCAT(name, '%'))))";
         return new Promise((resolve, reject) => {
             this.db.query(sqlQuery, [userId, `%${name}%`, name], (error, result) => {
                 if (error) throw (error);
+                console.log("eres:", result);
+                resolve(result);
+            });
+        });
+    }
+
+    async getUserByEmail(email) {
+        const sqlQuery = "SELECT id, email FROM users WHERE email = ?";
+        return new Promise((resolve, reject) => {
+            this.db.query(sqlQuery, [email], (error, result) => {
+                if (error) throw error;
+                resolve(result[0]);
+            });
+        });
+    }
+
+    async insertEmailCode(email, code, userId) {
+        const sqlQuery = "UPDATE users SET emailCode = ? WHERE email = ? AND id = ?";
+        return new Promise((resolve, reject) => {
+            this.db.query(sqlQuery, [code, email, userId], (error, result) => {
+                if (error) throw error;
                 resolve(result);
             });
         });

@@ -12,6 +12,7 @@
 #include <QMenuBar>
 #include <QDebug>
 #include <QString>
+#include <QQuickStyle>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QFuture>
@@ -31,6 +32,7 @@
 #include "../../includes/parametersPage.hpp"
 
 ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
+    QQuickStyle::setStyle("Fusion");
     this->initNullMembers();
     isDark = getThemePreference();
     oldTheme = isDark;
@@ -68,6 +70,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
 void ApplicationController::initNullMembers() {
     dataLeaksPage = nullptr;
     pwdGen = nullptr;
+    credsPage = nullptr;
 }
 
 void ApplicationController::loadOncePages() {
@@ -151,19 +154,29 @@ QString ApplicationController::getOtherStyleSheet(int darkOrNot) {
 }
 
 void ApplicationController::switchCredsPage() {
-    qDebug() << "Stacked : " << stackedWidget->children();
-    /*if (credsPage) {
+    //qDebug() << "Stacked : " << stackedWidget->children();
+    /*if (credsPage != nullptr) {
+        qDebug() << "actual page : " << credsPage;
+        //CredentialsPage *oldPage = credsPage;
+        CredentialsPage *newPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
+        stackedWidget->addWidget(newPage);
+        stackedWidget->setCurrentWidget(newPage);
+
+        qDebug() << "before remove";
         stackedWidget->removeWidget(credsPage);
-        qDebug() << "before delete";
-        qDebug() << credsPage;
         delete credsPage;
-        qDebug() << "after : " << credsPage;
-        //this->credsPage = nullptr;
+        qDebug() << "after delete"; 
+        printf("%p\n", credsPage);
+        credsPage = newPage;
+        qDebug() << "new : " << credsPage;
+    } else {
+        credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
+        stackedWidget->addWidget(credsPage);
+        stackedWidget->setCurrentWidget(credsPage);
     }*/
-    qDebug() << credsPage;
     credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
     stackedWidget->addWidget(credsPage);
-    if(isConnected() == 0 && credsPage != NULL) {
+    if(isConnected() == 0 && credsPage != nullptr) {
         //credsPage->showAllCredentials();
         stackedWidget->setCurrentWidget(credsPage);
     }
@@ -289,27 +302,6 @@ void ApplicationController::exportPasswords() {
             QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'exportation des mots de passes !");
         }
     }
-}
-
-void ApplicationController::refreshCredsPage() {
-    qDebug() << "Test";
-    if (stackedWidget) {
-        // Utiliser stackedWidget en toute sécurité ici
-        qDebug() << "ok";
-    } else {
-        qDebug() << "stackedWidget is nullptr!";
-    }
-    for (int i = 0; i < stackedWidget->count(); ++i) {
-        QWidget *widget = stackedWidget->widget(i);
-        qDebug() << "Widget at index" << i << ":" << widget;
-    }
-    int oldPageIndex = stackedWidget->indexOf(credsPage);
-    qDebug() << "old index : " << oldPageIndex;
-    stackedWidget->removeWidget(credsPage);
-    //delete credsPage;
-    CredentialsPage *newCredsPage = new CredentialsPage(NULL, dbCon, userId);
-    credsPage = newCredsPage;
-    stackedWidget->insertWidget(oldPageIndex, credsPage);
 }
 
 void ApplicationController::deleteChildsOfLayout(QLayout *layout) {

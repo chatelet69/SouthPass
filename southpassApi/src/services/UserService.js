@@ -3,6 +3,7 @@ const sha256                = require('js-sha256');
 const jwt                   = require("jsonwebtoken");
 const secret                = require("../../config.json").secretJwt;
 const baseUrl               = require("../../config.json").baseUrl;
+const { exec }              = require('node:child_process')
 
 class UserService {
     userRepository;
@@ -68,6 +69,7 @@ class UserService {
             let resData = await this.userRepository.getCredentialByUserId(userId, website);
             if (resData.length > 0) {
                 resData = resData[0];
+                console.log("res:", resData);
                 return {id: resData.id, name: resData.name, login: resData.login, password: resData.password.toString()};
             } else {
                 return {error: "not found"};
@@ -76,6 +78,36 @@ class UserService {
             console.log(error);
             return {error: "not found"};
         }
+    }
+
+    async sendVerifCode(email) {
+        try {
+            let checkUserEmail = await this.userRepository.getUserByEmail(email);
+            if (checkUserEmail && checkUserEmail.email) {
+                let emailCode = Math.floor(Math.random() * (9864, 1234) + 1234);
+                let resDb = await this.userRepository.insertEmailCode(checkUserEmail.email, emailCode, checkUserEmail.id);
+                if (resDb.affectedRows > 0) {
+                    this.sendVerifCodeMail(email, emailCode);
+                    return {emailCode: emailCode};
+                } else {
+                    return {error: "error_email_code"};
+                }
+            } else {
+                return {error: "user_exist"};
+            }
+        } catch (error) {
+            return {error: "not found"};
+        }
+    }
+
+    sendVerifCodeMail(email, code) {
+        exec(`php /home/debian/southpassApi/sendmail.php ${email} ${code}`, (error, output) => {
+            if (error) {
+                console.log(error);
+                return;
+            }
+            console.log("Output: \n", output);
+        });
     }
 }
 

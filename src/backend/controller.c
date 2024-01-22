@@ -16,7 +16,6 @@
 #include "../../includes/pincludes.h"
 #include "../../includes/backLoginSignIn.h"
 #include "../../includes/fileController.h"
-#include "../../includes/cryptoModule.h"
 
 void freeCredsArray(struct CredsArray *credsArray) {
     if (credsArray != NULL) {
@@ -271,6 +270,12 @@ int saveEditedPwdAccount(MYSQL *dbCon, int userId, char *newPassword, char *actu
     if (checkPwdId == userId) {
         // Appel DB avec le type de mot de passe à update
         status = saveNewAccountPasswordDb(dbCon, userId, hashPassword, passwordType);
+        if (status == EXIT_SUCCESS && strcmp(passwordType, "pwdMaster") == 0) {
+            // Mise à jour des mots de passes (nouvelle clé de chiffrement)
+            char *hash = strdup(actualHash);
+            status = updateAllPasswords(dbCon, userId, hash);
+            free(hash);
+        }
         if (status == EXIT_SUCCESS && strcmp(passwordType, "pwdAccount") == 0) {
             // Récupération de l'email et réecriture du token
             generateNewUserToken(dbCon, email, hashPassword, userId);
