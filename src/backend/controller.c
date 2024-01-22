@@ -20,7 +20,6 @@
 void freeCredsArray(struct CredsArray *credsArray) {
     if (credsArray != NULL) {
         for (unsigned int i = 0; i < credsArray->size; i++) {
-            //printf("%s %s %s\n", credsArray->credentials[i].name, credsArray->credentials[i].loginName, credsArray->credentials[i].password);
             free(credsArray->credentials[i].name);
             free(credsArray->credentials[i].loginName);
             free(credsArray->credentials[i].password);
@@ -226,8 +225,6 @@ int saveEditedCredsController(MYSQL *dbCon, const int credId, const int userId, 
 
 int saveEditedEmail(MYSQL *dbCon, int userId, char *newEmail, char *actualEmail) {
     if (strcmp(newEmail, actualEmail) == 0 || userId == 0 || strlen(newEmail) > 255) {
-        free(actualEmail);
-        free(newEmail);
         return EXIT_FAILURE;
     }
 
@@ -249,6 +246,14 @@ int saveEditedPwdAccount(MYSQL *dbCon, int userId, char *newPassword, char *actu
     if (!hasDigit(newPassword)) return -1;
     if (!hasSpecialChar(newPassword)) return -1;
     if (strlen(newPassword) < 10 || strlen(newPassword) > 60) return -1;
+
+    /*
+    if(verifPasswordChars(pwd) == 0 || strlen(pwd)<10)
+        return 1;
+    if(verifPasswordChars(verifPwd) == 0 || strlen(verifPwd)<10)
+        return 1;
+    if(strcmp(pwd, verifPwd) != 0)
+        return 2;*/
 
     // Récupération du mail (dernier en date en db) et salt de l'utilisateur
     char *email = getEmailByUserId(dbCon, userId);

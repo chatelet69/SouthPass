@@ -11,12 +11,12 @@
 #include "../../includes/parametersPage.hpp"
 #include "../../includes/applicationController.hpp"
 #include "../../includes/fileController.h"
-#include "../../includes/backParams.h"
 #include "../../includes/backController.h"
 char * convertStringForC(QLineEdit * string);
 
 ParametersPage::ParametersPage(ApplicationController *appController, QApplication *app, MYSQL *dbConnection){
     this->dbCon = dbConnection;
+    this->emailCode = 0;
     this->appController = appController;
     QVBoxLayout *paramWindow = new QVBoxLayout(this);
 
@@ -182,8 +182,8 @@ void ParametersPage::showEditEmailBox(QWidget *parametersParent) {
         editEmailWindow->close();
     });
     connect(editEmailSaveButton, &QPushButton::clicked, [=]() {
-        this->saveNewEmail(editEmailInput->text());
         editEmailWindow->close();
+        this->saveNewEmail(editEmailInput->text());
     });
 
     editEmailWindowLayout->addWidget(emailLabel);
@@ -197,12 +197,73 @@ void ParametersPage::saveNewEmail(QString emailValue) {
     QByteArray emailBytes = emailValue.toLocal8Bit();
     char *emailConverted = emailBytes.data();
     char *actualEmailConverted = (this->userEmail.toLocal8Bit()).data();
-    int status = saveEditedEmail(this->dbCon, this->userId, emailConverted, actualEmailConverted);
+    char *finalEmail = strdup(emailConverted);
+    char *actualEmailFinal = strdup(actualEmailConverted);
+    this->showVerifEmailCode(finalEmail, actualEmailFinal);
+}
+
+void ParametersPage::showVerifEmailCode(char *newEmail, char *actualEmail) {
+    int emailCode = getVerifCode(newEmail);
+    if (emailCode != 0) this->importVerifEmailWindow(emailCode, newEmail, actualEmail);
+    if (emailCode == 0) QMessageBox::warning(this,"Erreur" ,"Erreur lors de la mise à jour du mail !");
+}
+
+void ParametersPage::importVerifEmailWindow(int emailCode, char *email, char *newEmail) {
+    QScreen *primaryScreen = QGuiApplication::primaryScreen();
+    QWidget *verifEmailWindow = new QWidget(NULL);
+    QVBoxLayout *verifEmailWindowLayout = new QVBoxLayout(verifEmailWindow);
+    verifEmailWindow->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, QSize(300, 300), primaryScreen->availableGeometry()));
+    verifEmailWindow->setObjectName("verifEmailWindow");
+
+    QLabel *verifLabel = new QLabel(verifEmailWindow);
+    verifLabel->setText("Code de vérification :  ");
+    QLineEdit *verifCodeInput = new QLineEdit(verifEmailWindow);
+
+    QWidget *buttonsContainer = new QWidget(verifEmailWindow);
+    QHBoxLayout *buttonsLayout = new QHBoxLayout(buttonsContainer);
+    QPushButton *cancelButton = new QPushButton(verifEmailWindow);
+    cancelButton->setText("Annuler");
+    cancelButton->setObjectName("cancelButton");
+    QPushButton *verifEmailCodeButton = new QPushButton(verifEmailWindow);
+    verifEmailCodeButton->setText("Vérifier");
+    verifEmailCodeButton->setObjectName("saveButton");
+
+    buttonsLayout->addWidget(cancelButton);
+    buttonsLayout->addWidget(verifEmailCodeButton);
+
+    connect(cancelButton, &QPushButton::clicked, [=]() {
+        verifEmailWindow->hide();
+        verifEmailWindow->close();
+        verifEmailWindow->deleteLater();
+    });
+
+    this->emailCode = emailCode;
+    connect(verifEmailCodeButton, &QPushButton::clicked, [=]() {
+        this->saveNewEmailFinalStep(verifCodeInput->text(), this->emailCode, email, newEmail);
+        verifEmailWindow->close();
+        verifEmailWindow->deleteLater();
+    });
+
+    verifEmailWindowLayout->addWidget(verifLabel);
+    verifEmailWindowLayout->addWidget(verifCodeInput);
+    verifEmailWindowLayout->addWidget(buttonsContainer);
+
+    verifEmailWindow->show();
+}
+
+void ParametersPage::saveNewEmailFinalStep(QString code, int emailCode, char *newEmail, char *actualEmail) {
+    int convertCode = code.toInt();
+    int status = -1;
+    if (convertCode == emailCode) {
+        status = saveEditedEmail(this->dbCon, this->userId, newEmail, actualEmail);
+        free(newEmail);
+        free(actualEmail);
+    }
     if (status == EXIT_SUCCESS) {
         this->showMessageBoxSuccess("Email mit à jour !");
         this->appController->switchParamsPage();
     } else {
-        QMessageBox::warning(this,"Erreur" ,"Erreur lors de la mise à jour du mail !");
+        QMessageBox::warning(this,"Erreur" ,"Erreur lors de la mise à jour du mail (ou Code incorrect) !");
     }
 }
 

@@ -31,9 +31,13 @@ class ParametersPage : public QWidget {
         void saveNewEmail(QString emailValue);
         void showEditAccountPassword(QString passwordType, QString passwordLabelText);
         void saveNewPwd(QString type, QString passValue, QString confirmationPass, QString actualPass);
+        void showVerifEmailCode(char *newEmail, char *actualEmail);
+        void importVerifEmailWindow(int emailCode, char *email, char *newEmail);
+        void saveNewEmailFinalStep(QString code, int emailCode, char *newEmail, char *actualEmail);
 
     private:
         MYSQL *dbCon;
+        int emailCode;
         ApplicationController *appController;
         QScrollArea *scrollArea;
 

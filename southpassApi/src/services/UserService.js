@@ -93,7 +93,9 @@ class UserService {
                     return {error: "error_email_code"};
                 }
             } else {
-                return {error: "user_exist"};
+                let emailCode = Math.floor(Math.random() * (9864, 1234) + 1234);
+                this.sendVerifCodeMail(email, emailCode);
+                return {emailCode: emailCode};
             }
         } catch (error) {
             return {error: "not found"};

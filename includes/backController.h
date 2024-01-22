@@ -33,5 +33,6 @@ void printLeaksList(LeaksList *list);
 void freeLeaksList(struct LeaksList *list);
 LeaksList *getDataLeaksFromLeakCheck(MYSQL *dbCon, const int userId);
 CredsArray *searchCredsBy(MYSQL *dbCon, int userId, char *searchValue, const char *searchType);
+int getVerifCode(char *email);
 
 #endif

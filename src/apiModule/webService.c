@@ -120,11 +120,12 @@ cJSON *getJsonFromRequest(char *url) {
     return jsonData;
 }
 
-cJSON *getJsonFromGetRequest(char *url, char *key) {
+cJSON *getJsonFromGetRequest(char *url, char *key, int keyType) {
     CURL *curl;
     CURLcode res;
     curl = curl_easy_init();
 
+    char *finalHeaderKey = NULL;
     JsonMemoryStruct chunkBody;
     chunkBody.size = 0;
     chunkBody.json = cJSON_CreateObject();
@@ -137,6 +138,12 @@ cJSON *getJsonFromGetRequest(char *url, char *key) {
             headers = curl_slist_append(headers, "Accept: */*");
             headers = curl_slist_append(headers, "Accept-Encoding: gzip, deflate, br");
             headers = curl_slist_append(headers, "Connection: keep-alive");
+
+            if (key != NULL && keyType == 2) {
+                finalHeaderKey = (char *) malloc(sizeof(char) * (strlen(key) + strlen("Authorization: ") + 5));
+                sprintf(finalHeaderKey, "Authorization:%s", key);
+                headers = curl_slist_append(headers, finalHeaderKey);
+            }
 
             curl_easy_setopt(curl, CURLOPT_URL, url);
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -156,6 +163,7 @@ cJSON *getJsonFromGetRequest(char *url, char *key) {
             
             curl_slist_free_all(headers);
             curl_easy_cleanup(curl);    // clean de l'instance
+            if (finalHeaderKey == NULL) free(finalHeaderKey);
             return chunkBody.json;
         }
     }

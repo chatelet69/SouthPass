@@ -54,7 +54,6 @@ int dbGet(MYSQL *dbCon, char *sqlQuery) {
 
             while ((row = mysql_fetch_row(resData))) {
                 for (int col = 0; col < numFields; col++) printf("%s\t", row[col] ? row[col] : "NULL");
-                printf("\n");
             }
         }
         mysql_free_result(resData);

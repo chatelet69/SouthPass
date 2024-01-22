@@ -62,7 +62,6 @@ ApplicationController::ApplicationController(int argc,char **argv) : app(argc, a
     if(isConnected() == 0 && userId != 0){
         ApplicationController::switchCredsPage();
     } else {
-        printf("\nswitchToLoginPage");
         ApplicationController::switchToLoginPage();
     }
 }
@@ -154,26 +153,6 @@ QString ApplicationController::getOtherStyleSheet(int darkOrNot) {
 }
 
 void ApplicationController::switchCredsPage() {
-    //qDebug() << "Stacked : " << stackedWidget->children();
-    /*if (credsPage != nullptr) {
-        qDebug() << "actual page : " << credsPage;
-        //CredentialsPage *oldPage = credsPage;
-        CredentialsPage *newPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
-        stackedWidget->addWidget(newPage);
-        stackedWidget->setCurrentWidget(newPage);
-
-        qDebug() << "before remove";
-        stackedWidget->removeWidget(credsPage);
-        delete credsPage;
-        qDebug() << "after delete"; 
-        printf("%p\n", credsPage);
-        credsPage = newPage;
-        qDebug() << "new : " << credsPage;
-    } else {
-        credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
-        stackedWidget->addWidget(credsPage);
-        stackedWidget->setCurrentWidget(credsPage);
-    }*/
     credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
     stackedWidget->addWidget(credsPage);
     if(isConnected() == 0 && credsPage != nullptr) {

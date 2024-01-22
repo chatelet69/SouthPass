@@ -102,19 +102,12 @@ LoginPage::LoginPage(QWidget *parent, ApplicationController *appController, MYSQ
     layoutSignIn->addRow(signInButton);
     signInBox->setLayout(layoutSignIn);
 
-
     // Ajout des onglets Connexion et Inscription
     onglets->addTab(loginBox, "Connexion");
     onglets->addTab(signInBox, "Inscription");
     logWindow->addWidget(onglets);
 
-    /* CSS : ( à mettre dans les fonctions )
-    * login->setObjectName("loginTab");
-    *login->setObjectName("loginWidget");
-    *signIn->setObjectName("signInWidget");
-    */
-
-    // Intéraction bouton login
+    // Interaction bouton login
     connectButton->setObjectName("connectButton");
     connect(connectButton, &QPushButton::clicked, [=](){
         // CONVERSION DES INPUT EN STRING POUR LE C
@@ -182,7 +175,6 @@ LoginPage::LoginPage(QWidget *parent, ApplicationController *appController, MYSQ
             if(res == 0){
                 QMessageBox::information(this,"Bravo !" ,"Inscription réussie !");
                 appController->switchCredsPage();
-                // emit signInSuccess();
                 return 0;
             }else if(res == 2){
                 QMessageBox::warning(this,"Erreur" ,"Email déjà utilisé, essayez de vous connecter");
