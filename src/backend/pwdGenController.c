@@ -1,13 +1,13 @@
-//
-// Created by mathf on 08/01/2024.
-//
+/*
+    Filename : pwdGenController.c
+    Description : File containing functions related to the password generator
+    Last Edit : 21_01_2024
+*/
 
 #include "../../includes/pwdGenController.h"
 
 
 char * generatePwd(int length, int useMajChars, int useNumbers, int useSymbols){
-    printf("\nmaj : %d, num : %d, sym : %d : length : %d\n", useMajChars, useNumbers, useSymbols, length);
-
     FILE * fp = fopen("./prevpwd.txt", "wt");
     srand((time(NULL)));
     char pass[42];
@@ -37,15 +37,12 @@ char * generatePwd(int length, int useMajChars, int useNumbers, int useSymbols){
         if(random == 3)
             capLetter = 'a' + (rand() % 26);
 
-        printf("%c", capLetter);
-
         fputc(capLetter, fp);
     }
     fclose(fp);
     FILE * fp2 = fopen("./prevpwd.txt", "rt");
 
     fgets(pass, length+1, fp2);
-    printf("\nPWD : %s\n", pass);
 
     fclose(fp2);
     remove("./prevpwd.txt");

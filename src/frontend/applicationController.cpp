@@ -1,6 +1,8 @@
 /*
     Filename : applicationController.cpp
-    Description: Qt / SouthPass Application Controller
+    Description: Qt / SouthPass Application Controller. 
+    Manages the different pages and the main window
+    Last Edit : 21_01_2024
 */
 
 #include <QFile>
@@ -10,6 +12,7 @@
 #include <QMenuBar>
 #include <QDebug>
 #include <QString>
+#include <QQuickStyle>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QFuture>
@@ -28,7 +31,9 @@
 #include "../../includes/pwdGeneratorPage.h"
 #include "../../includes/parametersPage.hpp"
 
-ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(nullptr),*/ app(argc, argv) {
+ApplicationController::ApplicationController(int argc,char **argv) : app(argc, argv) {
+    QQuickStyle::setStyle("Fusion");
+    this->initNullMembers();
     isDark = getThemePreference();
     oldTheme = isDark;
     dbCon = dbConnect();
@@ -47,8 +52,7 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     QWidget *headerWidget = new QWidget();
     this->importHeader(headerWidget);
     // Tâche synchroneQTimer::singleShot(0, this, [=]() {
-    pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
-    stackedWidget->addWidget(pwdGen);
+    this->loadOncePages();
     //});
 
     mainLayout->addWidget(headerWidget);
@@ -58,19 +62,19 @@ ApplicationController::ApplicationController(int argc,char **argv) : /*QObject(n
     if(isConnected() == 0 && userId != 0){
         ApplicationController::switchCredsPage();
     } else {
-        printf("\nswitchToLoginPage");
         ApplicationController::switchToLoginPage();
     }
 }
 
-void ApplicationController::loadAsyncPages() {
-    /*pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
-    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
-    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+void ApplicationController::initNullMembers() {
+    dataLeaksPage = nullptr;
+    pwdGen = nullptr;
+    credsPage = nullptr;
+}
 
+void ApplicationController::loadOncePages() {
+    pwdGen = new PwdGenerator(stackedWidget, this, dbCon);
     stackedWidget->addWidget(pwdGen);
-    stackedWidget->addWidget(pwdQual);
-    stackedWidget->addWidget(dataLeaksPage);*/
 }
 
 ApplicationController::~ApplicationController() {
@@ -149,20 +153,10 @@ QString ApplicationController::getOtherStyleSheet(int darkOrNot) {
 }
 
 void ApplicationController::switchCredsPage() {
-    qDebug() << "Stacked : " << stackedWidget->children();
-    if (credsPage) {
-        stackedWidget->removeWidget(credsPage);
-        qDebug() << "before delete";
-        qDebug() << credsPage;
-        delete credsPage;
-        qDebug() << "after : " << credsPage;
-        //this->credsPage = nullptr;
-    }
-    qDebug() << credsPage;
     credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
     stackedWidget->addWidget(credsPage);
-    if(isConnected() == 0 && credsPage != NULL) {
-        credsPage->showAllCredentials();
+    if(isConnected() == 0 && credsPage != nullptr) {
+        //credsPage->showAllCredentials();
         stackedWidget->setCurrentWidget(credsPage);
     }
 }
@@ -173,10 +167,11 @@ void ApplicationController::switchGenPwdPage() {
 }
 
 void ApplicationController::switchPwdQuality() {
-    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
-    stackedWidget->addWidget(pwdQual);
-    if(isConnected() == 0)
+    if(isConnected() == 0) {
+        pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
+        stackedWidget->addWidget(pwdQual);
         stackedWidget->setCurrentWidget(pwdQual);
+    }
 }
 
 QApplication& ApplicationController::getApplication() {
@@ -190,17 +185,21 @@ void ApplicationController::switchToLoginPage() {
 }
 
 void ApplicationController::switchLeaksPage() {
-    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
-    stackedWidget->addWidget(dataLeaksPage);
-    if(isConnected() == 0)
+    if (!dataLeaksPage) {
+        dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+        stackedWidget->addWidget(dataLeaksPage);
+    }
+    if(isConnected() == 0 && dataLeaksPage) {
         stackedWidget->setCurrentWidget(dataLeaksPage);
+    }
 }
 
 void ApplicationController::switchParamsPage() {
-    paramsPage = new ParametersPage(this, &app, dbCon);
-    stackedWidget->addWidget(paramsPage);
-    if(isConnected() == 0)
+    if(isConnected() == 0) {
+        paramsPage = new ParametersPage(this, &app, dbCon);
+        stackedWidget->addWidget(paramsPage);
         stackedWidget->setCurrentWidget(paramsPage);
+    }
 }
 
 int ApplicationController::getUserId() {
@@ -209,26 +208,26 @@ int ApplicationController::getUserId() {
 
 void ApplicationController::importMenu(QMenuBar *menuBar){
 // MENU
-    QMenu *menuFichier = menuBar->addMenu("Fichiers");
-    menuFichier->setObjectName("fileMenu");
+    QMenu *fileMenu = menuBar->addMenu("Fichiers");
+    fileMenu->setObjectName("fileMenu");
     QAction *importPwd = new QAction("Importer des mots de passes", this);
-    menuFichier->addAction(importPwd);
+    fileMenu->addAction(importPwd);
     QAction *exportPwd = new QAction("Exporter des mots de passes", this);
-    menuFichier->addAction(exportPwd);
+    fileMenu->addAction(exportPwd);
     
     connect(importPwd, &QAction::triggered, this, &ApplicationController::importPasswords);
     connect(exportPwd, &QAction::triggered, this, &ApplicationController::exportPasswords);
 
-    QMenu *menuOutils = menuBar->addMenu("Outils");
-    menuOutils->setObjectName("toolsMenu");
+    QMenu *toolsMenu = menuBar->addMenu("Outils");
+    toolsMenu->setObjectName("toolsMenu");
     QAction *seePwd = new QAction("Voir mes mots de passes", this);
-    menuOutils->addAction(seePwd);
+    toolsMenu->addAction(seePwd);
     QAction *pwdGenerator = new QAction("Générateur de mot passes", this);
-    menuOutils->addAction(pwdGenerator);
+    toolsMenu->addAction(pwdGenerator);
     QAction *pwdQuality = new QAction("Qualité des mots de passes", this);
-    menuOutils->addAction(pwdQuality);
+    toolsMenu->addAction(pwdQuality);
     QAction *analysis = new QAction("Analyse des fuites de données", this);
-    menuOutils->addAction(analysis);
+    toolsMenu->addAction(analysis);
     connect(analysis, &QAction::triggered, this, &ApplicationController::switchLeaksPage);
 
     QMenu *menuSouthPass = menuBar->addMenu("SouthPass");
@@ -253,13 +252,15 @@ void ApplicationController::disconnect() {
 
 void ApplicationController::importPasswords() {
     QString importedFile = QFileDialog::getOpenFileName(NULL, "Fichier CSV à importer", QDir::homePath(), tr("Csv files (*.csv)"));
-    QByteArray importedFileBytes = importedFile.toLocal8Bit();
-    char *importedPasswordsFile = importedFileBytes.data();
-    int status(importPasswordsController(dbCon, userId, importedPasswordsFile));
-    if (status == EXIT_SUCCESS) {
-        QMessageBox::warning(stackedWidget,"Succès" ,"Mots de passes importés avec succès !");
-    } else {
-        QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'importation des mots de passes !");
+    if (importedFile.size() > 0) {
+        QByteArray importedFileBytes = importedFile.toLocal8Bit();
+        char *importedPasswordsFile = importedFileBytes.data();
+        int status(importPasswordsController(dbCon, userId, importedPasswordsFile));
+        if (status == EXIT_SUCCESS) {
+            QMessageBox::warning(stackedWidget,"Succès" ,"Mots de passes importés avec succès !");
+        } else {
+            QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'importation des mots de passes !");
+        }
     }
 }
 
@@ -280,27 +281,6 @@ void ApplicationController::exportPasswords() {
             QMessageBox::warning(stackedWidget,"Erreur" ,"Erreur lors de l'exportation des mots de passes !");
         }
     }
-}
-
-void ApplicationController::refreshCredsPage() {
-    qDebug() << "Test";
-    if (stackedWidget) {
-        // Utiliser stackedWidget en toute sécurité ici
-        qDebug() << "ok";
-    } else {
-        qDebug() << "stackedWidget is nullptr!";
-    }
-    for (int i = 0; i < stackedWidget->count(); ++i) {
-        QWidget *widget = stackedWidget->widget(i);
-        qDebug() << "Widget at index" << i << ":" << widget;
-    }
-    int oldPageIndex = stackedWidget->indexOf(credsPage);
-    qDebug() << "old index : " << oldPageIndex;
-    stackedWidget->removeWidget(credsPage);
-    //delete credsPage;
-    CredentialsPage *newCredsPage = new CredentialsPage(NULL, dbCon, userId);
-    credsPage = newCredsPage;
-    stackedWidget->insertWidget(oldPageIndex, credsPage);
 }
 
 void ApplicationController::deleteChildsOfLayout(QLayout *layout) {

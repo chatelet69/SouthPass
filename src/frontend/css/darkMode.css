@@ -1,7 +1,7 @@
 /* Dark Mode Main Window */
 
 QMainWindow {
-    background-color: #617073;
+    background-color: #5b6077;
 }
 
 QApplication {
@@ -27,13 +27,18 @@ QApplication {
 
 #headerWidget QMenuBar::item {
     padding: 6px;
+    background: transparent;
     border-radius: 6px;
+}
+
+#headerWidget QMenuBar::item:selected {
+    background: #a8a8a8;
 }
 
 #headerWidget QMenu {
     color: white;
     font-weight: bold;
-    border-radius: 6px;
+    border-radius: 15px;
     background-color: #6da1b1;
 }
 
@@ -41,6 +46,16 @@ QApplication {
     background-color: rgba(255, 255, 255, 0.489);
     color: gray;
 }
+
+/*
+QMenuBar {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 lightgray, stop:1 darkgray);
+    spacing: 3px;
+}
+
+QMenuBar::item:pressed {
+    background: #888888;
+}*/
 
 
 #themeButton {
@@ -73,13 +88,26 @@ QApplication {
     padding: 10px;
 }
 
+#searchCredsButton {
+    background-color: rgb(52, 112, 175);
+    height: auto;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    width: 12ex;
+}
+
+#searchCredsButton:hover {
+    background-color: rgb(66, 138, 214);
+}
+
 #credsWidget {
     padding: 5px;
-    border: 2px solid black;
+    border: none;
     border-radius: 5px;
 }
 
-#credsWidget QScrollArea {
+QScrollArea, #credsWidget QScrollArea {
     background-color: transparent;
 }
 
@@ -98,20 +126,29 @@ QApplication {
 
 #credDetailsBox {
     text-align: center;
-    /*border: 2px solid red;*/
 }
 
-#credDetailsBox QLabel {
+#credDetailsBox QLabel, #passwordContainer {
     background-color: rgba(255, 255, 255, 0.795);
     border: 1px solid rgb(167, 167, 167);
     border-radius: 8px;
     padding: 5px;
 }
 
-/*#nameLabelsContainer > QLabel:firs {
-    width: 3ex;
-    color: red;
-}*/
+#passwordContainer QLabel {
+    background-color: transparent;
+    border: none;
+}
+
+#passwordValue {
+    background-color: black;
+    color: transparent;
+}
+
+#passwordValue:hover {
+    background-color: transparent;
+    color: black;
+}
 
 #editCredButton {
     background-color: rgb(55, 72, 85);
@@ -138,6 +175,14 @@ QApplication {
     color: white;
 }
 
+#cancelButton {
+    padding: 2px;
+    border: none;
+    border-radius: 6px;
+    height: auto;
+    color: white;
+}
+
 #deleteCredButton:hover, #cancelButton:hover {
     background-color: rgb(230, 15, 15);
 }
@@ -148,24 +193,35 @@ QApplication {
     background-color: #4c637a;
 }
 
-#newCredsButton {
+#newCredsButton, #saveButton {
     background-color: rgb(164, 216, 164);
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 2px;
     height: auto;
     color: white;
 }
 
-#newCredsButton:hover {
+#newCredsButton:hover, #saveButton:hover {
     background-color: #78d860;
 }
-#fenetreQuality{
+
+#qualityWindow{
     background-color: #78d860;
     width: 100px;
 }
 
 /* Data Leak Page */
+
+#dataLeaksPage, #dataLeaksPage QScrollArea {
+    border-radius: 8px;
+    background-color: transparent;
+}
+
+#leaksContainer {
+    border: none;
+    background-color: rgb(72, 113, 160);
+}
 
 #credLeakBox {
     border: 2px solid rgb(60, 67, 73);
@@ -173,19 +229,30 @@ QApplication {
     border-radius: 16px;
 }
 
-#credLeakDetailBox {
+#informativeLeakBox {
     text-align: center;
-    background-color: transparent;
     padding: 5px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.795);
 }
 
-#credLeakDetailBox QLabel {
+#informativeLeakBox QLabel {
     text-align: center;
-    background-color: rgba(255, 255, 255, 0.795);
-    border: 1px solid rgb(167, 167, 167);
+    background-color: transparent;
+    border: none;
+}
+
+#loginLeakedLabel {
+    height: auto;
+    text-align: center;
+    border: none;
+    font-weight: bold;
     border-radius: 8px;
     padding: 5px;
 }
+
+/* ReUsed / Quality... */
+
 #displayNbWebsites{
     color: white;
     text-align: center;
@@ -193,6 +260,7 @@ QApplication {
     margin-top: 10px;
     font-size: 24px;
 }
+
 #backPwdQuality, #backParams, #loginBox{
     background-color: #7A93AC;
 }
@@ -273,4 +341,37 @@ radioBtnParams:hover{
 #loginLabels{
     color: white;
     font-size: 16px;
+}
+
+/* Edit Email Window & Edit Cred Window */
+
+#editCredentialWindow {
+    background-color: rgb(65, 91, 116);
+}
+
+#credEditDetailsBox QLineEdit {
+    background-color: rgb(228, 228, 228);
+    border: 1px solid gray;
+    color: black;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+#editEmailWindow, #editPasswordAccountWindow {
+    border: none;
+    color: white;
+    background-color: #4c637a;
+}
+
+#editPasswordAccountWindow QLabel, #editEmailWindow QLabel, #credEditDetailsBox QLabel {
+    font-weight: bold;
+    color: white;
+}
+
+#editPasswordAccountWindow QLineEdit, #editEmailWindow QLineEdit {
+    background-color: rgb(228, 228, 228);
+    border: 1px solid gray;
+    color: black;
+    border-radius: 8px;
+    padding: 4px;
 }

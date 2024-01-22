@@ -35,11 +35,9 @@ class LoginPage;
 class MainWindow : public QMainWindow {
     public:
         MainWindow(QWidget *parent = nullptr);
-        int getXPos();
 
     private:
         ApplicationController& appController;
-        void onApplicationMove(QMoveEvent *event);
 };
 
 class ApplicationController : public QObject {
@@ -55,7 +53,6 @@ class ApplicationController : public QObject {
         QApplication& getApplication();
         int getUserId();
         void deleteChildsOfLayout(QLayout *layout);
-        void loadAsyncPages();
         void importHeader(QWidget *headerWidget);
 
     public Q_SLOTS:
@@ -65,7 +62,6 @@ class ApplicationController : public QObject {
         void switchGenPwdPage();
         void disconnect();
         void switchPwdQuality();
-        void refreshCredsPage();
         void exportPasswords();
         void importPasswords();
         void switchLeaksPage();
@@ -85,5 +81,8 @@ class ApplicationController : public QObject {
         CredentialsPage *credsPage;
         DataLeaksPage *dataLeaksPage;
         ParametersPage *paramsPage;
+
+        void initNullMembers();
+        void loadOncePages();
 };
 #endif

@@ -12,8 +12,8 @@
 #include <QCheckBox>
 
 PwdGenerator::PwdGenerator(QWidget *parent,ApplicationController *, MYSQL *dbCon){
-    QVBoxLayout * fenetre = new QVBoxLayout(this);
-    QWidget * mainWidget = new QWidget();
+    QVBoxLayout * window = new QVBoxLayout(this);
+    QWidget * mainWidget = new QWidget();   
     mainWidget->setObjectName("genPwdMain");
     QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
     QFormLayout *layoutPwdGen = new QFormLayout;
@@ -45,8 +45,8 @@ PwdGenerator::PwdGenerator(QWidget *parent,ApplicationController *, MYSQL *dbCon
     QLabel *titleResultPwd = new QLabel("Mot de passe généré :");
     mainLayout->addWidget(titleResultPwd);
     // mainWidget->setLayout(mainLayout);
-    fenetre->addWidget(mainWidget);
-    setLayout(fenetre);
+    window->addWidget(mainWidget);
+    setLayout(window);
     connect(genPwdBtn, &QPushButton::clicked, this, [=](){
 
         int verifMaj, verifNum, verifSymbols, length;
@@ -59,7 +59,7 @@ PwdGenerator::PwdGenerator(QWidget *parent,ApplicationController *, MYSQL *dbCon
         char result[200];
         sprintf(result, "Mot de passe généré : %s", generatePwd(length, verifMaj, verifNum, verifSymbols));
         titleResultPwd->setText(result);
-        setLayout(fenetre);
+        setLayout(window);
         return 0;
     });
 }

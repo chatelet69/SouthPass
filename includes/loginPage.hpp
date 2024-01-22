@@ -22,11 +22,8 @@ class LoginPage : public QWidget {
         LoginPage(QWidget *parent,ApplicationController *, MYSQL *dbCon);
 
     public Q_SIGNAL:
-        static void signInSuccess();
 
     public Q_SLOTS:
-
-    private Q_SLOTS:
 
 private:
     MYSQL *dbCon;

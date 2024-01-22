@@ -160,7 +160,6 @@ CredsArray *parseImportCredsList(char *importedFilePath) {
                 credsArray->credentials[i].name = strdup(tmpName);
                 credsArray->credentials[i].loginName = strdup(tmpLogin);
                 credsArray->credentials[i].password = strdup(tmpPassword);
-                printf("%s %s %s\n", tmpName, tmpLogin, tmpPassword);
                 credsArray->size += 1;
                 i++;
             }

@@ -61,7 +61,6 @@ int verifLogin(MYSQL *dbCon, char *email, char *password, char *masterPwd) {
     char salt[7];
     strcpy(salt, getSaltByEmail(dbCon, email));
     if(strcmp(salt, "ko") == 0){
-        printf("KO");
         return 1;
     }
     
@@ -76,9 +75,11 @@ int verifLogin(MYSQL *dbCon, char *email, char *password, char *masterPwd) {
     free(hashMasterString);
 
     char verifEmail[255];
-    strcpy(verifEmail, checkLoginDb(dbCon, email, hashedPwd, hashedMasterPwd));
+    char *emailGetByDb = checkLoginDb(dbCon, email, hashedPwd, hashedMasterPwd);
+    strcpy(verifEmail, emailGetByDb);
+    free(emailGetByDb);
     if (strcmp(verifEmail, email) == 0){
-        generateNewUserToken(dbCon, email);
+        generateNewUserToken(dbCon, email, hashedPwd, 0);
         return 0;
     }else{
         return 1;
@@ -127,7 +128,7 @@ int hasSpecialChar(char *str) {
 }
 
 char * shaPwd(const char * pwd, char * hashString, char * salt){
-    char saledPwd[65];
+    char saledPwd[130];
     strcpy(saledPwd, salt);
     strcat(saledPwd, pwd);
     strcat(saledPwd, salt);

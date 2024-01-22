@@ -19,6 +19,6 @@ size_t writeBodyToString(void *ptr, size_t size, size_t nmemb, void *stream);
 size_t writeBodyToJson(void *content, size_t size, size_t nmemb, void *stream);
 char *getHttpRequest(char *url);
 cJSON *getJsonFromRequest(char *url);
-cJSON *getJsonFromGetRequest(char *url, char *key);
+cJSON *getJsonFromGetRequest(char *url, char *key, int keyType);
 
 #endif
