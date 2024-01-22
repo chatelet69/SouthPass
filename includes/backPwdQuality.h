@@ -9,6 +9,7 @@
 
 struct WeakPwdList{
     int id;
+    int userId;
     char * site;
     char * username;
     char * pwd;
@@ -30,8 +31,9 @@ struct WebsiteByPwd{
 };
 // WeakPwdList
 struct WeakPwdList * getAllWeaksPwd(struct WeakPwdList *start, MYSQL * dbCon);
-struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * site, char * username, char * pwd, int id);
+struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * site, char * username, char * pwd, int id, int userId);
 void printWeaksPwd(struct WeakPwdList *start);
+int verifEditPwd(const char * pwd, const char * verifPwd);
 
 // PwdQuality
 const char *testPwd(char * pwd);

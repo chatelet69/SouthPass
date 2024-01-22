@@ -145,9 +145,10 @@ QString ApplicationController::getOtherStyleSheet(int darkOrNot) {
 }
 
 void ApplicationController::switchCredsPage() {
-    credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
-    stackedWidget->addWidget(credsPage);
-    if(isConnected() == 0 && this->credsPage != NULL) {
+    if(isConnected() == 0) {
+        userId = getUserIdByToken(dbCon);
+        credsPage = new CredentialsPage(stackedWidget, dbCon, userId);
+        stackedWidget->addWidget(credsPage);
         this->credsPage->showAllCredentials();
         stackedWidget->setCurrentWidget(credsPage);
     }
@@ -159,10 +160,11 @@ void ApplicationController::switchGenPwdPage() {
 }
 
 void ApplicationController::switchPwdQuality() {
-    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
-    stackedWidget->addWidget(pwdQual);
-    if(isConnected() == 0)
+    if(isConnected() == 0) {
+        pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
+        stackedWidget->addWidget(pwdQual);
         stackedWidget->setCurrentWidget(pwdQual);
+    }
 }
 
 QApplication& ApplicationController::getApplication() {
@@ -176,17 +178,19 @@ void ApplicationController::switchToLoginPage() {
 }
 
 void ApplicationController::switchLeaksPage() {
-    dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
-    stackedWidget->addWidget(dataLeaksPage);
-    if(isConnected() == 0)
+    if(isConnected() == 0) {
+        dataLeaksPage = new DataLeaksPage(stackedWidget, dbCon, this->userId);
+        stackedWidget->addWidget(dataLeaksPage);
         stackedWidget->setCurrentWidget(dataLeaksPage);
+    }
 }
 
 void ApplicationController::switchParamsPage() {
-    paramsPage = new ParametersPage(this, &app, dbCon);
-    stackedWidget->addWidget(paramsPage);
-    if(isConnected() == 0)
+    if(isConnected() == 0) {
+        paramsPage = new ParametersPage(this, &app, dbCon);
+        stackedWidget->addWidget(paramsPage);
         stackedWidget->setCurrentWidget(paramsPage);
+    }
 }
 
 int ApplicationController::getUserId() {
@@ -197,9 +201,9 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
 // MENU
     QMenu *menuFichier = menuBar->addMenu("Fichiers");
     menuFichier->setObjectName("fileMenu");
-    QAction *importPwd = new QAction("Importer des mots de passes", this);
+    QAction *importPwd = new QAction("Importer des mots de passe", this);
     menuFichier->addAction(importPwd);
-    QAction *exportPwd = new QAction("Exporter des mots de passes", this);
+    QAction *exportPwd = new QAction("Exporter des mots de passe", this);
     menuFichier->addAction(exportPwd);
     
     connect(importPwd, &QAction::triggered, this, &ApplicationController::importPasswords);
@@ -207,11 +211,11 @@ void ApplicationController::importMenu(QMenuBar *menuBar){
 
     QMenu *menuOutils = menuBar->addMenu("Outils");
     menuOutils->setObjectName("toolsMenu");
-    QAction *seePwd = new QAction("Voir mes mots de passes", this);
+    QAction *seePwd = new QAction("Voir mes mots de passe", this);
     menuOutils->addAction(seePwd);
-    QAction *pwdGenerator = new QAction("Générateur de mot passes", this);
+    QAction *pwdGenerator = new QAction("Générateur de mot de passe", this);
     menuOutils->addAction(pwdGenerator);
-    QAction *pwdQuality = new QAction("Qualité des mots de passes", this);
+    QAction *pwdQuality = new QAction("Qualité des mots de passe", this);
     menuOutils->addAction(pwdQuality);
     QAction *analysis = new QAction("Analyse des fuites de données", this);
     menuOutils->addAction(analysis);
