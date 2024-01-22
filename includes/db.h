@@ -43,5 +43,6 @@ int saveNewEmailDb(MYSQL *dbCon, int userId, char *newEmail);
 int saveNewAccountPasswordDb(MYSQL *dbCon, int userId, char *newPassword, char *passwordType);
 char *getEmailByUserId(MYSQL *dbCon, int userId);
 int checkPwdBy(MYSQL *dbCon, int userId, char *type, char *password);
+int updateAllPasswords(MYSQL *dbCon, int userId, char *oldMasterHash);
 
 #endif

@@ -945,3 +945,30 @@ int checkPwdBy(MYSQL *dbCon, int userId, char *type, char *password) {
 
     return checkUserId;
 }
+
+int updateAllPasswords(MYSQL *dbCon, int userId, char *oldMasterHash) {
+    int status = EXIT_FAILURE;
+    if (oldMasterHash == NULL || userId == 0 || dbCon == NULL) return status;
+    const char *sqlQuery = "UPDATE pswd_stock psw INNER JOIN users u ON u.id = psw.userId SET psw.password = AES_ENCRYPT((AES_DECRYPT(psw.password, UNHEX(?))), UNHEX(u.pwdMaster)) WHERE psw.userId = ?";
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[2];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = oldMasterHash;
+        params[0].buffer_length = strlen(oldMasterHash);
+
+        params[1].buffer_type = MYSQL_TYPE_LONG;
+        params[1].buffer = (void *) &userId;
+
+        if (mysql_stmt_bind_param(stmt, params)) {
+            mysql_stmt_close(stmt);
+            return status;
+        }
+        status = mysql_stmt_execute(stmt);
+    }
+    mysql_stmt_close(stmt);
+
+    return status;
+}
