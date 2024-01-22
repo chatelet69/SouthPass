@@ -46,6 +46,7 @@ class CredsToolBarWidget : public QWidget {
 
     public Q_SLOTS:
         void searchCreds();
+        void resetList();
         void showCredsForm();
 };
 

@@ -201,7 +201,7 @@ CredsToolBarWidget::CredsToolBarWidget(QWidget *parent, MYSQL *dbCon) : QWidget(
     searchInput = new QLineEdit();
     searchInput->setPlaceholderText("Chercher un identifiant");
     searchInput->setObjectName("searchCredsInput");
-    //connect(searchInput, &QLineEdit::textChanged, this, &CredsToolBarWidget::searchCreds);
+    connect(searchInput, &QLineEdit::textChanged, this, &CredsToolBarWidget::resetList);
 
     QPushButton *searchCredsButton = new QPushButton(this);
     searchCredsButton->setText(QPushButton::tr("Chercher"));
@@ -236,7 +236,13 @@ void CredsToolBarWidget::searchCreds() {
     if ((int) inputValue.size() > 0) {
         QByteArray inputByteArray = inputValue.toUtf8();
         ((CredentialsPage*)parentWidget())->refreshSearchCreds(inputByteArray.data(), typeValue);
-    } else {
+    }
+}
+
+void CredsToolBarWidget::resetList() {
+    QString inputValue = this->searchInput->text();
+    int typeValue = this->searchType->currentIndex();
+    if ((int) inputValue.size() <= 0) {
         ((CredentialsPage*)parentWidget())->showAllCredentials();
     }
 }

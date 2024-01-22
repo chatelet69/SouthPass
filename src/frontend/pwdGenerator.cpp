@@ -13,7 +13,7 @@
 
 PwdGenerator::PwdGenerator(QWidget *parent,ApplicationController *, MYSQL *dbCon){
     QVBoxLayout * window = new QVBoxLayout(this);
-    QWidget * mainWidget = new QWidget();
+    QWidget * mainWidget = new QWidget();   
     mainWidget->setObjectName("genPwdMain");
     QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
     QFormLayout *layoutPwdGen = new QFormLayout;

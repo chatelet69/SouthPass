@@ -53,7 +53,7 @@ LeaksList *getDataLeaksFromLeakCheck(MYSQL *dbCon, const int userId) {
             sprintf(url, "%s?key=%s&check=%s", LEAKCHECK_BASE_URL, key, actualLogin);
             // Ecriture de l'URL finale pour la requête d'API
             
-            cJSON *resData = getJsonFromGetRequest(url, strdup(key));
+            cJSON *resData = getJsonFromGetRequest(url, NULL, 5);
             leaksList->credentialLeaks = parseJsonToLeaksList(leaksList, resData, actualLogin);
             free(url);
             free(actualLogin);
@@ -65,4 +65,26 @@ LeaksList *getDataLeaksFromLeakCheck(MYSQL *dbCon, const int userId) {
     if (key != NULL) free(key);
 
     return leaksList;
+}
+
+int getVerifCode(char *email) {
+    int code = 0;
+    if (email == NULL) return 0;
+    char *key = strdup(SERV_SPECIAL_KEY);
+    char *url = (char *) malloc(sizeof(char) * (strlen(BASE_URL) + strlen(email) + 25));
+    sprintf(url, "%s/sendVerifCode?email=%s", BASE_URL, email);
+
+    cJSON *resData = getJsonFromGetRequest(url, key, 2);
+    if (resData != NULL) {
+        cJSON *emailCode = cJSON_GetObjectItem(resData, "emailCode");
+        cJSON *error = cJSON_GetObjectItem(resData, "error");
+
+        printf("%s %s\n", cJSON_Print(emailCode), cJSON_Print(error));
+        if (emailCode != NULL) code = emailCode->valueint;
+        else code = 0;
+        cJSON_Delete(resData);
+        return code;
+    } else {
+        return 0;
+    }
 }
