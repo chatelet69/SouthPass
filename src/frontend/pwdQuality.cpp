@@ -21,13 +21,13 @@
 #include "../../includes/fileController.h"
 #include "../../includes/pincludes.h"
 
-PwdQualityPage::PwdQualityPage(QWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
+PwdQualityPage::PwdQualityPage(QStackedWidget *parent, ApplicationController *appController, MYSQL *dbCon) : QWidget(parent), dbCon(dbCon) {
     QVBoxLayout * fenetre = new QVBoxLayout(this);
     QTabWidget *onglets = new QTabWidget(this);
     fenetre->setObjectName("fenetreQuality");
     verifWeakPwd(onglets);
-    weakPwdList(onglets);
-    reUsedPwd(onglets);
+    weakPwdList(parent, onglets);
+    this->reUsedPwd(parent, onglets);
     fenetre->addWidget(onglets);
 }
 
@@ -66,7 +66,7 @@ void PwdQualityPage::verifWeakPwd(QTabWidget *onglets){
         char score[50];
         strcpy(score, testPwd(pwd));
 
-        char solidity[40] = "Solidité du mot de passe : ";
+        char solidity[100] = "Solidité du mot de passe : ";
         strcat(solidity, score);
 
         solidityPwd->setText(solidity);
@@ -75,7 +75,7 @@ void PwdQualityPage::verifWeakPwd(QTabWidget *onglets){
 }
 
 
-void PwdQualityPage::weakPwdList(QTabWidget *onglets){
+void PwdQualityPage::weakPwdList(QStackedWidget * parent, QTabWidget *onglets){
     scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
 
@@ -106,17 +106,26 @@ void PwdQualityPage::weakPwdList(QTabWidget *onglets){
             sprintf(weakPwd, "pwd : %s", start->pwd);
             QLabel *WeakPwdLabel = new QLabel();
             WeakPwdLabel->setText(weakPwd);
+            QPushButton *editWeakPwd = new QPushButton("Edit");
+            editWeakPwd->setProperty("idEdit", start->id);
+            editWeakPwd->setObjectName("editWeakPwd");
+
+            connect(editWeakPwd, &QPushButton::clicked, this, [=](){
+                    EditPwd *editPassword = new EditPwd(dbCon, parent, start->site, start->username, start->pwd, start->id, start->userId);
+                    editPassword->show();
+            });
+
             start = start->next;
 
             weakInfosLayout->addWidget(urlOfWeakPwd);
             weakInfosLayout->addWidget(loginOfWeakPwd);
             weakInfosLayout->addWidget(WeakPwdLabel);
 
-            QPushButton *editWeakPwd = new QPushButton("Edit");
             weakPwdHLayout->addLayout(weakInfosLayout);
             weakPwdHLayout->addWidget(editWeakPwd);
             mainLayout->addWidget(weakPwdBox);
             weakPwdBox->setLayout(weakPwdHLayout);
+
         }
     }else{
         // printf("\nListe vide.");
@@ -124,11 +133,11 @@ void PwdQualityPage::weakPwdList(QTabWidget *onglets){
         mainLayout->addWidget(noWeakPwd);
     }
     scrollArea->setWidget(weakList);
-    onglets->addTab(scrollArea, "Liste mots de passes faibles");
+    onglets->addTab(scrollArea, "Liste mots de passe faibles");
     free(start);
 }
 
-void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
+void PwdQualityPage::reUsedPwd(QStackedWidget * parent, QTabWidget *onglets){
     scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
 
@@ -139,8 +148,9 @@ void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
     TokenInfos *tokenInfos = getTokenFileInfos();
     if(tokenInfos != NULL && tokenInfos->id != 0) {
         struct PwdList *pwds = getUniquePwd(dbCon, tokenInfos->id);
+
         if(pwds != NULL) {
-            if (pwds != NULL || dbCon != NULL) {
+            if (dbCon != NULL) {
                 for (unsigned int i = 0; i < pwds->size; ++i) {
                     if (pwds->pwd[i] != NULL) {
                         struct WebsiteByPwd *websites = getWebsiteByPwd(dbCon, pwds->pwd[i], tokenInfos->id);
@@ -155,21 +165,25 @@ void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
                                 displayNbWebsites->setObjectName("displayNbWebsites");
                                 nbWebsiteByPwd->addWidget(displayNbWebsites);
                                 reUsedLayout->addLayout(nbWebsiteByPwd);
+                                struct reUsedPwd * start = NULL;
+                                for (int j = 0; j < websites->size; ++j) {
+                                    start = addWebsiteByPwd(start, &websites->website[j]);
+                                }
 
-                                for (unsigned int j = 0; j < websites->size; ++j) {
+                                while(start!=NULL) {
+                                    printf("\n1111111");
+                                    // printf("\nnext url : %s", start->next->site);
                                     QWidget * boxPwd = new QWidget();
                                     QHBoxLayout * boxPwdLayout = new QHBoxLayout();
                                     boxPwd->setObjectName("boxPwdQuality");
 
-                                    QWidget * webInfos = new QWidget();
                                     QVBoxLayout * webInfosLayout = new QVBoxLayout();
-
                                     char url[200];
-                                    sprintf(url, "url : %s", websites->website[j].website);
+                                    sprintf(url, "url : %s", start->site);
                                     QLabel * urlDisplay = new QLabel();
                                     urlDisplay->setText(url);
                                     char login[200];
-                                    sprintf(login, "login : %s", websites->website[j].username);
+                                    sprintf(login, "login : %s", start->username);
                                     QLabel * displayLogin = new QLabel();
                                     displayLogin->setText(login);
                                     char pwd[200];
@@ -182,14 +196,25 @@ void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
                                     webInfosLayout->addWidget(displayPwd);
 
                                     QPushButton * editPwd = new QPushButton("Edit");
+
                                     // QVBoxLayout * editInfos = new QVBoxLayout();
                                     // editInfos->addWidget(editPwd);
                                     boxPwdLayout->addLayout(webInfosLayout);
                                     boxPwdLayout->addWidget(editPwd);
                                     reUsedLayout->addWidget(boxPwd);
                                     boxPwd->setLayout(boxPwdLayout);
+                                    connect(editPwd, &QPushButton::clicked, this, [=](){
+                                            int lineId = getLineId(dbCon, start->site, start->username, pwds->pwd[i], tokenInfos->id);
+                                            if(lineId != -1){
+                                                EditPwd *editPassword = new EditPwd(dbCon, parent, start->site, start->username, NULL, lineId, tokenInfos->id);
+                                                editPassword->show();
+                                            }else{
+                                                QMessageBox::warning(this,"Erreur" ,"Une erreur est survenue. Veuillez contacter un administrateur");
+                                            }
+                                    });
+                                    start = start->next;
                                 }
-
+                                free(start);
                                 free(websites->website);
                                 free(websites);
                             }
@@ -205,8 +230,15 @@ void PwdQualityPage::reUsedPwd(QTabWidget *onglets){
             }
         }
     }
-    free(tokenInfos->token);
-    free(tokenInfos->email);
-    free(tokenInfos);
-    onglets->addTab(scrollArea, "Mots de passes réutilisés");
+    onglets->addTab(scrollArea, "Mots de passe réutilisés");
+}
+
+int verifEditPwd(const char * pwd, const char * verifPwd){
+    if(strcmp(pwd, verifPwd) == 0){
+        printf("\n Verif good");
+        return 0;
+    }else{
+        printf("\n Verif not good");
+        return 1;
+    }
 }

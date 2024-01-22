@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "../../includes/backPwdQuality.h"
 #include "../../includes/pincludes.h"
+#include <string.h>
 #include "../../includes/fileController.h"
 #include "../../includes/backLoginSignIn.h"
 
@@ -15,7 +16,7 @@ const char *testPwd(char * pwd){
     if(pwd == NULL)
         return NULL;
 
-     int count = 0;
+    int count = 0;
     if(hasSpecialChar(pwd))
         count++;
     if(hasDigit(pwd))
@@ -55,7 +56,7 @@ struct WeakPwdList * getAllWeaksPwd(struct WeakPwdList *start, MYSQL * dbCon){
         CredsArray *credsArray = getPasswordsList(dbCon, tokenInfos->id);
         for (int i = 0; i < credsArray->size; ++i) {
             if (strcmp(testPwd(credsArray->credentials[i].password), "Faible") == 0)
-                start = addWeakPwd(start, credsArray->credentials[i].name, credsArray->credentials[i].loginName,credsArray->credentials[i].password);
+                start = addWeakPwd(start, credsArray->credentials[i].name, credsArray->credentials[i].loginName,credsArray->credentials[i].password, credsArray->credentials[i].id, credsArray->credentials[i].userId);
         }
         freeCredsArray(credsArray);
         // printWeaksPwd(start);
@@ -65,13 +66,26 @@ struct WeakPwdList * getAllWeaksPwd(struct WeakPwdList *start, MYSQL * dbCon){
     }
 }
 
-struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * url, char * username, char * pwd){
+struct WeakPwdList * addWeakPwd(struct WeakPwdList *start, char * url, char * username, char * pwd, int id, int userId){
     struct WeakPwdList *inter = (struct WeakPwdList*)malloc(sizeof(struct WeakPwdList));
+    inter->id = id;
+    inter->userId = userId;
     inter->site = strdup(url);
     inter->username = strdup(username);
     inter->pwd = strdup(pwd);
     inter->next = start;
 
+    return inter;
+}
+
+struct reUsedPwd * addWebsiteByPwd(struct reUsedPwd *start, struct Website *website){
+    struct reUsedPwd *inter;
+    inter = (struct reUsedPwd *)malloc(sizeof(struct reUsedPwd));
+    inter->id = website->id;
+    inter->userId = website->userId;
+    inter->site = strdup(website->website);
+    inter->username = strdup(website->username);
+    inter->next = start;
     return inter;
 }
 

@@ -175,10 +175,11 @@ void ApplicationController::switchGenPwdPage() {
 }
 
 void ApplicationController::switchPwdQuality() {
-    pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
-    stackedWidget->addWidget(pwdQual);
-    if(isConnected() == 0)
+    if(isConnected() == 0) {
+        pwdQual = new PwdQualityPage(stackedWidget, this, dbCon);
+        stackedWidget->addWidget(pwdQual);
         stackedWidget->setCurrentWidget(pwdQual);
+    }
 }
 
 QApplication& ApplicationController::getApplication() {
@@ -198,13 +199,15 @@ void ApplicationController::switchLeaksPage() {
     }
     if(isConnected() == 0 && dataLeaksPage)
         stackedWidget->setCurrentWidget(dataLeaksPage);
+    }
 }
 
 void ApplicationController::switchParamsPage() {
-    paramsPage = new ParametersPage(this, &app, dbCon);
-    stackedWidget->addWidget(paramsPage);
-    if(isConnected() == 0)
+    if(isConnected() == 0) {
+        paramsPage = new ParametersPage(this, &app, dbCon);
+        stackedWidget->addWidget(paramsPage);
         stackedWidget->setCurrentWidget(paramsPage);
+    }
 }
 
 int ApplicationController::getUserId() {

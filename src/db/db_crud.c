@@ -561,6 +561,12 @@ ExportList getPasswordsExportListDb(MYSQL *dbCon, const int userId) {
 }
 
 struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
+    struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList));
+    pwdList->pwd=NULL;
+    pwdList->size=0;
+
+    if(pwdList==NULL)
+        return NULL;
     char *sqlQuery = (char *) malloc(sizeof(char) * 600);
     if (sqlQuery == NULL) return NULL;
     struct PwdList *pwdList = (struct PwdList *) malloc(sizeof(struct PwdList));
@@ -605,14 +611,15 @@ struct PwdList *getUniquePwd(MYSQL *dbCon, int userId) {
 }
 
 struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id){
-    printf("OKK");
     struct WebsiteByPwd *websiteList = (struct WebsiteByPwd *) malloc(sizeof(struct WebsiteByPwd));
-    if(websiteList != NULL) {
+    websiteList->website=NULL;
+    websiteList->size=0;
+        if(websiteList != NULL) {
         char *sqlQuery = (char *) malloc(sizeof(char) * 600);
 
         if (sqlQuery == NULL) return NULL;
         sprintf(sqlQuery,
-                "SELECT name, loginName FROM pswd_stock WHERE password = AES_ENCRYPT(\"%s\",(SELECT UNHEX(pwdMaster) FROM users WHERE id = %d))",
+                "SELECT id, userId ,name, loginName FROM pswd_stock WHERE password = AES_ENCRYPT(\"%s\",(SELECT UNHEX(pwdMaster) FROM users WHERE id = %d))",
                 pwd, id);
 
         if (mysql_query(dbCon, sqlQuery) != 0) {
@@ -625,16 +632,15 @@ struct WebsiteByPwd * getWebsiteByPwd(MYSQL * dbCon, char * pwd, int id){
                 unsigned int rowsCount = mysql_num_rows(resData);
                 MYSQL_ROW row;
                 if (rowsCount > 0) {
+                    websiteList->size = rowsCount;
                     int nbWebsites = 0;
                     websiteList->website = (struct Website *) malloc(sizeof(struct Website) * rowsCount);
-                    websiteList->website->website = (char *) malloc(sizeof(char) * 255);
-                    websiteList->website->username = (char *) malloc(sizeof(char) * 255);
-
-                    websiteList->size = rowsCount;
                     if (websiteList->website != NULL) {
                         while ((row = mysql_fetch_row(resData))) {
-                            websiteList->website[nbWebsites].website = row[0];
-                            websiteList->website[nbWebsites].username = row[1];
+                            websiteList->website[nbWebsites].id = atoi(row[0]);
+                            websiteList->website[nbWebsites].userId = atoi(row[1]);
+                            websiteList->website[nbWebsites].website = strdup(row[2]);
+                            websiteList->website[nbWebsites].username = strdup(row[3]);
                             nbWebsites++;
                         }
                     }
@@ -804,6 +810,78 @@ int updatePwd(MYSQL *dbCon, char * pwd, int id, char * type){
     }
     mysql_stmt_close(stmt);
     return (affectedRows) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int updateWebsitePwd(MYSQL *dbCon, char * pwd, int id, int userId){
+    char sqlQuery[255] ="UPDATE pswd_stock SET password = AES_ENCRYPT(?,(SELECT UNHEX(pwdMaster) FROM users WHERE id = ?)) WHERE id = ?";
+    unsigned int affectedRows = 0;
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[3];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_STRING;
+        params[0].buffer = pwd;
+        params[0].buffer_length = strlen(pwd);
+        params[1].buffer_type = MYSQL_TYPE_LONG;
+        params[1].buffer = (void *) &userId;
+        params[2].buffer_type = MYSQL_TYPE_LONG;
+        params[2].buffer = (void *) &id;
+
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            return EXIT_FAILURE;
+        }
+        int status = mysql_stmt_execute(stmt);
+        if (status == EXIT_SUCCESS) affectedRows = mysql_stmt_affected_rows(stmt);
+    }
+    mysql_stmt_close(stmt);
+    return (affectedRows) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int getLineId(MYSQL * dbCon, char * url, char * username, char * pwd, int userId){
+    int lineId = -1;
+    char *sqlQuery = "SELECT id FROM pswd_stock WHERE name = ? AND loginName = ? AND userId = ?";
+
+    MYSQL_STMT *stmt = mysql_stmt_init(dbCon);
+    if (mysql_stmt_prepare(stmt, sqlQuery, strlen(sqlQuery)) == 0) {
+        MYSQL_BIND params[3];
+        memset(params, 0, sizeof(params));
+        params[0].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[0].buffer = url;
+        params[0].buffer_length = strlen(url);
+        params[1].buffer_type = MYSQL_TYPE_VARCHAR;
+        params[1].buffer = username;
+        params[1].buffer_length = strlen(username);
+        params[2].buffer_type = MYSQL_TYPE_LONG;
+        params[2].buffer = &userId;
+
+        if (mysql_stmt_bind_param(stmt, params) != EXIT_SUCCESS) {
+            mysql_stmt_close(stmt);
+            return lineId;
+        }
+        int status = mysql_stmt_execute(stmt);
+
+        if (status == EXIT_SUCCESS) {
+            int tmpId = 0;
+            MYSQL_BIND results[1];
+            memset(results, 0, sizeof(results));
+            results[0].buffer_type = MYSQL_TYPE_LONG;
+            results[0].buffer = &tmpId;
+
+            if (mysql_stmt_bind_result(stmt, results) != EXIT_SUCCESS) {
+                mysql_stmt_close(stmt);
+                return lineId;
+            }
+
+            if (mysql_stmt_fetch(stmt) == 0) {
+                lineId = (tmpId > 0) ? tmpId : -1;
+            }
+        }
+    }
+    mysql_stmt_close(stmt);
+  
+    return lineId;
 }
 
 int saveNewEmailDb(MYSQL *dbCon, int userId, char *newEmail) {
