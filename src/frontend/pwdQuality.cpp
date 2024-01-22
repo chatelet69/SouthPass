@@ -201,7 +201,7 @@ void PwdQualityPage::reUsedPwd(QStackedWidget * parent, QTabWidget *onglets){
                                     reUsedLayout->addWidget(boxPwd);
                                     boxPwd->setLayout(boxPwdLayout);
                                     connect(editPwd, &QPushButton::clicked, this, [=](){
-                                            int lineId = getLineId(dbCon, start->site, start->username, pwds->pwd[i], tokenInfos->id);
+                                            int lineId = getLineId(dbCon, start->site, start->username, NULL, tokenInfos->id);
                                             if(lineId != -1){
                                                 EditPwd *editPassword = new EditPwd(dbCon, parent, start->site, start->username, NULL, lineId, tokenInfos->id);
                                                 editPassword->show();

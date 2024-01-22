@@ -197,8 +197,3 @@ LoginPage::LoginPage(QWidget *parent, ApplicationController *appController, MYSQ
         return 1;
     });
 }
-
-
-void LoginPage::signInSuccess(){
-    printf("Succès");
-}
