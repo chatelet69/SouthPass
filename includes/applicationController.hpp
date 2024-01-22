@@ -35,11 +35,9 @@ class LoginPage;
 class MainWindow : public QMainWindow {
     public:
         MainWindow(QWidget *parent = nullptr);
-        int getXPos();
 
     private:
         ApplicationController& appController;
-        void onApplicationMove(QMoveEvent *event);
 };
 
 class ApplicationController : public QObject {

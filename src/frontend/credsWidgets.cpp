@@ -232,7 +232,6 @@ void CredsToolBarWidget::showCredsForm() {
 
 void CredsToolBarWidget::searchCreds() {
     QString inputValue = this->searchInput->text();
-    qDebug() << this->searchInput->text();
     int typeValue = this->searchType->currentIndex();
     if ((int) inputValue.size() > 0) {
         QByteArray inputByteArray = inputValue.toUtf8();

@@ -4,7 +4,6 @@
     Last Edit : 21_01_2024
 */
 
-#include <QDebug>
 #include <QString>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
