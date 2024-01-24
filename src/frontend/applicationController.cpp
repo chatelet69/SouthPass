@@ -153,6 +153,7 @@ QString ApplicationController::getOtherStyleSheet(int darkOrNot) {
 }
 
 void ApplicationController::switchCredsPage() {
+    userId = getUserIdByToken(dbCon);
     credsPage = new CredentialsPage(stackedWidget, dbCon, this->userId);
     stackedWidget->addWidget(credsPage);
     if(isConnected() == 0 && credsPage != nullptr) {
