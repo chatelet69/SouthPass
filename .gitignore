@@ -17,3 +17,5 @@ rockyou.txt
 .vs
 CppProperties.json
 config.php
+*.bat
+*.sh
